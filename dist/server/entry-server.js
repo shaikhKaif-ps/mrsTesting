@@ -6495,31 +6495,75 @@ const BlogArchive = () => {
       });
     }
     document.querySelectorAll(".js-split-text").forEach((element) => {
-      let observer = new IntersectionObserver(handleAnimation, { threshold: 0.5 });
+      let observer = new IntersectionObserver(handleAnimation, {
+        threshold: 0.5
+      });
       observer.observe(element);
     });
     AOS.init();
   });
   return /* @__PURE__ */ jsxs(Fragment, { children: [
+    /* @__PURE__ */ jsxs(Helmet, { children: [
+      /* @__PURE__ */ jsx("title", { children: "News & Blog - MRS" }),
+      /* @__PURE__ */ jsx("meta", { name: "description", content: "Latest Happenings" })
+    ] }),
     /* @__PURE__ */ jsx(Header2, {}),
     /* @__PURE__ */ jsx("div", { className: "section inner-spotlight-sec section-padd-LR overflow blogarchive-sec", children: /* @__PURE__ */ jsx("div", { className: "main-container width-1250 flex", children: /* @__PURE__ */ jsxs("div", { className: "inner-spot-clm-1", children: [
       /* @__PURE__ */ jsx("h1", { className: "js-split-text white", children: "News & Blog" }),
-      /* @__PURE__ */ jsx("h2", { className: "sldr-sub-ttl blg-sub-ttl", "data-aos": "fade-up", "data-aos-duration": "800", "data-aos-once": "true", "data-aos-delay": "400", children: "Latest Happenings" }),
-      /* @__PURE__ */ jsxs("div", { className: "btn inner-spt-btn white", "data-aos": "fade-up", "data-aos-duration": "1000", "data-aos-once": "true", "data-aos-delay": "600", children: [
-        /* @__PURE__ */ jsx("a", { className: "white-60", href: "/", children: "Home " }),
-        " > ",
-        /* @__PURE__ */ jsx("a", { className: "white-60", children: "News & Blog" })
-      ] })
+      /* @__PURE__ */ jsx(
+        "h2",
+        {
+          className: "sldr-sub-ttl blg-sub-ttl",
+          "data-aos": "fade-up",
+          "data-aos-duration": "800",
+          "data-aos-once": "true",
+          "data-aos-delay": "400",
+          children: "Latest Happenings"
+        }
+      ),
+      /* @__PURE__ */ jsxs(
+        "div",
+        {
+          className: "btn inner-spt-btn white",
+          "data-aos": "fade-up",
+          "data-aos-duration": "1000",
+          "data-aos-once": "true",
+          "data-aos-delay": "600",
+          children: [
+            /* @__PURE__ */ jsxs("a", { className: "white-60", href: "/", children: [
+              "Home",
+              " "
+            ] }),
+            " > ",
+            /* @__PURE__ */ jsx("a", { className: "white-60", children: "News & Blog" })
+          ]
+        }
+      )
     ] }) }) }),
     /* @__PURE__ */ jsx("div", { className: "blog-archive-sec section-padd-LR", children: /* @__PURE__ */ jsx("div", { className: "main-container", children: /* @__PURE__ */ jsx("div", { className: "blog-bx", children: /* @__PURE__ */ jsx("div", { className: "blg-content-dv", children: /* @__PURE__ */ jsx("ul", { className: "blg-list", children: postsData.map((post) => /* @__PURE__ */ jsxs("li", { children: [
-      /* @__PURE__ */ jsx("img", { src: post.featureImage, className: "featureImg", alt: post.imgAltTag }),
+      /* @__PURE__ */ jsx(
+        "img",
+        {
+          src: post.featureImage,
+          className: "featureImg",
+          alt: post.imgAltTag
+        }
+      ),
       /* @__PURE__ */ jsx("div", { className: "date-box", children: /* @__PURE__ */ jsxs("p", { children: [
         post.category,
-        "  ·  ",
+        " · ",
         post.publishDate
       ] }) }),
       /* @__PURE__ */ jsx("h2", { className: "post-ttl", children: post.title }),
-      /* @__PURE__ */ jsx("a", { className: "btn grey", id: "btn-styl", href: `/blog/${post.slug}`, children: /* @__PURE__ */ jsx("span", { className: "btn_name", children: "Read more" }) })
+      /* @__PURE__ */ jsx(
+        "a",
+        {
+          className: "btn grey",
+          id: "btn-styl",
+          href: `/blog/${post.slug}`,
+          children: /* @__PURE__ */ jsx("span", { className: "btn_name", children: "Read more" })
+        }
+      )
     ] }, post.id)) }) }) }) }) }),
     /* @__PURE__ */ jsx(Footer, {})
   ] });
