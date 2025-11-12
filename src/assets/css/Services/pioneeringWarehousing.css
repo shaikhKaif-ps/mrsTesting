@@ -1,0 +1,53 @@
+/* 2nd section about -------------------------------------------------------------------------------------------------------------------------*/
+
+/* .custom-brokerage-sec {
+    background-image: linear-gradient(90deg, rgba(0, 20, 71, 0.39) 15.93%, rgba(0, 20, 71, 0.00) 87.44%) !important; 
+    background-color: #002BC2 !important;
+} */
+
+.servcs-spot-clm1 h1 {
+    margin-bottom: 20px;
+    display: flex;
+    gap: 7px;
+    width: auto;
+}
+
+/* 3nd section -------------------------------------------------------------------------------------------------------------------------*/
+
+.custom-broker-abt .multiuser-container1 {
+    padding-top: 80px;
+    padding-bottom: 60px;
+}
+
+.broker-sub-head {
+    font-size: 25px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 32px;
+    margin-top: 20px;
+    margin-bottom: 35px;
+}
+
+/* 4th section -------------------------------------------------------------------------------------------------------------------------*/
+
+.accordin-sec {
+    background-image: linear-gradient(90deg, rgba(0, 0, 0, 0.45) 15.93%, rgba(0, 0, 0, 0) 87.44%) !important;
+    background-color: #14325B !important;
+}
+
+
+@media screen and (max-width:767px) {
+    .custom-brokerage-sec {
+        padding-top: 60px;
+    }
+    .accordn-img {
+        margin-top: 20px;
+        margin-bottom: -20px;
+    }
+    ul.accordion-list li h3 {
+        padding-right: 25px;
+    }
+    ul.accordion-list li h3:after {
+        top: 25px;
+    }
+}

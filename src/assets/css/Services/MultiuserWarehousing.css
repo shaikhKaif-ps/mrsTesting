@@ -1,0 +1,775 @@
+/* Spotlight section css --------------------------------------------------------------------------------- */
+
+/* .service-spotlight.inner-spotlight-sec {
+    background-image: url('../../img/services_img/MultiuserWarehousing/multiuser-spotlight.jpg');
+    background-color: #AF4E39;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+} */
+
+.wareHousing-hdr {
+    background-image: url(../../img/services_img/MultiuserWarehousing/warehousing_hdr.jpg)!important;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+}
+
+.freeTradeZone-hdr {
+    background-image: url(../../img/services_img/Poineering/FreeTrade-hdr.jpg) !important;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+}
+
+.roadRailTrans-hdr {
+    background-image: url(../../img/services_img/RoadRailTransport/RoadRail-hdr.jpg) !important;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+}
+
+.customBroker-hdr {
+    background-image: url(../../img/services_img/CustomsBrokerageCompliance/customBrokr-hdr.jpg) !important;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+}
+
+.techLastMile-hdr {
+    background-image: url(../../img/services_img/Tech/tech-hdr.jpg) !important;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+}
+
+.arts-hdr, .chemical-hdr, .eCom-hdr, .indus-hdr, .manufactr-hdr, .renewalEnergy-hdr {
+    background-image: url(../../img/sectors_img/sector-hdr.jpg) !important;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+}
+
+#career-hdr {
+    background-image: url(../../img/career_img/Careers-hdr.jpg) !important;
+    background-repeat: no-repeat !important;
+    background-position: center;
+    background-size: cover;
+}
+
+.contct-hdr {
+    background-image: url(../../img/contact_img/contact-hdr.jpg) !important;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+}
+
+
+/* About section css --------------------------------------------------------------------------------- */
+
+
+.services-hdng {
+    display: grid;
+    border-bottom: 1px solid #0a0a0a;
+    padding-bottom: 37px;
+    margin-bottom: 65px;
+    align-content: center;
+    justify-content: space-between;
+    align-items: center;
+    justify-items: center;
+    /* grid-template-columns: repeat(4, 1fr); */
+    grid-template-columns: 1fr 1.6fr 1.6fr 1.6fr;
+}
+
+.services-hdng h2 {
+    text-align: center;
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 26px;
+    letter-spacing: 0.36px;
+    text-transform: uppercase;
+    /* padding: 0 20px; */
+}
+
+.trusted-ttl {
+    margin-bottom: 30px;
+}
+
+.user-numbers-sec {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-content: center;
+    justify-content: space-between;
+    align-items: flex-start;
+    border-radius: 80px;
+    background:  #FFF;
+    box-shadow: 5px 4px 12px 5px rgba(252, 123, 18, 0.80);
+    padding: 30px 10px 30px 60px;
+}
+
+.user-numbers-dv {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-content: flex-start;
+    justify-content: flex-start;
+    align-items: center;
+    width: 33.33%;
+    gap: 15px;
+}
+
+.user-numbers-desc {
+    font-size: 20px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 25px;
+    letter-spacing: -0.4px;
+    text-transform: capitalize;
+    width: 55%;
+    margin: 0px;
+}
+
+.user-numbers-dv .numbers {
+    /* width: 27%; */
+    text-align: center;
+    margin-bottom: 0px;
+}
+
+.multiuser-container2 {
+    padding-top: 0px;
+}
+
+.multiuser-container1 {
+    padding-top: 40px;
+}
+
+.num-ttl {
+    font-size: 19px !important;
+    line-height: 26px;
+    display: block;
+}
+
+.user-numbers-dv .numbers {
+    width: auto;
+}
+
+/* built-to-suit section css --------------------------------------------------------------------------------- */
+
+
+.built-to-suit-sec {
+    /* background: linear-gradient(90deg, rgba(0, 0, 0, 0.24) 15.93%, rgba(0, 0, 0, 0.00) 87.44%); */
+    background-image: linear-gradient(90deg, rgba(0, 0, 0, 0.45) 15.93%, rgba(0, 0, 0, 0) 87.44%);
+    background-color: #304D75;
+}
+
+.built-img-clm img {
+    border-radius: 36px;
+}
+
+.built-cntnt-clm p {
+    font-size: 25px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 32px;
+}
+
+.built-row {
+    /* align-items: center; */
+    gap: 65px;
+    padding: 40px 0px;
+}
+
+.we-offer-txt {
+    font-size: 25px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 32px;
+    letter-spacing: 0;
+    margin-top: 45px;
+}
+
+.built-line-img {
+    width: -webkit-fill-available;
+}
+
+
+.built-ul {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    column-gap: 100px;
+    margin-top: 30px;
+}
+
+.built-ul li:after {
+    display: none;
+}
+
+.built-ul li {
+    display: block;
+    padding-left: 40px;
+    padding-bottom: 0;
+}
+
+.built-ul h3 {
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 26px;
+    letter-spacing: 0.36px;
+    text-transform: uppercase;
+}
+
+
+.built-ul p {
+    margin-top: 10px;
+}
+
+.built-ul li:before {
+    left: 0;
+    background-image: url('../../img/services_img/MultiuserWarehousing/Services-arrow.svg');
+    margin-top: 5px;
+}
+
+@media screen and (max-width:768px) {
+    .built-row .clm-2 {
+        width: 100%;
+    }
+    
+    .built-row {
+        gap: 20px;
+        flex-direction: column;
+    }
+}
+
+@media screen and (min-width:768px) and (max-width:1023px){
+    .built-ul {
+        column-gap: 40px;
+    }
+}
+
+@media screen and (max-width:767px) {
+    .built-img-clm img {
+        width: 100%;
+    }
+    
+    .built-ul {
+        grid-template-columns: repeat(1, 1fr);
+        column-gap: 0;
+        margin-top: 0px;
+        margin-bottom: 20px;
+    }
+    
+    .built-ul p {
+        margin-bottom: 5px;
+    }
+    .built-cntnt-clm p {
+        font-size: 20px;
+        line-height: 26px;
+        margin-bottom: 5px;
+    }
+    .we-offer-txt {
+        font-size: 22px;
+        line-height: 25px;
+        margin-top: 25px;
+    }
+    .built-line-img {
+        width: auto;
+    }
+
+}
+
+
+/* In-Plant Warehouse Management section css --------------------------------------------------------------------------------- */
+
+
+.inPlant-container .row {
+    flex-direction: row-reverse;
+}
+
+.inplant-ul h3 {
+    color: #304D75 !important;
+}
+
+
+/* Multiuser Warehousing Management section css --------------------------------------------------------------------------------- */
+
+.moretext, .bond-moretext {
+    display: none;
+    padding: 20px 0;
+}
+
+.moretext p, .bond-moretext p {
+    margin: 0px;  
+}
+
+.readMore-button, .cstm-bondReadMore {
+    cursor: pointer;
+    color: #304D75;
+    font-family: "normalidad-wide", sans-serif;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 24px;
+    text-transform: uppercase;
+    position: relative;
+    border-bottom: 1px solid #929292;
+    padding-right: 30px;
+    padding-bottom: 5px;
+}
+
+
+.readMore-button:after, .cstm-bondReadMore:after {
+    content: '';
+    position: absolute;
+    background-image: url(../../img/services_img/MultiuserWarehousing/down-arrow.svg);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+    width: 20px;
+    left: auto;
+    height: 20px;
+    margin-left: 10px;
+    transition: transform .5s ease;
+}
+
+.readMore-button:hover, .cstm-bondReadMore:hover {
+    color: #304D75;
+}
+
+.rotate::after {
+    transform: rotate(180deg);
+}
+
+.inPlant-sec2 {
+    background-color: #E8E8E8;
+}
+
+.inPlant-sec2 .main-container {
+    padding-top: 50px;
+    padding-bottom: 50px;
+}
+
+.advtg-txt {
+    margin-top: 0;
+    text-align: center;
+}
+
+.advant-containr {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-content: center;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 70px;
+    text-align: center;
+    margin-top: 50px;
+    padding: 0 40px;
+}
+
+.advan-bx h4 {
+    color: #304D75;
+    text-align: center;
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 26px;
+    letter-spacing: 0.36px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+}
+
+.advan-bx p {
+    margin-top: 0px;
+}
+
+
+/* Custom bonded section css --------------------------------------------------------------------------------- */
+
+
+.custom-bonded-sec {
+    background-color: #304D75 !important;
+    background-image: linear-gradient(90deg, rgba(0, 0, 0, 0.45) 15.93%, rgba(0, 0, 0, 0) 87.44%) !important;
+}
+
+.cstm-bondReadMore, .cstm-bondReadMore:hover {
+    color: #fff;
+}
+
+.cstm-bondReadMore:after {
+    background-image: url(../../img/services_img/MultiuserWarehousing/down_arrow_white.svg);
+}
+
+.custom-bonded-sec2 {
+    background-image: linear-gradient(90deg, rgba(0, 0, 0, 0.45) 15.93%, rgba(0, 0, 0, 0) 87.44%);
+    background-color: #14325B;
+}
+
+ul.accordion-list {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: auto;
+    /* padding-top: 50px; */
+    padding-bottom: 10px;
+    margin: 0;
+    list-style: none;
+}
+
+ul.accordion-list li {
+    position: relative;
+    display: block;
+    height: auto;
+    padding: 20px 0px;
+    cursor: pointer;
+    border-bottom: 1px solid #3461FF;
+}
+
+
+ul.accordion-list li div.answer {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: auto;
+    margin: 0;
+    padding: 0;
+    cursor: pointer;
+}
+
+.accordion-list li:before, .accordion-list li:after {
+    display: none;
+}
+
+ul.accordion-list li h3:after {
+    content: '';
+    background-image: url(../../img/services_img/MultiuserWarehousing/plus-icon.svg);
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: center;
+    position: absolute;
+    right: 0;
+    top: auto;
+    transition: all 0.3s ease-in-out;
+    font-size: 18px;
+    width: 16px;
+    height: 16px;
+}
+
+ul.accordion-list li.active h3:after {
+    background-image: url(../../img/services_img/MultiuserWarehousing/minus-icon.svg);
+}
+
+ul.accordion-list li h3 {
+    color: #FFF;
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 26px; 
+    letter-spacing: 0.36px;
+    text-transform: uppercase;
+}
+
+ul.accordion-list li.active h3 {
+    color: #EF7F1B !important;
+}
+
+.road-accordn {
+    padding-top: 0px !important;
+}
+
+.customs-brok-txt {
+    font-size: 45px !important;
+    line-height: 55px !important;
+}
+
+/* .multi-usr-advnt-para {
+    margin-top: 40px;
+} */
+
+/* div#multi-usr-advnt-rw {
+    height: 500px;
+} */
+
+
+@media screen and (min-width:768px) and (max-width:1024px) {
+    .numbers {
+        font-size: 35px;
+        line-height: 42px;
+    }
+    .multiuser-container2 {
+        padding-top: 0px !important;
+    }
+    
+    .user-numbers-sec {
+        padding: 20px 10px 16px 60px;
+    }
+    
+    .built-img-clm img {
+        width: 100%;
+    }
+}
+
+@media screen and (min-width:768px) and (max-width:1023px) {
+
+    .services-hdng {
+        margin-bottom: 40px;
+    }
+    .user-numbers-desc {
+        font-size: 18px;
+        line-height: 23px;
+    }
+    .user-numbers-sec {
+        padding: 20px 10px 16px 30px;
+    }
+    .bond-txt {
+        margin-top: 0;
+    }
+    
+    ul.accordion-list {
+        padding-top: 0px;
+        padding-bottom: 40px;
+    }
+    .built-row {
+        flex-direction: column !important;
+    }
+    p#multi-usr-advnt-para {
+        margin-bottom: 0;
+    }
+}
+
+
+@media screen and (min-width:320px) and (max-width:767px) {
+
+    .services-hdng {
+        padding-bottom: 30px;
+        margin-bottom: 25px;
+        grid-template-columns: 1fr;
+        gap: 20px;
+        text-align: center;
+    }
+    .num-ttl {
+        font-size: 16px !important;
+        line-height: 4px;
+    }
+       
+    .user-numbers-sec {
+        display: block;
+        flex-direction: column;
+        align-content: flex-start;
+        padding: 30px;
+        gap: 20px;
+    }
+    .user-numbers-dv {
+        margin-bottom: 10px;
+        width: 100%;
+        justify-content: left;
+    }
+    .user-numbers-dv .numbers {
+        width: 73px;
+        text-align: left;
+    }
+
+    .multiuser-container2 {
+        margin-bottom: 60px !important;
+    }
+
+    .readMore-button, .cstm-bondReadMore {
+        top: 10px;
+    }
+
+    .user-numbers-desc {
+        font-size: 18px;
+        line-height: 22px;
+    }
+
+    .multiwar-cont1 {
+        padding-bottom: 65px !important;
+    }
+    
+    .advant-containr {
+        flex-direction: column;
+        gap: 0;
+        margin-top: 20px;
+        padding: 0 20px;
+    }
+    
+    .custom-bonded-cntr1 {
+        padding-bottom: 65px !important;
+    }
+
+    .bond-txt {
+        margin-top: 0;
+    }
+
+    ul.accordion-list {
+        padding-top: 10px;
+        padding-bottom: 15px;
+    }
+
+    .inPlant-container .row {
+        gap: 20px;
+        flex-direction: column !important;
+    }
+    p#multi-usr-advnt-para {
+        margin-bottom: 0;
+    }
+    .customs-brok-txt {
+        font-size: 30px !important;
+        line-height: 40px !important;
+    }
+
+}
+
+@media screen and (min-width:320px) and (max-width:1024px) {
+    .built-row {
+        padding: 0;
+    }
+    
+}
+
+
+
+.services-hdng a {
+    /* text-align: center; */
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 26px;
+    letter-spacing: 0.36px;
+    text-transform: uppercase;
+    color: #000;
+    cursor: pointer;
+}
+
+.services-hdng a:hover {
+    color: #304D75;
+}
+
+.manufctr-ttl {
+    font-size: 40px !important;
+    line-height: 50px !important;
+}
+
+
+/* srvc accordian section css --------------------------------------------------------------------------------- */
+
+/* #pinonr-accrd-rw {
+    height: 450px;
+} */
+
+/* #road-advnt-accr-rw {
+    height: 450px;
+    overflow: hidden;
+} */
+
+/* #road-key-adv-rw {
+    height: 460px;
+    overflow: hidden;
+} */
+/* #lastMile-accro-rw {
+    height: 430px;
+    overflow: hidden;
+} */
+
+@media screen and (max-width:768px) {
+    /* #pinonr-accrd-rw {
+        height: auto;
+        padding-top: 0px;
+    } */
+    /* #road-advnt-accr-rw {
+        height: auto;
+    } */
+    /* #road-key-adv-rw {
+        height: auto;
+        padding-bottom: 0px;
+    } */
+    /* #lastMile-accro-rw {
+        height: auto !important;
+        gap: 20px;
+    } */
+    #pionerr-free-trade-rw .width-60 , #pionerr-free-trade-rw .width-40 {
+        width: 100%;
+    }    
+    
+}
+
+@media screen and (max-width:767px) {
+div#road-advnt-accr-rw {
+    padding-top: 15px;
+}
+#no-pad-mob {
+    padding: 0px !important;
+}
+}
+
+@media screen and (max-width:1024px) {
+    #road-key-adv-para {
+        margin-top: 30px;
+    }
+}
+
+@media screen and (min-width:768px) and (max-width:1024px){
+    #pinonr-accrd-rw {
+        padding-top: 20px;
+    }
+}
+
+@media screen and (min-width:1024px) and (max-width:1100px){
+    #road-advnt-accr-rw {
+        padding-top: 40px;
+    }
+    #lastMile-accro-rw {
+        padding-top: 40px;
+    }
+}
+
+
+/* Safety policy css --------------------------------------------------------------------------------- */
+
+.safety-contn-sec {
+    background-color: #E8E8E8;
+}
+
+.safety-cta-sec {
+    background-color: #fff !important;
+}
+
+.safety-contn-sec .client-contnt-bx {
+    width: 800px;
+}
+
+.safety-cntnt h2 {
+    font-size: 30px;
+    line-height: 49px;
+    letter-spacing: -0.02em;
+    color: #304D75;
+}
+
+.safety-cntnt p {
+    font-size: 16px;
+    line-height: 25px;
+    font-weight: 400;
+    margin-top: 10px;
+    color: #000;
+}
+
+.safety-row {
+    gap: 90px;
+    padding: 40px 0px;
+}
+
+@media screen and (max-width:767px) {
+    .safety-row {
+        gap: 20px;
+        padding: 0px 0px;
+        flex-direction: column;
+    }
+}
+
+@media screen and (min-width:768px) and (max-width:1024px){
+    .safety-row {
+        gap: 50px;
+    }
+}

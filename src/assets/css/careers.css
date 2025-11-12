@@ -1,0 +1,122 @@
+
+
+/* Our Culture ------------------------------------------------------------------------------ */
+
+
+.awards-section:after {
+    display: none;
+}
+
+.award-bx h2 {
+    color: #EF7F1B !important;
+    letter-spacing: 0;
+}
+
+.award-bx p {
+    color: rgb(255, 255, 255);
+}
+
+.awards-pegination-arrow {
+    top: 85px;
+    display: flex;
+    flex-direction: row-reverse;
+    gap: 10px;
+}
+
+img.awards-ttl-img {
+    width: 75%;
+}
+
+.btn_col input.conv_btn {
+    margin-top: 40px;
+}
+
+.conversion_form input {
+    font-family: "Saira", sans-serif;
+    font-size: 14px;
+    line-height: 19px;
+    letter-spacing: 0;
+}
+
+
+.culture-sub-ttl {
+    font-size: 25px;
+    line-height: 32px;
+    font-weight: 700;
+}
+
+/* img.cultr-ttl-img {
+    width: 171px;
+} */
+
+.culture-sec {
+    max-height: 612px;
+}
+
+.culture-sec .main-container {
+    padding-top: 65px;
+    max-width: 1250px !important;
+}
+
+#culture-pegination-arrow {
+    top: -85px;
+    right: 0;
+}
+
+@media screen and (min-width:768px) and (max-width:1680px) {
+   
+    .culture-sec .main-container {
+        padding-left: 180px !important;
+    } 
+}
+
+@media screen and (min-width:1920px) {
+    .culture-sec {
+        max-height: 700px;
+    }    
+    
+    .culture-ttl {
+        height: 700px;
+    }
+    .cultr-ttl-img {
+        height: 100%;
+    }
+}
+
+@media screen and (max-width:767px) {
+    .row.apply-nw-rw {
+        flex-direction: column;
+        gap: 10px;
+    }
+    .conv_frm_spc {
+        padding-right: 0;
+    }
+    .awards-pegination-arrow {
+        top: auto;
+    }
+    .abt_us-section .main-container {
+        padding: 40px 0px 40px 0px !important;
+    }
+    .cultr-ttl-img {
+        display: none;
+    }
+    .culture-sec {
+        max-height: max-content;
+    }
+    #culture-pegination-arrow {
+        top: auto;
+        right: auto;
+        bottom: -60px;
+        left: 0;
+    }
+    .award-bx p {
+        margin-top: 5px;
+    }
+}
+
+@media screen and (min-width:768px) and (max-width:1023px) {
+    .awrds-sub-ttl {    
+        width: 380px;    
+    }
+}
+

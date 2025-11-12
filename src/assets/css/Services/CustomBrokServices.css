@@ -1,0 +1,85 @@
+.customsBrok-ul {
+    grid-template-columns: repeat(1, 1fr);
+}
+
+.customs-row {
+    margin-top: 25px;
+}
+
+/* Trade Section */
+
+.trade-para {
+    color: #392E2E;
+}
+
+
+/* Customs-Brokerage-Compliance Section */
+
+.compliance-sec {
+    background-image: linear-gradient(90deg, rgba(0, 0, 0, 0.24) 15.93%, rgba(0, 0, 0, 0.00) 87.44%);
+    background-color: #304D75;
+}
+
+.compliance-containr {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 70px;
+}
+
+.compliance-containr p {
+    margin-bottom: 0;
+}
+
+.complieance-Advbottom-para {
+    padding-top: 50px;
+}
+.custom-hdng h2 {
+    text-align: left;
+}
+
+.built-img-clm img  {
+    width: 100%;
+}
+
+.custom-brkrgNumSec {
+    padding: 18px 40px 20px 60px !important; 
+    align-items: center;
+}
+.custom-brkrgNumSec .user-numbers-dv {
+    justify-content: space-around;
+    align-items: center;
+}
+
+@media screen and (min-width:768px) and (max-width:1024px) {
+    .compliance-ul {
+        margin-top: 0;
+    }
+    .custom-brkrgNumSec .user-numbers-dv {
+        justify-content: space-between;
+    }
+    .custom-brkrgNumSec {
+        padding: 18px 25px 20px 25px !important;
+    }
+}
+
+@media screen and (min-width:320px) and (max-width:767px) {
+    .compliance-containr {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+    .compliance-containr {
+        padding: 0;
+    }
+    .complieance-Advbottom-para {
+        padding-top: 20px;
+    }
+    .compliance-row, .trade-para {
+        margin-top: 0px;
+    }
+    .customsBrok-ul {
+        margin-bottom: 0px;
+    }
+    .custom-brkrgNumSec {
+        padding: 18px 20px 20px 20px !important;
+    }
+}

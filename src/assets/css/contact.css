@@ -1,0 +1,365 @@
+
+.txt_wht {
+    color:#000;
+} 
+
+.contact-form textarea:focus-visible {
+    outline: 0px;
+}
+
+.selectin-fld .form-control {
+    background-color: transparent;
+    border-bottom: 1px solid #fff !important;
+    border: 0px;
+    height: 50px;
+    border-radius: 0px;
+    font-weight: 400;
+    width: 100%;
+    margin: 15px 0;
+    color: #fff;
+    font-size: 14px;
+    font-family: "Saira", sans-serif;
+}
+
+.contact-form textarea {
+    background-color: transparent;
+    border: 1px solid #ffffff4d !important;
+    border-radius: 0px;
+    font-family: "Saira", sans-serif;
+}
+
+.selectin-fld .form-control:focus-visible, .selectin-fld .form-control:focus {
+    outline: 0px;
+    box-shadow: none;
+}
+
+.contact-form textarea:focus, .contact-form textarea {    
+    color: #ffffff !important;
+}
+
+.tell_sec .form-label {
+    display: block;
+    margin-bottom: 30px;
+}
+
+.tell_sec textarea {
+    width: 100%;
+    font-family: "Saira", sans-serif;
+}
+
+.thnk
+{
+    display: none;
+    text-align: center;
+    font-size: 25px;
+    font-weight: 400;
+    margin-top: 8%;
+}
+
+.thnk_show
+{
+    display: block;
+}
+
+.form_hide
+{
+    display: none;
+}
+
+.convert_form_col1 {
+    padding-top:65px;
+    padding-bottom: 75px;
+}
+
+.conversion_form label{
+    font-size: 16px;
+    line-height: 22px;
+    color: #fff;
+}
+
+.conversion_form input{
+    font-family: "Saira", sans-serif;
+    font-size: 16px;
+    line-height: 19px;
+    letter-spacing: 0.08em;
+    color: #fff !important;
+    background: none !important;
+    border-radius: 0px;
+    border: none !important;
+    border-bottom: 1px solid #ffffff !important;
+    padding: 15px 0px 15px 0px;
+    width: 100%;
+}
+
+.conversion_form input:focus{
+    color: #ffffff; 
+    background: none !important;
+    border-color: none !important;
+    box-shadow:none !important;
+
+}
+
+.conversion_form input::placeholder{    
+    color: #fff !important;
+
+}
+#enq_form_bx input {
+    color: #fff !important;
+}
+
+.conv_frm_spc{
+    margin-bottom: 18px;
+    margin-top: 0px;
+    padding-right: 45px;
+}
+
+.btn_col input.conv_btn{
+    border-radius: 90px;
+    font-style: normal;
+    font-weight: 600;
+    font-size: 16px;
+    line-height: 19px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #000;
+    padding: 10px 25px;
+    margin-top: 20px;
+    border:none;
+    border:1px solid #fff !important;
+    width: auto;
+    cursor: pointer;
+}
+
+
+input:focus {
+    background-color: transparent;
+}
+.conversion_form input.error_line.form-control
+{
+  border-bottom: 1px solid #ad2406 !important;
+}
+.error_msg
+{
+    font-weight: 400;
+    font-size: 14px;
+    color: #ad2406;
+    margin-top: 0;
+    margin-bottom: 1rem;
+    display: none;
+}
+.show_error
+{
+    display: block;
+}
+.hide_error
+{
+    display: none;
+}
+.cnt_txt {
+    width:1030px;
+}
+
+input[type="number"]::-webkit-inner-spin-button {
+    display: none;
+}
+input[type="number"] {
+    appearance: textfield;
+    -moz-appearance: textfield;
+    -webkit-appearance: textfield;
+}
+
+ .tell_sec textarea::placeholder {
+    padding: 10px;
+    font-family: inherit;
+}
+
+.tell_sec textarea {
+    width: 100%;
+    border-top: 0px;
+    border-left: 0px;
+    border-right: 0px;
+    font-size: 18px;
+    line-height: 24px;
+    background-color: #fff0;
+    border-color: #fff;
+    color: #fff;
+}
+
+.selectin-fld .form-control option {
+    background-color: #0038fd;
+}
+
+.address-para {
+    font-size: 20px;
+    line-height: 28px;
+    margin: 0;
+}
+
+/* .addressSection {
+    background-color: #304D75;
+    background-image: linear-gradient(90deg, rgba(0, 0, 0, 0.24) 15.93%, rgba(0, 0, 0, 0.00) 87.44%);
+} */
+
+img.icn {
+    width: 19px;
+    margin-right: 10px;
+    margin-bottom: -4px;
+}
+
+.mail-dv {
+    margin-top: 18px;
+    margin-bottom: 20px;
+}
+
+.mail-dv a, .phone-dv a {
+    color: #000;
+    font-size: 18px;
+    line-height: 26px;
+}
+
+.mail-dv a:hover, .phone-dv a:hover {
+    color: #EF7F1B;
+}
+
+.form-sec {
+    background-color: #304D75;
+    background-image: linear-gradient(90deg, rgba(0, 0, 0, 0.24) 15.93%, rgba(0, 0, 0, 0.00) 87.44%);
+}
+
+.conversion_form input::placeholder {
+    opacity: 0;
+}
+
+.btn_col input.conv_btn {
+    color: #fff !important;
+}
+
+
+h4.othr-offc-ttl {
+    margin-top: 30px;
+    margin-bottom: 13px;
+    font-size: 25px;
+    font-weight: 600;
+}
+
+.head-offc-ttl {
+    margin-bottom: 13px;
+    font-size: 25px;
+    font-weight: 600;
+}
+
+
+.location-bx {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    align-items: flex-start;
+}
+
+.locations h4 {
+    margin-bottom: 0;
+    font-size: 20px;
+    font-weight: 500;
+}
+
+.offices-bx {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    justify-content: start;
+    justify-items: start;
+    align-items: start;
+    width: 95%;
+    margin-bottom: 35px;
+}
+
+.locations p {
+    margin-bottom: 0px;
+}
+
+.locations img.icn {
+    margin-top: 8px;
+    width: 25px;
+}
+
+
+
+.addressSection .add-clm1 {
+    border-radius: 15px;
+    background: linear-gradient(233deg, #A5D9FD 4.18%, #4EA4DF 44.76%, #2C86C4 82.04%, #4B9AD0 104.39%);
+    /* box-shadow: 5px 7px 10px 0px rgba(0, 0, 0, 0.40); */
+    padding: 30px;
+}
+
+.addressSection .main-container {
+    gap: 45px;
+}
+
+.add-clm1 h2 {
+    margin-bottom: 20px;
+}
+
+.add-clm1 p {
+    margin-bottom: 20px;
+}
+.frst_phone {
+    margin-bottom: 17px;
+}
+.phone-dv h5{
+    margin-bottom: 0;
+    font-size: 18px;
+    font-weight: 500;
+    width: fit-content;
+    float: left;
+    line-height: 26px;
+    margin-right: 9px;
+    color: #304D75;
+}
+.oth_phone {
+    margin-top: 13px;
+}
+@media screen and (max-width:767px) {
+    .addressSection .main-container {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+    .form-sec .row {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+    }
+    .offices-bx {
+        grid-template-columns: repeat(1, 1fr);
+        width: 100%;
+    }
+}
+
+
+@media screen and (max-width: 768px) {
+    .addressSection .main-container {
+        gap: 10px;
+        display: flex;
+        flex-direction: column;
+    }
+    .addressSection .main-container .clm-2 {
+        width: auto !important;
+    }
+    .address-para {
+        font-size: 18px;
+        line-height: 24px;
+    }
+    /* #add-clm2 {
+        width: 90% !important;
+    } */
+    .phone-dv h5 {
+        width: 100%;
+    }
+}
+
+/* @media screen and (min-width: 768px) and (max-width:1023px){
+    #add-clm1 {
+        width: 91% !important;
+    }
+} */

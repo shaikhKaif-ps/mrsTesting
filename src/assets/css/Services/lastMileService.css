@@ -1,0 +1,58 @@
+.last-mile-accrdn .accordn-list {
+    padding-left: 0px; 
+}
+
+.benefit-para {
+    margin-top: 10px;
+}
+
+.benefit-sec {
+    background-color: #E8E8E8;
+}
+
+.key-fetr-ttl {
+    margin-top: 0px;
+}
+.tech-driven-numbrs1 {
+    padding-bottom: 50px;
+}
+.last-mile-cntn {
+    padding-right: 10px;
+}
+
+.lastMile-accr-sec {
+    background-color: #14325B;
+}
+
+@media screen and (max-width: 767px) {
+    .tech-driven-numbrs2 {
+        padding: 0px !important;
+    }
+    .tech-driven-numbrs1 {
+        padding-bottom: 25px !important;
+    }
+    ul.accordion-list li {
+        padding: 15px 0px;
+    }
+    ul.accordion-list li h3 {
+        font-size: 16px;
+        line-height: 24px;
+        letter-spacing: 0;
+    }
+    .road-trnsfm-sec .main-container {
+        padding-bottom: 45px !important;
+    }
+}
+
+
+@media screen and (min-width: 768px) and (max-width: 1023px) {
+.row.built-row.road-trnsf-built-rw {
+    gap: 20px;
+}
+}
+
+@media screen and (min-width: 768px) and (max-width: 1024px) {
+.tech-driven-numbrs1 {
+    padding-bottom: 30px !important;
+}
+}

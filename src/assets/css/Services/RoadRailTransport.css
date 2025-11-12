@@ -1,0 +1,128 @@
+.roadRailAbt-hdngs {
+    padding-bottom: 20px;
+}
+.roadRailadvantage-sec {
+    background-color: #14325B;
+}
+
+ul.accordn-list li {
+    font-size: 16px;
+    line-height: 22px;
+    border-bottom: 0px;
+    padding: 15px 0px;
+    position: relative;
+}
+
+ul.accordn-list li:before {
+    content: '';
+    position: absolute;
+    background: url(../../img/services_img/RoadRailTransport/list_icon.svg);
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: center;
+    display: block;
+    left: -30px;
+}
+
+ul.accordn-list li:first-child {
+    padding-bottom: 0px;
+}
+
+ul.accordn-list {
+    padding-left: 30px;
+    padding-right: 30px;
+}
+
+.road-trans-sec .main-container{
+    padding-top: 0px;
+}
+
+.road-transp-txt {
+    margin-top: 0px;    
+}
+
+.inplant-ul-bl h3 {
+    color: #000 !important;
+}
+
+.T-B-Padding {
+    padding: 70px 0px;
+}
+.T-B-Padding50 {
+    padding: 50px 0px;
+}
+
+.roadRailLast-sec {
+    background-color: #E8E8E8;
+    background-image: none;
+}
+
+.accordn-last-sec li {
+    border-color: #000 !important;
+}
+
+.accordn-last-sec li h3:after {
+    background-image: url('/src/assets/img/services_img/RoadRailTransport/plus_black.svg') !important;
+}
+
+.accordn-last-sec li.active h3:after {
+    background-image: url('/src/assets/img/services_img/RoadRailTransport/minus_black.svg') !important;
+}
+
+.cta-sec {
+    background-color: #fff;
+}
+
+.black {
+    color: #0A0A0A !important;
+}
+
+.roadRailadvantage-sec .main-container {
+    padding-bottom: 50px;
+}
+
+@media screen and (max-width:767px) {
+    .T-B-Padding {
+        padding: 0px 0px 20px 0px;
+    }
+    .road-trnsfm-img {
+        margin-top: 30px;
+    }
+    .road-trnsfm-sec .main-container {
+        padding-bottom: 0px !important;
+    }
+    .T-B-Padding50 {
+        padding: 20px 0px 0px 0px;
+    }
+}
+
+@media screen and (min-width:768px) and (max-width:1024px) {
+    .roadRailAbt-hdngs {
+        grid-template-columns: 1fr 1fr 1fr 0fr;
+    }
+    .multiuser-container2.road-abt-contnr2 {
+        padding-bottom: 60px !important;
+    }
+    ul.built-ul.road-built-ul {
+        margin-top: 0px;
+    }
+    ul.built-ul.road-built-ul p {
+        margin-bottom: 0;
+    }
+    .T-B-Padding {
+        padding: 10px 0px 19px 0px;
+    }
+    .row.built-row.road-trnsf-built-rw {
+        gap: 45px;
+    }
+    .road-trans-sec .main-container {
+        padding-top: 0px !important;
+    }
+    ul.accordion-list {
+        padding-top: 0px;
+        padding-bottom: 0px;
+    }
+    .road-trans-sec-para {
+        margin: 0px;
+    }
+}
