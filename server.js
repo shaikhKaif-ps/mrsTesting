@@ -1,7 +1,9 @@
+//server.js
 import fs from "node:fs/promises";
 import express from "express";
 
 import { globalSchema } from "./src/seo/globalSchema.js";
+import { blogSchemas } from "./src/seo/blogSchemas/index.js";
 
 // Constants
 const isProduction = process.env.NODE_ENV === "production";

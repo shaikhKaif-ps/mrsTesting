@@ -1,3 +1,4 @@
+//src/seo/blogSchemas/RailLogisticsforRenewable.js
 export const railLogisticsRenewableSchema = `
 <script type="application/ld+json">
 {
@@ -9,7 +10,7 @@ export const railLogisticsRenewableSchema = `
   },
   "headline": "Connecting Markets: The Benefits of Rail Transport Services from Mundra to Delhi",
   "description": "Discover MRS Supply Chain, India's best company for supply chain solutions, logistics services, warehousing, customs brokerage, last-mile delivery, and road and rail transport. Optimize your supply chain with us.",
-  "image": "https://www.mrssupplychain.com/Blog_img/Rail%20Transport%20Solution%20.webp",  
+  "image": "https://www.mrssupplychain.com/Blog_img/Rail%20Transport%20Solution%20.webp", 
   "author": {
     "@type": "Person",
     "name": "Admin"

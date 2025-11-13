@@ -1,3 +1,4 @@
+//src/seo/globalSchema.js
 export const globalSchema = `<script type="application/ld+json" class="schemantra.com">{
   "@context": "https://schema.org",
   "@type": "LocalBusiness",
@@ -8,7 +9,7 @@ export const globalSchema = `<script type="application/ld+json" class="schemantr
   "logo": "https://www.mrssupplychain.com/",
   "address": "No 7, Ground Floor, 4th Cross, Papaiah Garden Road, Banashankari, 3rd Stage, Bangalore - 560085, Karnataka, India",
   "location": [
-    "Office No. 102,110,117, \"Madhav Palace”, Plot No 55, Sec 8, Gandhidham, Kutch, Gujarat, India, 370201",
+    "Office No. 102,110,117, Madhav Palace, Plot No 55, Sec 8, Gandhidham, Kutch, Gujarat, India, 370201",
     "Ground Floor, Shop No. 6, Agrawal Trade Centre, Belapur, Belapur, Navi Mumbai, Thane, Maharashtra, 400614",
     "Near Namaste Circle, 4Th Floor, C-430, Indian Textile Plaza, Shahibaug, Ahmedabad, Gujarat, 380004",
     "101 Upper Cross Street #04-36 People’s Park Centre Singapore 058357"
