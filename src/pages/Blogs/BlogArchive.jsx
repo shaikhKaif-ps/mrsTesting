@@ -9,7 +9,7 @@ import "../../assets/css/blog.css";
 import "../../assets/css/Services/MultiuserWarehousing.css";
 import Line from "../../assets/img/home_img/Line.svg";
 import Warehousing_Solution from "../../assets/img/services_img/MultiuserWarehousing/Warehousing_Solution.jpg";
-import { Helmet } from "react-helmet";
+import { Helmet } from "react-helmet-async";
 
 const BlogArchive = () => {
   useEffect(() => {

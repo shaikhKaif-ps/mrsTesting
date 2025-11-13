@@ -3,7 +3,7 @@
 // import Header2 from "../../components/global/header2";
 // import Footer from "../../components/global/footer";
 // import date_icon_white from "../../assets/img/line_img/date_icon_white.svg";
-// import { Helmet } from "react-helmet";
+// import { Helmet } from "react-helmet-async";
 // import {
 //   FacebookIcon,
 //   FacebookShareButton,
@@ -130,12 +130,11 @@
 
 // export default PostDetails;
 
-
 import React, { useEffect, useState } from "react";
 import Header2 from "../../components/global/header2";
 import Footer from "../../components/global/footer";
 import date_icon_white from "../../assets/img/line_img/date_icon_white.svg";
-import { Helmet } from "react-helmet";
+import { Helmet } from "react-helmet-async";
 import {
   FacebookIcon,
   FacebookShareButton,

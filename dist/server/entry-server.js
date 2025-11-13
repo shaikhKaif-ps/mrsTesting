@@ -1,10 +1,824 @@
+var __defProp = Object.defineProperty;
+var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __publicField = (obj, key, value) => {
+  __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
+  return value;
+};
+var _a, _b;
 import { jsx, Fragment, jsxs } from "react/jsx-runtime";
-import React, { useEffect, useRef, useState } from "react";
-import ReactDOMServer from "react-dom/server";
+import React, { Component, useEffect, useRef, useState } from "react";
+import { renderToString } from "react-dom/server";
+import { StaticRouter } from "react-router-dom/server.mjs";
+import fastCompare from "react-fast-compare";
+import invariant from "invariant";
+import shallowEqual from "shallowequal";
+import { Routes, Route, useParams } from "react-router-dom";
 import $$1 from "jquery";
 import emailjs from "emailjs-com";
-import { Helmet } from "react-helmet";
 import { FacebookShareButton, FacebookIcon, LinkedinShareButton, LinkedinIcon, TwitterShareButton, XIcon } from "react-share";
+var TAG_NAMES = /* @__PURE__ */ ((TAG_NAMES2) => {
+  TAG_NAMES2["BASE"] = "base";
+  TAG_NAMES2["BODY"] = "body";
+  TAG_NAMES2["HEAD"] = "head";
+  TAG_NAMES2["HTML"] = "html";
+  TAG_NAMES2["LINK"] = "link";
+  TAG_NAMES2["META"] = "meta";
+  TAG_NAMES2["NOSCRIPT"] = "noscript";
+  TAG_NAMES2["SCRIPT"] = "script";
+  TAG_NAMES2["STYLE"] = "style";
+  TAG_NAMES2["TITLE"] = "title";
+  TAG_NAMES2["FRAGMENT"] = "Symbol(react.fragment)";
+  return TAG_NAMES2;
+})(TAG_NAMES || {});
+var SEO_PRIORITY_TAGS = {
+  link: { rel: ["amphtml", "canonical", "alternate"] },
+  script: { type: ["application/ld+json"] },
+  meta: {
+    charset: "",
+    name: ["generator", "robots", "description"],
+    property: [
+      "og:type",
+      "og:title",
+      "og:url",
+      "og:image",
+      "og:image:alt",
+      "og:description",
+      "twitter:url",
+      "twitter:title",
+      "twitter:description",
+      "twitter:image",
+      "twitter:image:alt",
+      "twitter:card",
+      "twitter:site"
+    ]
+  }
+};
+var VALID_TAG_NAMES = Object.values(TAG_NAMES);
+var REACT_TAG_MAP = {
+  accesskey: "accessKey",
+  charset: "charSet",
+  class: "className",
+  contenteditable: "contentEditable",
+  contextmenu: "contextMenu",
+  "http-equiv": "httpEquiv",
+  itemprop: "itemProp",
+  tabindex: "tabIndex"
+};
+var HTML_TAG_MAP = Object.entries(REACT_TAG_MAP).reduce(
+  (carry, [key, value]) => {
+    carry[value] = key;
+    return carry;
+  },
+  {}
+);
+var HELMET_ATTRIBUTE = "data-rh";
+var HELMET_PROPS = {
+  DEFAULT_TITLE: "defaultTitle",
+  DEFER: "defer",
+  ENCODE_SPECIAL_CHARACTERS: "encodeSpecialCharacters",
+  ON_CHANGE_CLIENT_STATE: "onChangeClientState",
+  TITLE_TEMPLATE: "titleTemplate",
+  PRIORITIZE_SEO_TAGS: "prioritizeSeoTags"
+};
+var getInnermostProperty = (propsList, property) => {
+  for (let i = propsList.length - 1; i >= 0; i -= 1) {
+    const props = propsList[i];
+    if (Object.prototype.hasOwnProperty.call(props, property)) {
+      return props[property];
+    }
+  }
+  return null;
+};
+var getTitleFromPropsList = (propsList) => {
+  let innermostTitle = getInnermostProperty(
+    propsList,
+    "title"
+    /* TITLE */
+  );
+  const innermostTemplate = getInnermostProperty(propsList, HELMET_PROPS.TITLE_TEMPLATE);
+  if (Array.isArray(innermostTitle)) {
+    innermostTitle = innermostTitle.join("");
+  }
+  if (innermostTemplate && innermostTitle) {
+    return innermostTemplate.replace(/%s/g, () => innermostTitle);
+  }
+  const innermostDefaultTitle = getInnermostProperty(propsList, HELMET_PROPS.DEFAULT_TITLE);
+  return innermostTitle || innermostDefaultTitle || void 0;
+};
+var getOnChangeClientState = (propsList) => getInnermostProperty(propsList, HELMET_PROPS.ON_CHANGE_CLIENT_STATE) || (() => {
+});
+var getAttributesFromPropsList = (tagType, propsList) => propsList.filter((props) => typeof props[tagType] !== "undefined").map((props) => props[tagType]).reduce((tagAttrs, current) => ({ ...tagAttrs, ...current }), {});
+var getBaseTagFromPropsList = (primaryAttributes, propsList) => propsList.filter((props) => typeof props[
+  "base"
+  /* BASE */
+] !== "undefined").map((props) => props[
+  "base"
+  /* BASE */
+]).reverse().reduce((innermostBaseTag, tag) => {
+  if (!innermostBaseTag.length) {
+    const keys = Object.keys(tag);
+    for (let i = 0; i < keys.length; i += 1) {
+      const attributeKey = keys[i];
+      const lowerCaseAttributeKey = attributeKey.toLowerCase();
+      if (primaryAttributes.indexOf(lowerCaseAttributeKey) !== -1 && tag[lowerCaseAttributeKey]) {
+        return innermostBaseTag.concat(tag);
+      }
+    }
+  }
+  return innermostBaseTag;
+}, []);
+var warn = (msg) => console && typeof console.warn === "function" && console.warn(msg);
+var getTagsFromPropsList = (tagName, primaryAttributes, propsList) => {
+  const approvedSeenTags = {};
+  return propsList.filter((props) => {
+    if (Array.isArray(props[tagName])) {
+      return true;
+    }
+    if (typeof props[tagName] !== "undefined") {
+      warn(
+        `Helmet: ${tagName} should be of type "Array". Instead found type "${typeof props[tagName]}"`
+      );
+    }
+    return false;
+  }).map((props) => props[tagName]).reverse().reduce((approvedTags, instanceTags) => {
+    const instanceSeenTags = {};
+    instanceTags.filter((tag) => {
+      let primaryAttributeKey;
+      const keys2 = Object.keys(tag);
+      for (let i = 0; i < keys2.length; i += 1) {
+        const attributeKey = keys2[i];
+        const lowerCaseAttributeKey = attributeKey.toLowerCase();
+        if (primaryAttributes.indexOf(lowerCaseAttributeKey) !== -1 && !(primaryAttributeKey === "rel" && tag[primaryAttributeKey].toLowerCase() === "canonical") && !(lowerCaseAttributeKey === "rel" && tag[lowerCaseAttributeKey].toLowerCase() === "stylesheet")) {
+          primaryAttributeKey = lowerCaseAttributeKey;
+        }
+        if (primaryAttributes.indexOf(attributeKey) !== -1 && (attributeKey === "innerHTML" || attributeKey === "cssText" || attributeKey === "itemprop")) {
+          primaryAttributeKey = attributeKey;
+        }
+      }
+      if (!primaryAttributeKey || !tag[primaryAttributeKey]) {
+        return false;
+      }
+      const value = tag[primaryAttributeKey].toLowerCase();
+      if (!approvedSeenTags[primaryAttributeKey]) {
+        approvedSeenTags[primaryAttributeKey] = {};
+      }
+      if (!instanceSeenTags[primaryAttributeKey]) {
+        instanceSeenTags[primaryAttributeKey] = {};
+      }
+      if (!approvedSeenTags[primaryAttributeKey][value]) {
+        instanceSeenTags[primaryAttributeKey][value] = true;
+        return true;
+      }
+      return false;
+    }).reverse().forEach((tag) => approvedTags.push(tag));
+    const keys = Object.keys(instanceSeenTags);
+    for (let i = 0; i < keys.length; i += 1) {
+      const attributeKey = keys[i];
+      const tagUnion = {
+        ...approvedSeenTags[attributeKey],
+        ...instanceSeenTags[attributeKey]
+      };
+      approvedSeenTags[attributeKey] = tagUnion;
+    }
+    return approvedTags;
+  }, []).reverse();
+};
+var getAnyTrueFromPropsList = (propsList, checkedTag) => {
+  if (Array.isArray(propsList) && propsList.length) {
+    for (let index = 0; index < propsList.length; index += 1) {
+      const prop = propsList[index];
+      if (prop[checkedTag]) {
+        return true;
+      }
+    }
+  }
+  return false;
+};
+var reducePropsToState = (propsList) => ({
+  baseTag: getBaseTagFromPropsList([
+    "href"
+    /* HREF */
+  ], propsList),
+  bodyAttributes: getAttributesFromPropsList("bodyAttributes", propsList),
+  defer: getInnermostProperty(propsList, HELMET_PROPS.DEFER),
+  encode: getInnermostProperty(propsList, HELMET_PROPS.ENCODE_SPECIAL_CHARACTERS),
+  htmlAttributes: getAttributesFromPropsList("htmlAttributes", propsList),
+  linkTags: getTagsFromPropsList(
+    "link",
+    [
+      "rel",
+      "href"
+      /* HREF */
+    ],
+    propsList
+  ),
+  metaTags: getTagsFromPropsList(
+    "meta",
+    [
+      "name",
+      "charset",
+      "http-equiv",
+      "property",
+      "itemprop"
+      /* ITEM_PROP */
+    ],
+    propsList
+  ),
+  noscriptTags: getTagsFromPropsList("noscript", [
+    "innerHTML"
+    /* INNER_HTML */
+  ], propsList),
+  onChangeClientState: getOnChangeClientState(propsList),
+  scriptTags: getTagsFromPropsList(
+    "script",
+    [
+      "src",
+      "innerHTML"
+      /* INNER_HTML */
+    ],
+    propsList
+  ),
+  styleTags: getTagsFromPropsList("style", [
+    "cssText"
+    /* CSS_TEXT */
+  ], propsList),
+  title: getTitleFromPropsList(propsList),
+  titleAttributes: getAttributesFromPropsList("titleAttributes", propsList),
+  prioritizeSeoTags: getAnyTrueFromPropsList(propsList, HELMET_PROPS.PRIORITIZE_SEO_TAGS)
+});
+var flattenArray = (possibleArray) => Array.isArray(possibleArray) ? possibleArray.join("") : possibleArray;
+var checkIfPropsMatch = (props, toMatch) => {
+  const keys = Object.keys(props);
+  for (let i = 0; i < keys.length; i += 1) {
+    if (toMatch[keys[i]] && toMatch[keys[i]].includes(props[keys[i]])) {
+      return true;
+    }
+  }
+  return false;
+};
+var prioritizer = (elementsList, propsToMatch) => {
+  if (Array.isArray(elementsList)) {
+    return elementsList.reduce(
+      (acc, elementAttrs) => {
+        if (checkIfPropsMatch(elementAttrs, propsToMatch)) {
+          acc.priority.push(elementAttrs);
+        } else {
+          acc.default.push(elementAttrs);
+        }
+        return acc;
+      },
+      { priority: [], default: [] }
+    );
+  }
+  return { default: elementsList, priority: [] };
+};
+var without = (obj, key) => {
+  return {
+    ...obj,
+    [key]: void 0
+  };
+};
+var SELF_CLOSING_TAGS = [
+  "noscript",
+  "script",
+  "style"
+  /* STYLE */
+];
+var encodeSpecialCharacters = (str, encode = true) => {
+  if (encode === false) {
+    return String(str);
+  }
+  return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#x27;");
+};
+var generateElementAttributesAsString = (attributes) => Object.keys(attributes).reduce((str, key) => {
+  const attr = typeof attributes[key] !== "undefined" ? `${key}="${attributes[key]}"` : `${key}`;
+  return str ? `${str} ${attr}` : attr;
+}, "");
+var generateTitleAsString = (type, title, attributes, encode) => {
+  const attributeString = generateElementAttributesAsString(attributes);
+  const flattenedTitle = flattenArray(title);
+  return attributeString ? `<${type} ${HELMET_ATTRIBUTE}="true" ${attributeString}>${encodeSpecialCharacters(
+    flattenedTitle,
+    encode
+  )}</${type}>` : `<${type} ${HELMET_ATTRIBUTE}="true">${encodeSpecialCharacters(
+    flattenedTitle,
+    encode
+  )}</${type}>`;
+};
+var generateTagsAsString = (type, tags, encode = true) => tags.reduce((str, t) => {
+  const tag = t;
+  const attributeHtml = Object.keys(tag).filter(
+    (attribute) => !(attribute === "innerHTML" || attribute === "cssText")
+  ).reduce((string, attribute) => {
+    const attr = typeof tag[attribute] === "undefined" ? attribute : `${attribute}="${encodeSpecialCharacters(tag[attribute], encode)}"`;
+    return string ? `${string} ${attr}` : attr;
+  }, "");
+  const tagContent = tag.innerHTML || tag.cssText || "";
+  const isSelfClosing = SELF_CLOSING_TAGS.indexOf(type) === -1;
+  return `${str}<${type} ${HELMET_ATTRIBUTE}="true" ${attributeHtml}${isSelfClosing ? `/>` : `>${tagContent}</${type}>`}`;
+}, "");
+var convertElementAttributesToReactProps = (attributes, initProps = {}) => Object.keys(attributes).reduce((obj, key) => {
+  const mapped = REACT_TAG_MAP[key];
+  obj[mapped || key] = attributes[key];
+  return obj;
+}, initProps);
+var generateTitleAsReactComponent = (_type, title, attributes) => {
+  const initProps = {
+    key: title,
+    [HELMET_ATTRIBUTE]: true
+  };
+  const props = convertElementAttributesToReactProps(attributes, initProps);
+  return [React.createElement("title", props, title)];
+};
+var generateTagsAsReactComponent = (type, tags) => tags.map((tag, i) => {
+  const mappedTag = {
+    key: i,
+    [HELMET_ATTRIBUTE]: true
+  };
+  Object.keys(tag).forEach((attribute) => {
+    const mapped = REACT_TAG_MAP[attribute];
+    const mappedAttribute = mapped || attribute;
+    if (mappedAttribute === "innerHTML" || mappedAttribute === "cssText") {
+      const content = tag.innerHTML || tag.cssText;
+      mappedTag.dangerouslySetInnerHTML = { __html: content };
+    } else {
+      mappedTag[mappedAttribute] = tag[attribute];
+    }
+  });
+  return React.createElement(type, mappedTag);
+});
+var getMethodsForTag = (type, tags, encode = true) => {
+  switch (type) {
+    case "title":
+      return {
+        toComponent: () => generateTitleAsReactComponent(type, tags.title, tags.titleAttributes),
+        toString: () => generateTitleAsString(type, tags.title, tags.titleAttributes, encode)
+      };
+    case "bodyAttributes":
+    case "htmlAttributes":
+      return {
+        toComponent: () => convertElementAttributesToReactProps(tags),
+        toString: () => generateElementAttributesAsString(tags)
+      };
+    default:
+      return {
+        toComponent: () => generateTagsAsReactComponent(type, tags),
+        toString: () => generateTagsAsString(type, tags, encode)
+      };
+  }
+};
+var getPriorityMethods = ({ metaTags, linkTags, scriptTags, encode }) => {
+  const meta = prioritizer(metaTags, SEO_PRIORITY_TAGS.meta);
+  const link = prioritizer(linkTags, SEO_PRIORITY_TAGS.link);
+  const script = prioritizer(scriptTags, SEO_PRIORITY_TAGS.script);
+  const priorityMethods = {
+    toComponent: () => [
+      ...generateTagsAsReactComponent("meta", meta.priority),
+      ...generateTagsAsReactComponent("link", link.priority),
+      ...generateTagsAsReactComponent("script", script.priority)
+    ],
+    toString: () => (
+      // generate all the tags as strings and concatenate them
+      `${getMethodsForTag("meta", meta.priority, encode)} ${getMethodsForTag(
+        "link",
+        link.priority,
+        encode
+      )} ${getMethodsForTag("script", script.priority, encode)}`
+    )
+  };
+  return {
+    priorityMethods,
+    metaTags: meta.default,
+    linkTags: link.default,
+    scriptTags: script.default
+  };
+};
+var mapStateOnServer = (props) => {
+  const {
+    baseTag,
+    bodyAttributes,
+    encode = true,
+    htmlAttributes,
+    noscriptTags,
+    styleTags,
+    title = "",
+    titleAttributes,
+    prioritizeSeoTags
+  } = props;
+  let { linkTags, metaTags, scriptTags } = props;
+  let priorityMethods = {
+    toComponent: () => {
+    },
+    toString: () => ""
+  };
+  if (prioritizeSeoTags) {
+    ({ priorityMethods, linkTags, metaTags, scriptTags } = getPriorityMethods(props));
+  }
+  return {
+    priority: priorityMethods,
+    base: getMethodsForTag("base", baseTag, encode),
+    bodyAttributes: getMethodsForTag("bodyAttributes", bodyAttributes, encode),
+    htmlAttributes: getMethodsForTag("htmlAttributes", htmlAttributes, encode),
+    link: getMethodsForTag("link", linkTags, encode),
+    meta: getMethodsForTag("meta", metaTags, encode),
+    noscript: getMethodsForTag("noscript", noscriptTags, encode),
+    script: getMethodsForTag("script", scriptTags, encode),
+    style: getMethodsForTag("style", styleTags, encode),
+    title: getMethodsForTag("title", { title, titleAttributes }, encode)
+  };
+};
+var server_default = mapStateOnServer;
+var instances = [];
+var isDocument = !!(typeof window !== "undefined" && window.document && window.document.createElement);
+var HelmetData = class {
+  constructor(context, canUseDOM) {
+    __publicField(this, "instances", []);
+    __publicField(this, "canUseDOM", isDocument);
+    __publicField(this, "context");
+    __publicField(this, "value", {
+      setHelmet: (serverState) => {
+        this.context.helmet = serverState;
+      },
+      helmetInstances: {
+        get: () => this.canUseDOM ? instances : this.instances,
+        add: (instance) => {
+          (this.canUseDOM ? instances : this.instances).push(instance);
+        },
+        remove: (instance) => {
+          const index = (this.canUseDOM ? instances : this.instances).indexOf(instance);
+          (this.canUseDOM ? instances : this.instances).splice(index, 1);
+        }
+      }
+    });
+    this.context = context;
+    this.canUseDOM = canUseDOM || false;
+    if (!canUseDOM) {
+      context.helmet = server_default({
+        baseTag: [],
+        bodyAttributes: {},
+        encodeSpecialCharacters: true,
+        htmlAttributes: {},
+        linkTags: [],
+        metaTags: [],
+        noscriptTags: [],
+        scriptTags: [],
+        styleTags: [],
+        title: "",
+        titleAttributes: {}
+      });
+    }
+  }
+};
+var defaultValue = {};
+var Context = React.createContext(defaultValue);
+var HelmetProvider = (_a = class extends Component {
+  constructor(props) {
+    super(props);
+    __publicField(this, "helmetData");
+    this.helmetData = new HelmetData(this.props.context || {}, _a.canUseDOM);
+  }
+  render() {
+    return /* @__PURE__ */ React.createElement(Context.Provider, { value: this.helmetData.value }, this.props.children);
+  }
+}, __publicField(_a, "canUseDOM", isDocument), _a);
+var updateTags = (type, tags) => {
+  const headElement = document.head || document.querySelector(
+    "head"
+    /* HEAD */
+  );
+  const tagNodes = headElement.querySelectorAll(`${type}[${HELMET_ATTRIBUTE}]`);
+  const oldTags = [].slice.call(tagNodes);
+  const newTags = [];
+  let indexToDelete;
+  if (tags && tags.length) {
+    tags.forEach((tag) => {
+      const newElement = document.createElement(type);
+      for (const attribute in tag) {
+        if (Object.prototype.hasOwnProperty.call(tag, attribute)) {
+          if (attribute === "innerHTML") {
+            newElement.innerHTML = tag.innerHTML;
+          } else if (attribute === "cssText") {
+            if (newElement.styleSheet) {
+              newElement.styleSheet.cssText = tag.cssText;
+            } else {
+              newElement.appendChild(document.createTextNode(tag.cssText));
+            }
+          } else {
+            const attr = attribute;
+            const value = typeof tag[attr] === "undefined" ? "" : tag[attr];
+            newElement.setAttribute(attribute, value);
+          }
+        }
+      }
+      newElement.setAttribute(HELMET_ATTRIBUTE, "true");
+      if (oldTags.some((existingTag, index) => {
+        indexToDelete = index;
+        return newElement.isEqualNode(existingTag);
+      })) {
+        oldTags.splice(indexToDelete, 1);
+      } else {
+        newTags.push(newElement);
+      }
+    });
+  }
+  oldTags.forEach((tag) => {
+    var _a2;
+    return (_a2 = tag.parentNode) == null ? void 0 : _a2.removeChild(tag);
+  });
+  newTags.forEach((tag) => headElement.appendChild(tag));
+  return {
+    oldTags,
+    newTags
+  };
+};
+var updateAttributes = (tagName, attributes) => {
+  const elementTag = document.getElementsByTagName(tagName)[0];
+  if (!elementTag) {
+    return;
+  }
+  const helmetAttributeString = elementTag.getAttribute(HELMET_ATTRIBUTE);
+  const helmetAttributes = helmetAttributeString ? helmetAttributeString.split(",") : [];
+  const attributesToRemove = [...helmetAttributes];
+  const attributeKeys = Object.keys(attributes);
+  for (const attribute of attributeKeys) {
+    const value = attributes[attribute] || "";
+    if (elementTag.getAttribute(attribute) !== value) {
+      elementTag.setAttribute(attribute, value);
+    }
+    if (helmetAttributes.indexOf(attribute) === -1) {
+      helmetAttributes.push(attribute);
+    }
+    const indexToSave = attributesToRemove.indexOf(attribute);
+    if (indexToSave !== -1) {
+      attributesToRemove.splice(indexToSave, 1);
+    }
+  }
+  for (let i = attributesToRemove.length - 1; i >= 0; i -= 1) {
+    elementTag.removeAttribute(attributesToRemove[i]);
+  }
+  if (helmetAttributes.length === attributesToRemove.length) {
+    elementTag.removeAttribute(HELMET_ATTRIBUTE);
+  } else if (elementTag.getAttribute(HELMET_ATTRIBUTE) !== attributeKeys.join(",")) {
+    elementTag.setAttribute(HELMET_ATTRIBUTE, attributeKeys.join(","));
+  }
+};
+var updateTitle = (title, attributes) => {
+  if (typeof title !== "undefined" && document.title !== title) {
+    document.title = flattenArray(title);
+  }
+  updateAttributes("title", attributes);
+};
+var commitTagChanges = (newState, cb) => {
+  const {
+    baseTag,
+    bodyAttributes,
+    htmlAttributes,
+    linkTags,
+    metaTags,
+    noscriptTags,
+    onChangeClientState,
+    scriptTags,
+    styleTags,
+    title,
+    titleAttributes
+  } = newState;
+  updateAttributes("body", bodyAttributes);
+  updateAttributes("html", htmlAttributes);
+  updateTitle(title, titleAttributes);
+  const tagUpdates = {
+    baseTag: updateTags("base", baseTag),
+    linkTags: updateTags("link", linkTags),
+    metaTags: updateTags("meta", metaTags),
+    noscriptTags: updateTags("noscript", noscriptTags),
+    scriptTags: updateTags("script", scriptTags),
+    styleTags: updateTags("style", styleTags)
+  };
+  const addedTags = {};
+  const removedTags = {};
+  Object.keys(tagUpdates).forEach((tagType) => {
+    const { newTags, oldTags } = tagUpdates[tagType];
+    if (newTags.length) {
+      addedTags[tagType] = newTags;
+    }
+    if (oldTags.length) {
+      removedTags[tagType] = tagUpdates[tagType].oldTags;
+    }
+  });
+  if (cb) {
+    cb();
+  }
+  onChangeClientState(newState, addedTags, removedTags);
+};
+var _helmetCallback = null;
+var handleStateChangeOnClient = (newState) => {
+  if (_helmetCallback) {
+    cancelAnimationFrame(_helmetCallback);
+  }
+  if (newState.defer) {
+    _helmetCallback = requestAnimationFrame(() => {
+      commitTagChanges(newState, () => {
+        _helmetCallback = null;
+      });
+    });
+  } else {
+    commitTagChanges(newState);
+    _helmetCallback = null;
+  }
+};
+var client_default = handleStateChangeOnClient;
+var HelmetDispatcher = class extends Component {
+  constructor() {
+    super(...arguments);
+    __publicField(this, "rendered", false);
+  }
+  shouldComponentUpdate(nextProps) {
+    return !shallowEqual(nextProps, this.props);
+  }
+  componentDidUpdate() {
+    this.emitChange();
+  }
+  componentWillUnmount() {
+    const { helmetInstances } = this.props.context;
+    helmetInstances.remove(this);
+    this.emitChange();
+  }
+  emitChange() {
+    const { helmetInstances, setHelmet } = this.props.context;
+    let serverState = null;
+    const state = reducePropsToState(
+      helmetInstances.get().map((instance) => {
+        const props = { ...instance.props };
+        delete props.context;
+        return props;
+      })
+    );
+    if (HelmetProvider.canUseDOM) {
+      client_default(state);
+    } else if (server_default) {
+      serverState = server_default(state);
+    }
+    setHelmet(serverState);
+  }
+  // componentWillMount will be deprecated
+  // for SSR, initialize on first render
+  // constructor is also unsafe in StrictMode
+  init() {
+    if (this.rendered) {
+      return;
+    }
+    this.rendered = true;
+    const { helmetInstances } = this.props.context;
+    helmetInstances.add(this);
+    this.emitChange();
+  }
+  render() {
+    this.init();
+    return null;
+  }
+};
+var Helmet = (_b = class extends Component {
+  shouldComponentUpdate(nextProps) {
+    return !fastCompare(without(this.props, "helmetData"), without(nextProps, "helmetData"));
+  }
+  mapNestedChildrenToProps(child, nestedChildren) {
+    if (!nestedChildren) {
+      return null;
+    }
+    switch (child.type) {
+      case "script":
+      case "noscript":
+        return {
+          innerHTML: nestedChildren
+        };
+      case "style":
+        return {
+          cssText: nestedChildren
+        };
+      default:
+        throw new Error(
+          `<${child.type} /> elements are self-closing and can not contain children. Refer to our API for more information.`
+        );
+    }
+  }
+  flattenArrayTypeChildren(child, arrayTypeChildren, newChildProps, nestedChildren) {
+    return {
+      ...arrayTypeChildren,
+      [child.type]: [
+        ...arrayTypeChildren[child.type] || [],
+        {
+          ...newChildProps,
+          ...this.mapNestedChildrenToProps(child, nestedChildren)
+        }
+      ]
+    };
+  }
+  mapObjectTypeChildren(child, newProps, newChildProps, nestedChildren) {
+    switch (child.type) {
+      case "title":
+        return {
+          ...newProps,
+          [child.type]: nestedChildren,
+          titleAttributes: { ...newChildProps }
+        };
+      case "body":
+        return {
+          ...newProps,
+          bodyAttributes: { ...newChildProps }
+        };
+      case "html":
+        return {
+          ...newProps,
+          htmlAttributes: { ...newChildProps }
+        };
+      default:
+        return {
+          ...newProps,
+          [child.type]: { ...newChildProps }
+        };
+    }
+  }
+  mapArrayTypeChildrenToProps(arrayTypeChildren, newProps) {
+    let newFlattenedProps = { ...newProps };
+    Object.keys(arrayTypeChildren).forEach((arrayChildName) => {
+      newFlattenedProps = {
+        ...newFlattenedProps,
+        [arrayChildName]: arrayTypeChildren[arrayChildName]
+      };
+    });
+    return newFlattenedProps;
+  }
+  warnOnInvalidChildren(child, nestedChildren) {
+    invariant(
+      VALID_TAG_NAMES.some((name) => child.type === name),
+      typeof child.type === "function" ? `You may be attempting to nest <Helmet> components within each other, which is not allowed. Refer to our API for more information.` : `Only elements types ${VALID_TAG_NAMES.join(
+        ", "
+      )} are allowed. Helmet does not support rendering <${child.type}> elements. Refer to our API for more information.`
+    );
+    invariant(
+      !nestedChildren || typeof nestedChildren === "string" || Array.isArray(nestedChildren) && !nestedChildren.some((nestedChild) => typeof nestedChild !== "string"),
+      `Helmet expects a string as a child of <${child.type}>. Did you forget to wrap your children in braces? ( <${child.type}>{\`\`}</${child.type}> ) Refer to our API for more information.`
+    );
+    return true;
+  }
+  mapChildrenToProps(children, newProps) {
+    let arrayTypeChildren = {};
+    React.Children.forEach(children, (child) => {
+      if (!child || !child.props) {
+        return;
+      }
+      const { children: nestedChildren, ...childProps } = child.props;
+      const newChildProps = Object.keys(childProps).reduce((obj, key) => {
+        obj[HTML_TAG_MAP[key] || key] = childProps[key];
+        return obj;
+      }, {});
+      let { type } = child;
+      if (typeof type === "symbol") {
+        type = type.toString();
+      } else {
+        this.warnOnInvalidChildren(child, nestedChildren);
+      }
+      switch (type) {
+        case "Symbol(react.fragment)":
+          newProps = this.mapChildrenToProps(nestedChildren, newProps);
+          break;
+        case "link":
+        case "meta":
+        case "noscript":
+        case "script":
+        case "style":
+          arrayTypeChildren = this.flattenArrayTypeChildren(
+            child,
+            arrayTypeChildren,
+            newChildProps,
+            nestedChildren
+          );
+          break;
+        default:
+          newProps = this.mapObjectTypeChildren(child, newProps, newChildProps, nestedChildren);
+          break;
+      }
+    });
+    return this.mapArrayTypeChildrenToProps(arrayTypeChildren, newProps);
+  }
+  render() {
+    const { children, ...props } = this.props;
+    let newProps = { ...props };
+    let { helmetData } = props;
+    if (children) {
+      newProps = this.mapChildrenToProps(children, newProps);
+    }
+    if (helmetData && !(helmetData instanceof HelmetData)) {
+      const data = helmetData;
+      helmetData = new HelmetData(data.context, true);
+      delete newProps.helmetData;
+    }
+    return helmetData ? /* @__PURE__ */ React.createElement(HelmetDispatcher, { ...newProps, context: helmetData.value }) : /* @__PURE__ */ React.createElement(Context.Consumer, null, (context) => /* @__PURE__ */ React.createElement(HelmetDispatcher, { ...newProps, context }));
+  }
+}, __publicField(_b, "defaultProps", {
+  defer: true,
+  encodeSpecialCharacters: true,
+  prioritizeSeoTags: false
+}), _b);
 const MRS_Logo = "/assets/MRS-Logo-8bef6X_s.svg";
 const Sub_menu = "data:image/svg+xml,%3csvg%20width='20'%20height='11'%20viewBox='0%200%2020%2011'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20d='M18.5127%201L9.75633%209.94324L0.999955%201'%20stroke='%23FC7B12'%20stroke-width='2'%20stroke-linecap='round'%20stroke-linejoin='round'/%3e%3c/svg%3e";
 const Close_icon = "data:image/svg+xml,%3csvg%20width='22'%20height='22'%20viewBox='0%200%2022%2022'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20d='M1.57687%201.57782C1.64072%201.5139%201.71655%201.46319%201.80001%201.42859C1.88347%201.39399%201.97293%201.37618%202.06328%201.37618C2.15363%201.37618%202.24309%201.39399%202.32655%201.42859C2.41001%201.46319%202.48584%201.5139%202.54969%201.57782L10.9991%2010.0272L19.4519%201.57782C19.5809%201.44881%2019.7558%201.37634%2019.9383%201.37634C20.1207%201.37634%2020.2957%201.44881%2020.4247%201.57782C20.5537%201.70682%2020.6262%201.88179%2020.6262%202.06422C20.6262%202.24666%2020.5537%202.42163%2020.4247%202.55063L11.9719%2011L20.4212%2019.4528C20.5502%2019.5818%2020.6227%2019.7568%2020.6227%2019.9392C20.6227%2020.1217%2020.5502%2020.2966%2020.4212%2020.4256C20.2922%2020.5546%2020.1173%2020.6271%2019.9348%2020.6271C19.7524%2020.6271%2019.5774%2020.5546%2019.4484%2020.4256L10.9991%2011.9728L2.54625%2020.4222C2.41473%2020.5348%202.24555%2020.5937%202.07252%2020.587C1.8995%2020.5803%201.73536%2020.5086%201.61292%2020.3861C1.49048%2020.2637%201.41875%2020.0996%201.41207%2019.9265C1.40539%2019.7535%201.46424%2019.5843%201.57687%2019.4528L10.0262%2011L1.57687%202.54719C1.44883%202.41838%201.37695%202.24413%201.37695%202.06251C1.37695%201.88088%201.44883%201.70663%201.57687%201.57782Z'%20fill='%23313D47'/%3e%3c/svg%3e";
@@ -4259,7 +5073,9 @@ function Homepage() {
       });
     }
     document.querySelectorAll(".js-split-text").forEach((element) => {
-      let observer = new IntersectionObserver(handleAnimation, { threshold: 0.5 });
+      let observer = new IntersectionObserver(handleAnimation, {
+        threshold: 0.5
+      });
       observer.observe(element);
     });
     AOS.init();
@@ -4267,8 +5083,20 @@ function Homepage() {
   return /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsxs("div", { className: "pg-body viewport", children: [
     /* @__PURE__ */ jsxs(Helmet, { children: [
       /* @__PURE__ */ jsx("title", { children: "Top Supply Chain Solutions | Logistics, Warehousing, and Transport Services in India" }),
-      /* @__PURE__ */ jsx("meta", { name: "description", content: "Discover MRS Supply Chain, India's best company for supply chain solutions, logistics services, warehousing, customs brokerage, last-mile delivery, and road and rail transport. Optimize your supply chain with us." }),
-      /* @__PURE__ */ jsx("meta", { name: "keywords", content: "Supply Chain Solutions, Logistics Services, Warehousing Solutions, Customs Brokerage, Last-Mile Delivery, Road and Rail Transport, Best Supply Chain Company in India" })
+      /* @__PURE__ */ jsx(
+        "meta",
+        {
+          name: "description",
+          content: "Discover MRS Supply Chain, India's best company for supply chain solutions, logistics services, warehousing, customs brokerage, last-mile delivery, and road and rail transport. Optimize your supply chain with us."
+        }
+      ),
+      /* @__PURE__ */ jsx(
+        "meta",
+        {
+          name: "keywords",
+          content: "Supply Chain Solutions, Logistics Services, Warehousing Solutions, Customs Brokerage, Last-Mile Delivery, Road and Rail Transport, Best Supply Chain Company in India"
+        }
+      )
     ] }),
     /* @__PURE__ */ jsxs("div", { id: "scroll-container", className: "scroll-container", children: [
       /* @__PURE__ */ jsx(Header2, {}),
@@ -4489,7 +5317,9 @@ function Aboutpage() {
       });
     }
     document.querySelectorAll(".js-split-text").forEach((element) => {
-      let observer = new IntersectionObserver(handleAnimation, { threshold: 0.5 });
+      let observer = new IntersectionObserver(handleAnimation, {
+        threshold: 0.5
+      });
       observer.observe(element);
     });
     AOS.init();
@@ -4497,8 +5327,20 @@ function Aboutpage() {
   return /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsxs("div", { className: "pg-body viewport", children: [
     /* @__PURE__ */ jsxs(Helmet, { children: [
       /* @__PURE__ */ jsx("title", { children: "About MRS Supply Chain | Leading Logistics Experts in India" }),
-      /* @__PURE__ */ jsx("meta", { name: "description", content: "Learn more about MRS Supply Chain, a top supply chain company in India. Discover our expertise in logistics, warehousing, and transport solutions. Partner with the best in the industry." }),
-      /* @__PURE__ */ jsx("meta", { name: "keywords", content: "About MRS Supply Chain, Leading Supply Chain Company, Logistics Experts in India" })
+      /* @__PURE__ */ jsx(
+        "meta",
+        {
+          name: "description",
+          content: "Learn more about MRS Supply Chain, a top supply chain company in India. Discover our expertise in logistics, warehousing, and transport solutions. Partner with the best in the industry."
+        }
+      ),
+      /* @__PURE__ */ jsx(
+        "meta",
+        {
+          name: "keywords",
+          content: "About MRS Supply Chain, Leading Supply Chain Company, Logistics Experts in India"
+        }
+      )
     ] }),
     /* @__PURE__ */ jsxs("div", { id: "scroll-container", className: "scroll-container", children: [
       /* @__PURE__ */ jsx(Header2, {}),
@@ -4618,7 +5460,9 @@ function Contactpage$1() {
       });
     }
     document.querySelectorAll(".js-split-text").forEach((element) => {
-      let observer = new IntersectionObserver(handleAnimation, { threshold: 0.5 });
+      let observer = new IntersectionObserver(handleAnimation, {
+        threshold: 0.5
+      });
       observer.observe(element);
     });
     AOS.init();
@@ -4626,7 +5470,13 @@ function Contactpage$1() {
   return /* @__PURE__ */ jsxs(Fragment, { children: [
     /* @__PURE__ */ jsxs(Helmet, { children: [
       /* @__PURE__ */ jsx("title", { children: "Contact Us - MRS" }),
-      /* @__PURE__ */ jsx("meta", { name: "description", content: "We're Here to Help: Connect with Our Expert Team Today" })
+      /* @__PURE__ */ jsx(
+        "meta",
+        {
+          name: "description",
+          content: "We're Here to Help: Connect with Our Expert Team Today"
+        }
+      )
     ] }),
     /* @__PURE__ */ jsx(Header2, {}),
     /* @__PURE__ */ jsx(ContactSpotlight, {}),
@@ -4975,7 +5825,9 @@ function multiuserWarehousing$1() {
       });
     }
     document.querySelectorAll(".js-split-text").forEach((element) => {
-      let observer = new IntersectionObserver(handleAnimation, { threshold: 0.5 });
+      let observer = new IntersectionObserver(handleAnimation, {
+        threshold: 0.5
+      });
       observer.observe(element);
     });
     AOS.init();
@@ -4983,8 +5835,20 @@ function multiuserWarehousing$1() {
   return /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsxs("div", { children: [
     /* @__PURE__ */ jsxs(Helmet, { children: [
       /* @__PURE__ */ jsx("title", { children: "Multiuser Warehousing Solutions in India | FMCG, Pharma Storage" }),
-      /* @__PURE__ */ jsx("meta", { name: "description", content: "Explore MRS Supply Chain's compliant, Grade A warehousing for FMCG, pharmaceuticals, and medical devices. Secure storage tailored to your needs." }),
-      /* @__PURE__ */ jsx("meta", { name: "keywords", content: "Multiuser Warehousing Solutions, Compliant Warehousing, Grade A Warehousing, Best Warehouse for FMCG, Warehousing for Pharma and Medical Devices" })
+      /* @__PURE__ */ jsx(
+        "meta",
+        {
+          name: "description",
+          content: "Explore MRS Supply Chain's compliant, Grade A warehousing for FMCG, pharmaceuticals, and medical devices. Secure storage tailored to your needs."
+        }
+      ),
+      /* @__PURE__ */ jsx(
+        "meta",
+        {
+          name: "keywords",
+          content: "Multiuser Warehousing Solutions, Compliant Warehousing, Grade A Warehousing, Best Warehouse for FMCG, Warehousing for Pharma and Medical Devices"
+        }
+      )
     ] }),
     /* @__PURE__ */ jsx(Header2, {}),
     /* @__PURE__ */ jsx(ServicesSpotlight, {}),
@@ -5273,7 +6137,9 @@ function RoadRailTransport() {
       });
     }
     document.querySelectorAll(".js-split-text").forEach((element) => {
-      let observer = new IntersectionObserver(handleAnimation, { threshold: 0.5 });
+      let observer = new IntersectionObserver(handleAnimation, {
+        threshold: 0.5
+      });
       observer.observe(element);
     });
     AOS.init();
@@ -5281,8 +6147,20 @@ function RoadRailTransport() {
   return /* @__PURE__ */ jsxs(Fragment, { children: [
     /* @__PURE__ */ jsxs(Helmet, { children: [
       /* @__PURE__ */ jsx("title", { children: "Road and Rail Transport Services in India" }),
-      /* @__PURE__ */ jsx("meta", { name: "description", content: "Explore MRS Supply Chain's reliable road freight and cargo rail solutions for efficient transportation." }),
-      /* @__PURE__ */ jsx("meta", { name: "keywords", content: "Road Transport Services, Rail Transport Solutions, Cargo Rail Transportation, Efficient Road Freight, Logistics Transportation" })
+      /* @__PURE__ */ jsx(
+        "meta",
+        {
+          name: "description",
+          content: "Explore MRS Supply Chain's reliable road freight and cargo rail solutions for efficient transportation."
+        }
+      ),
+      /* @__PURE__ */ jsx(
+        "meta",
+        {
+          name: "keywords",
+          content: "Road Transport Services, Rail Transport Solutions, Cargo Rail Transportation, Efficient Road Freight, Logistics Transportation"
+        }
+      )
     ] }),
     /* @__PURE__ */ jsx(Header2, {}),
     /* @__PURE__ */ jsx(CustomsServicesSpotlight$2, {}),
@@ -5520,7 +6398,9 @@ function PioneeringWarehousing() {
       });
     }
     document.querySelectorAll(".js-split-text").forEach((element) => {
-      let observer = new IntersectionObserver(handleAnimation, { threshold: 0.5 });
+      let observer = new IntersectionObserver(handleAnimation, {
+        threshold: 0.5
+      });
       observer.observe(element);
     });
     AOS.init();
@@ -5528,8 +6408,20 @@ function PioneeringWarehousing() {
   return /* @__PURE__ */ jsxs(Fragment, { children: [
     /* @__PURE__ */ jsxs(Helmet, { children: [
       /* @__PURE__ */ jsx("title", { children: "Duty-Free Warehousing Solutions in Gujarat | FTWZ & SEZ Storage in India" }),
-      /* @__PURE__ */ jsx("meta", { name: "description", content: "Discover MRS Supply Chain's duty-free warehousing in Gujarat. FTWZ and SEZ solutions for customs-free storage." }),
-      /* @__PURE__ */ jsx("meta", { name: "keywords", content: "Duty-Free Warehousing, FTWZ Solutions, SEZ Warehousing, Best Duty-Free Warehouse in Gujarat, Customs-Free Storage" })
+      /* @__PURE__ */ jsx(
+        "meta",
+        {
+          name: "description",
+          content: "Discover MRS Supply Chain's duty-free warehousing in Gujarat. FTWZ and SEZ solutions for customs-free storage."
+        }
+      ),
+      /* @__PURE__ */ jsx(
+        "meta",
+        {
+          name: "keywords",
+          content: "Duty-Free Warehousing, FTWZ Solutions, SEZ Warehousing, Best Duty-Free Warehouse in Gujarat, Customs-Free Storage"
+        }
+      )
     ] }),
     /* @__PURE__ */ jsx(Header2, {}),
     /* @__PURE__ */ jsx(CustomsServicesSpotlight$1, {}),
@@ -6141,7 +7033,9 @@ function CustomsBrokerageCompliance() {
       });
     }
     document.querySelectorAll(".js-split-text").forEach((element) => {
-      let observer = new IntersectionObserver(handleAnimation, { threshold: 0.5 });
+      let observer = new IntersectionObserver(handleAnimation, {
+        threshold: 0.5
+      });
       observer.observe(element);
     });
     AOS.init();
@@ -6149,8 +7043,20 @@ function CustomsBrokerageCompliance() {
   return /* @__PURE__ */ jsxs(Fragment, { children: [
     /* @__PURE__ */ jsxs(Helmet, { children: [
       /* @__PURE__ */ jsx("title", { children: "Customs Brokerage Services & Regulatory Compliance in Gujarat" }),
-      /* @__PURE__ */ jsx("meta", { name: "description", content: "Partner with the best CHA in Gujarat for seamless customs clearance & import-export compliance." }),
-      /* @__PURE__ */ jsx("meta", { name: "keywords", content: "Customs Brokerage Services, Regulatory Compliance, Best CHA in Gujarat, Customs Clearance Solutions, Import and Export Compliance" })
+      /* @__PURE__ */ jsx(
+        "meta",
+        {
+          name: "description",
+          content: "Partner with the best CHA in Gujarat for seamless customs clearance & import-export compliance."
+        }
+      ),
+      /* @__PURE__ */ jsx(
+        "meta",
+        {
+          name: "keywords",
+          content: "Customs Brokerage Services, Regulatory Compliance, Best CHA in Gujarat, Customs Clearance Solutions, Import and Export Compliance"
+        }
+      )
     ] }),
     /* @__PURE__ */ jsx(Header2, {}),
     /* @__PURE__ */ jsx(Spotlight, {}),
@@ -6364,7 +7270,9 @@ function TechDrivenService() {
       });
     }
     document.querySelectorAll(".js-split-text").forEach((element) => {
-      let observer = new IntersectionObserver(handleAnimation, { threshold: 0.5 });
+      let observer = new IntersectionObserver(handleAnimation, {
+        threshold: 0.5
+      });
       observer.observe(element);
     });
     AOS.init();
@@ -6372,8 +7280,20 @@ function TechDrivenService() {
   return /* @__PURE__ */ jsxs(Fragment, { children: [
     /* @__PURE__ */ jsxs(Helmet, { children: [
       /* @__PURE__ */ jsx("title", { children: "Tech-Driven Last-Mile Delivery Services in India" }),
-      /* @__PURE__ */ jsx("meta", { name: "description", content: "Experience fast e-commerce delivery services powered by cutting-edge logistics technology." }),
-      /* @__PURE__ */ jsx("meta", { name: "keywords", content: "Last-Mile Delivery Services, Tech-Driven Logistics, Efficient Last-Mile Solutions, Fast Delivery Services, E-commerce Delivery" })
+      /* @__PURE__ */ jsx(
+        "meta",
+        {
+          name: "description",
+          content: "Experience fast e-commerce delivery services powered by cutting-edge logistics technology."
+        }
+      ),
+      /* @__PURE__ */ jsx(
+        "meta",
+        {
+          name: "keywords",
+          content: "Last-Mile Delivery Services, Tech-Driven Logistics, Efficient Last-Mile Solutions, Fast Delivery Services, E-commerce Delivery"
+        }
+      )
     ] }),
     /* @__PURE__ */ jsx(Header2, {}),
     /* @__PURE__ */ jsx(CustomsServicesSpotlight, {}),
@@ -6387,90 +7307,281 @@ function TechDrivenService() {
     /* @__PURE__ */ jsx(Footer, {})
   ] });
 }
-const date_icon_white = "data:image/svg+xml,%3csvg%20width='24'%20height='24'%20viewBox='0%200%2024%2024'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20d='M7.83203%202.20801V5.14551'%20stroke='white'%20stroke-width='1.5'%20stroke-miterlimit='10'%20stroke-linecap='round'%20stroke-linejoin='round'/%3e%3cpath%20d='M15.668%202.20801V5.14551'%20stroke='white'%20stroke-width='1.5'%20stroke-miterlimit='10'%20stroke-linecap='round'%20stroke-linejoin='round'/%3e%3cpath%20d='M3.42578%209.15039H20.0716'%20stroke='white'%20stroke-width='1.5'%20stroke-miterlimit='10'%20stroke-linecap='round'%20stroke-linejoin='round'/%3e%3cpath%20d='M20.5625%208.57259V16.8955C20.5625%2019.833%2019.0938%2021.7913%2015.6667%2021.7913H7.83333C4.40625%2021.7913%202.9375%2019.833%202.9375%2016.8955V8.57259C2.9375%205.63509%204.40625%203.67676%207.83333%203.67676H15.6667C19.0938%203.67676%2020.5625%205.63509%2020.5625%208.57259Z'%20stroke='white'%20stroke-width='1.5'%20stroke-miterlimit='10'%20stroke-linecap='round'%20stroke-linejoin='round'/%3e%3cpath%20d='M15.3689%2013.6648H15.3777'%20stroke='white'%20stroke-width='1.5'%20stroke-linecap='round'%20stroke-linejoin='round'/%3e%3cpath%20d='M15.3689%2016.6023H15.3777'%20stroke='white'%20stroke-width='1.5'%20stroke-linecap='round'%20stroke-linejoin='round'/%3e%3cpath%20d='M11.7458%2013.6648H11.7546'%20stroke='white'%20stroke-width='1.5'%20stroke-linecap='round'%20stroke-linejoin='round'/%3e%3cpath%20d='M11.7458%2016.6023H11.7546'%20stroke='white'%20stroke-width='1.5'%20stroke-linecap='round'%20stroke-linejoin='round'/%3e%3cpath%20d='M8.1228%2013.6648H8.13159'%20stroke='white'%20stroke-width='1.5'%20stroke-linecap='round'%20stroke-linejoin='round'/%3e%3cpath%20d='M8.1228%2016.6023H8.13159'%20stroke='white'%20stroke-width='1.5'%20stroke-linecap='round'%20stroke-linejoin='round'/%3e%3c/svg%3e";
-const PostDetails = ({
-  title,
-  content,
-  featureImage,
-  featureImage1,
-  category,
-  publishDate,
-  metaTitle,
-  metaDescription,
-  ogImage,
-  schema
-}) => {
-  const [pgUrl, setPgUrl] = useState("");
+function ImportManageServicesSpotlight() {
   useEffect(() => {
-    if (typeof window === "undefined" || typeof document === "undefined")
-      return;
-    setPgUrl(window.location.href);
-    function handleAnimation(entries, observer2) {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.style.opacity = 1;
-          animateText(entry.target);
-          observer2.unobserve(entry.target);
-        }
-      });
-    }
-    function animateText(target) {
-      if (typeof SplitType === "undefined" || typeof gsap === "undefined")
-        return;
-      let split = new SplitType(target, { split: "lines" });
-      let tl = gsap.timeline();
-      tl.from(split.lines, {
-        opacity: 0,
-        y: 50,
-        duration: 0.6,
-        ease: "cubic-bezier(0.25, 0.46, 0.45, 0.94)",
-        stagger: 0.2
-      });
-    }
-    const observer = new IntersectionObserver(handleAnimation, {
-      threshold: 0.5
-    });
-    document.querySelectorAll(".js-split-text").forEach((element) => {
-      observer.observe(element);
-    });
-    if (typeof AOS !== "undefined")
-      AOS.init();
-  }, []);
-  const altText = featureImage ? featureImage.split("/").pop().replace(/\.[^/.]+$/, "") : "feature-image";
-  return /* @__PURE__ */ jsxs(Fragment, { children: [
-    /* @__PURE__ */ jsxs(Helmet, { children: [
-      /* @__PURE__ */ jsx("title", { children: metaTitle }),
-      /* @__PURE__ */ jsx("meta", { name: "description", content: metaDescription }),
-      /* @__PURE__ */ jsx("meta", { property: "og:title", content: metaTitle }),
-      /* @__PURE__ */ jsx("meta", { property: "og:description", content: metaDescription }),
-      /* @__PURE__ */ jsx("meta", { property: "og:image", content: ogImage }),
-      /* @__PURE__ */ jsx("script", { type: "application/ld+json", children: JSON.stringify(schema) })
+  });
+  return /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsxs("div", { className: "service-spotlight section inner-spotlight-sec section-padd-LR overflow wareHousing-hdr", children: [
+    /* @__PURE__ */ jsx("div", { className: "main-container width-1250 flex", children: /* @__PURE__ */ jsxs("div", { className: "inner-spot-clm-1", children: [
+      /* @__PURE__ */ jsxs("h1", { className: "js-split-text white", children: [
+        "Import",
+        /* @__PURE__ */ jsx("br", {}),
+        "Management"
+      ] }),
+      /* @__PURE__ */ jsx("h2", { className: "sldr-sub-ttl", "data-aos": "fade-up", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "800", children: "Efficient, Reliable, and Compliant Import Management Services Across Industries" }),
+      /* @__PURE__ */ jsx("img", { src: Line$4, alt: "Line", "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "900" }),
+      /* @__PURE__ */ jsx("p", { className: "white", "data-aos": "fade-up", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "900", children: "Streamline Your Imports with India’s Leading Import Management Partner." }),
+      /* @__PURE__ */ jsxs("div", { className: "btn inner-spt-btn white", "data-aos": "fade-up", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "900", children: [
+        /* @__PURE__ */ jsx("a", { className: "white-60", href: "/", children: "Home " }),
+        " > ",
+        /* @__PURE__ */ jsx("a", { className: "white-60", children: "Services " }),
+        " > ",
+        /* @__PURE__ */ jsx("a", { className: "white-60", children: "Import Management" })
+      ] })
+    ] }) }),
+    /* @__PURE__ */ jsx("div", { className: "inner-img-sec", children: /* @__PURE__ */ jsx("div", { className: "inner-spot-clm-2", children: /* @__PURE__ */ jsx("img", { src: ImportManagement, alt: "supplyChainImage", className: "lToR", "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "1000" }) }) })
+  ] }) });
+}
+function ImportManagemultiUserAbout() {
+  return /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsxs("div", { className: "abt_us-section section-padd-LR overflow", children: [
+    /* @__PURE__ */ jsxs("div", { className: "main-container width-1200 black multiuser-container1", children: [
+      /* @__PURE__ */ jsxs("div", { className: "services-hdng black", "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "400", children: [
+        /* @__PURE__ */ jsx("a", { href: "/services/import-management#AboutIME", "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "600", children: "About MRS’s Import Management Expertise" }),
+        /* @__PURE__ */ jsxs("a", { href: "/services/import-management#DetailedServicesBreakdown", "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "700", children: [
+          "Detailed ",
+          /* @__PURE__ */ jsx("br", {}),
+          "Services Breakdown"
+        ] }),
+        /* @__PURE__ */ jsxs("a", { href: "/services/import-management#BenefitsChoosingMRS", "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "800", children: [
+          "Benefits of ",
+          /* @__PURE__ */ jsx("br", {}),
+          " Choosing MRS"
+        ] }),
+        /* @__PURE__ */ jsxs("a", { href: "/services/import-management#CaseStudies", "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "900", children: [
+          "Case Studies/ ",
+          /* @__PURE__ */ jsx("br", {}),
+          "Success Stories"
+        ] })
+      ] }),
+      /* @__PURE__ */ jsx("h2", { className: "ttl-45px trusted-ttl js-split-text", children: "Your Trusted Partner in Gujarat for Comprehensive Import Management" }),
+      /* @__PURE__ */ jsxs("div", { className: "row", children: [
+        /* @__PURE__ */ jsx("div", { className: "clm-2", children: /* @__PURE__ */ jsx("p", { className: "mob-mrgin-o", "data-aos": "fade-in", "data-aos-duration": "500", "data-aos-once": "true", "data-aos-delay": "400", children: "When working for an importer, managing the entire import process is crucial. This includes meticulous attention to documentation, customs clearance, and the timely release of goods. From the moment a container arrives at the port to its clearance and final handover to the importer, every step requires precision and timely execution to ensure a smooth import process." }) }),
+        /* @__PURE__ */ jsx("div", { className: "clm-2", "data-aos": "fade-in", "data-aos-duration": "500", "data-aos-once": "true", "data-aos-delay": "600", children: /* @__PURE__ */ jsx("p", { className: "mob-mrgin-btm-o", children: "At MRS, we are proud to be the preferred import management partner for leading businesses across Gujarat. With our strategic presence near major ports like Hazira, Kandla, and Mundra, and the unique advantage of managing a Free Trade Warehousing Zone in Mundra, we facilitate seamless import processes backed by our robust infrastructure, including 3.5 Lakh Sq Ft of warehousing space." }) }),
+        /* @__PURE__ */ jsx("div", { className: "clm-2", "data-aos": "fade-in", "data-aos-duration": "500", "data-aos-once": "true", "data-aos-delay": "600", children: /* @__PURE__ */ jsx("p", { className: "mob-mrgin-btm-o", children: "Our import management solutions are tailored to meet the unique requirements of diverse industries. From expert Customs Brokerage to streamlined Logistics Coordination, and from Compliance Assurance to End-to-End Handling, we go beyond just managing imports. We are your strategic partner in ensuring efficient, cost-effective, and compliant import operations that enhance your supply chain’s efficiency." }) })
+      ] })
     ] }),
-    /* @__PURE__ */ jsx(Header2, {}),
-    /* @__PURE__ */ jsx("div", { className: "blogInside-spotlgtSec section-padd-LR overflow", children: /* @__PURE__ */ jsxs("div", { className: "main-container width-1250 ", children: [
-      /* @__PURE__ */ jsx("h5", { className: "white", children: category }),
-      /* @__PURE__ */ jsx("h1", { className: "white", children: title }),
-      /* @__PURE__ */ jsxs("div", { className: "date-bx", children: [
-        /* @__PURE__ */ jsx("img", { src: date_icon_white, alt: "date_icon_white" }),
-        /* @__PURE__ */ jsx("p", { className: "white", children: publishDate })
+    /* @__PURE__ */ jsxs("div", { className: "main-container width-1250 multiuser-container2", id: "no-pad-mob", children: [
+      /* @__PURE__ */ jsx("div", {}),
+      /* @__PURE__ */ jsxs("div", { className: "user-numbers-sec", "data-aos": "fade-in", "data-aos-delay": "400", "data-aos-once": "true", children: [
+        /* @__PURE__ */ jsxs("div", { className: "user-numbers-dv", "data-aos": "fade-in", "data-aos-delay": "0", "data-aos-once": "true", children: [
+          /* @__PURE__ */ jsxs("h4", { className: "numbers blue", children: [
+            " 14 ",
+            /* @__PURE__ */ jsx("span", { className: "num-ttl", children: "years" })
+          ] }),
+          /* @__PURE__ */ jsx("p", { className: "grey user-numbers-desc", children: "Experience in 3PL and Warehousing Services." })
+        ] }),
+        /* @__PURE__ */ jsxs("div", { className: "user-numbers-dv", "data-aos": "fade-in", "data-aos-delay": "300", "data-aos-once": "true", children: [
+          /* @__PURE__ */ jsxs("h4", { className: "numbers blue", children: [
+            "07 ",
+            /* @__PURE__ */ jsx("sapn", { className: "num-ttl", children: "Lacs Sq ft" })
+          ] }),
+          /* @__PURE__ */ jsx("p", { className: "grey user-numbers-desc", children: "Warehouses Leased Out for Food Grains and Bulk Cargo." })
+        ] }),
+        /* @__PURE__ */ jsxs("div", { className: "user-numbers-dv", "data-aos": "fade-in", "data-aos-delay": "500", "data-aos-once": "true", children: [
+          /* @__PURE__ */ jsxs("h4", { className: "numbers blue", children: [
+            "3.5 ",
+            /* @__PURE__ */ jsx("sapn", { className: "num-ttl", children: "Lacs" })
+          ] }),
+          /* @__PURE__ */ jsx("p", { className: "grey user-numbers-desc", children: "Grade A Warehousing Space in Kutch." })
+        ] })
       ] })
-    ] }) }),
-    /* @__PURE__ */ jsx("div", { className: "blogInside-contntSec section-padd-LR", children: /* @__PURE__ */ jsxs("div", { className: "main-container width-1100 flex", children: [
-      /* @__PURE__ */ jsx("img", { src: featureImage, alt: altText, className: "featureImg-inside" }),
-      /* @__PURE__ */ jsx("div", { className: "width-10", children: /* @__PURE__ */ jsx("div", { className: "share-icn", children: pgUrl && /* @__PURE__ */ jsxs(Fragment, { children: [
-        /* @__PURE__ */ jsx(FacebookShareButton, { url: pgUrl, quote: "Hello", children: /* @__PURE__ */ jsx(FacebookIcon, { size: 30, round: true }) }),
-        /* @__PURE__ */ jsx(LinkedinShareButton, { url: pgUrl, children: /* @__PURE__ */ jsx(LinkedinIcon, { size: 30, round: true }) }),
-        /* @__PURE__ */ jsx(TwitterShareButton, { url: pgUrl, children: /* @__PURE__ */ jsx(XIcon, { size: 30, round: true }) })
-      ] }) }) }),
-      /* @__PURE__ */ jsxs("div", { className: "width-90 blg-cntnt", children: [
-        /* @__PURE__ */ jsx("div", { dangerouslySetInnerHTML: { __html: content } }),
-        /* @__PURE__ */ jsx("a", { href: "/blog", className: "blg_back_btn", children: "< Back to blog page" })
+    ] })
+  ] }) });
+}
+function ImportManageBuiltoSuit() {
+  return /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsx("div", { className: "built-to-suit-sec section-padd-LR overflow", id: "DetailedServicesBreakdown", children: /* @__PURE__ */ jsxs("div", { className: "main-container width-1200 built-to-suit-container1 white", children: [
+    /* @__PURE__ */ jsxs("div", { className: "row built-row", children: [
+      /* @__PURE__ */ jsxs("div", { className: "clm-2 built-cntnt-clm", children: [
+        /* @__PURE__ */ jsx("h2", { className: "ttl-45px js-split-text", children: "Detailed Services Breakdown" }),
+        /* @__PURE__ */ jsx("p", { "data-aos": "fade-in", "data-aos-duration": "500", "data-aos-once": "true", "data-aos-delay": "800", children: "Import management oversees the efficient flow of goods from foreign suppliers to a business, handling logistics, documentation, and customs compliance. By navigating complex trade regulations and coordinating each step, it ensures timely, cost-effective delivery and smooth supply chain operations." })
+      ] }),
+      /* @__PURE__ */ jsx("div", { className: "clm-2 built-img-clm", children: /* @__PURE__ */ jsx("img", { src: BuiltWarehousing$4, alt: "BuiltWarehousing", "data-aos": "fade-in", "data-aos-duration": "500", "data-aos-once": "true", "data-aos-delay": "900" }) })
+    ] }),
+    /* @__PURE__ */ jsx("h3", { className: "we-offer-txt js-split-text", children: "At MRS, we offer a cutting-edge solution with your business in mind:" }),
+    /* @__PURE__ */ jsx("img", { className: "built-line-img", src: Line$4, alt: "Line", "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "900" }),
+    /* @__PURE__ */ jsxs("div", { children: [
+      /* @__PURE__ */ jsxs("ul", { className: "built-ul", children: [
+        /* @__PURE__ */ jsxs("li", { "data-aos": "fade-in", "data-aos-duration": "500", "data-aos-once": "true", "data-aos-delay": "500", children: [
+          /* @__PURE__ */ jsx("h3", { children: "Customs Brokerage" }),
+          /* @__PURE__ */ jsx("p", { children: "Expert handling of all customs documentation and procedures." })
+        ] }),
+        /* @__PURE__ */ jsxs("li", { "data-aos": "fade-in", "data-aos-duration": "500", "data-aos-once": "true", "data-aos-delay": "800", children: [
+          /* @__PURE__ */ jsx("h3", { children: "Compliance Assurance" }),
+          /* @__PURE__ */ jsx("p", { children: "Ensuring all imports meet India’s regulatory standards." })
+        ] }),
+        /* @__PURE__ */ jsxs("li", { "data-aos": "fade-in", "data-aos-duration": "500", "data-aos-once": "true", "data-aos-delay": "900", children: [
+          /* @__PURE__ */ jsx("h3", { children: "Logistics Coordination" }),
+          /* @__PURE__ */ jsx("p", { children: "Streamlined logistics solutions from the point of origin to your doorstep." })
+        ] }),
+        /* @__PURE__ */ jsxs("li", { "data-aos": "fade-in", "data-aos-duration": "500", "data-aos-once": "true", "data-aos-delay": "1000", children: [
+          /* @__PURE__ */ jsx("h3", { children: "End-to-End Handling" }),
+          /* @__PURE__ */ jsx("p", { children: "From documentation to delivery, we manage every aspect of your import process." })
+        ] })
+      ] }),
+      /* @__PURE__ */ jsx("p", { className: "margin-o", "data-aos": "fade-in", "data-aos-duration": "500", "data-aos-once": "true", "data-aos-delay": "600", children: "At MRS, we provide seamless import solutions. Our Customs Brokerage ensures expert handling of all documentation, while Compliance Assurance keeps you aligned with India’s regulations. With Logistics Coordination and End-to-End Handling, we manage everything from origin to delivery, so you can focus on your business." })
+    ] })
+  ] }) }) });
+}
+function ImportManageMultiuserWarehousing() {
+  useEffect(() => {
+    $(".readMore-button").off("click").on("click", function() {
+      $(".readMore-button").toggleClass("rotate");
+      $(".moretext").slideToggle();
+      if ($(this).text() == "Read more") {
+        $(this).text("Read less");
+      } else {
+        $(this).text("Read more");
+      }
+    });
+  });
+  return /* @__PURE__ */ jsxs(Fragment, { children: [
+    /* @__PURE__ */ jsx("div", { className: "multiwarehouse section-padd-LR overflow", id: "AboutIME", children: /* @__PURE__ */ jsx("div", { className: "main-container width-1200 black built-to-suit-container1 multiwar-cont1", children: /* @__PURE__ */ jsxs("div", { className: "row built-row", children: [
+      /* @__PURE__ */ jsx("div", { className: "clm-2 built-img-clm", children: /* @__PURE__ */ jsx("img", { src: MultiuserWarehousing$2, alt: "Inplant", "data-aos": "fade-in", "data-aos-duration": "700", "data-aos-once": "true", "data-aos-delay": "400" }) }),
+      /* @__PURE__ */ jsxs("div", { className: "clm-2 built-cntnt-clm", children: [
+        /* @__PURE__ */ jsx("h2", { className: "ttl-45px js-split-text", children: "About MRS’s Import Management Expertise" }),
+        /* @__PURE__ */ jsx("p", { "data-aos": "fade-in", "data-aos-duration": "700", "data-aos-once": "true", "data-aos-delay": "700", children: "MRS Supply Chain Solutions has cemented its position as a leader in import management services throughout India. With over a decade of expertise, we navigate the complexities of customs and import regulations to bring you a seamless, compliant, and efficient import process. Our robust network and deep understanding of international trade laws ensure your goods move smoothly and swiftly across borders." }),
+        /* @__PURE__ */ jsx("div", { className: "moretext", children: /* @__PURE__ */ jsx("p", { children: "Shared Space, Shared Success - With our extensive warehouse network, knowledge sharing, extensive experience, and ongoing collaborative improvement projects, we stand committed to providing the highest quality solutions for your products. Our multi-user warehousing concept fosters synergy, ensuring your goods are handled with care and precision." }) }),
+        /* @__PURE__ */ jsx("a", { className: "readMore-button", "data-aos": "fade-in", "data-aos-duration": "500", "data-aos-once": "true", "data-aos-delay": "600", children: "Read more" })
       ] })
-    ] }) }),
-    /* @__PURE__ */ jsx(Footer, {})
+    ] }) }) }),
+    /* @__PURE__ */ jsx("div", { className: "inPlant-sec2 section-padd-LR overflow", children: /* @__PURE__ */ jsxs("div", { className: "main-container width-1200 black built-to-suit-container1", children: [
+      /* @__PURE__ */ jsx("h3", { className: "we-offer-txt advtg-txt blue js-split-text", children: "Advantages of Import Management with MRS" }),
+      /* @__PURE__ */ jsx("img", { className: "built-line-img", src: GreyLine, alt: "GreyLine", "data-aos": "fade-in", "data-aos-duration": "500", "data-aos-once": "true", "data-aos-delay": "800" }),
+      /* @__PURE__ */ jsxs("div", { className: "advant-containr", children: [
+        /* @__PURE__ */ jsxs("div", { className: "advan-bx", "data-aos": "fade-in", "data-aos-duration": "500", "data-aos-once": "true", "data-aos-delay": "400", children: [
+          /* @__PURE__ */ jsx("img", { src: VersatileStorage, alt: "VersatileStorage" }),
+          /* @__PURE__ */ jsx("h4", { children: "Versatile Solutions" }),
+          /* @__PURE__ */ jsx("p", { children: "Whether you need support for occasional shipments or ongoing import operations, our services are designed to meet your unique requirements." })
+        ] }),
+        /* @__PURE__ */ jsxs("div", { className: "advan-bx", "data-aos": "fade-in", "data-aos-duration": "500", "data-aos-once": "true", "data-aos-delay": "600", children: [
+          /* @__PURE__ */ jsx("img", { src: Flexible, alt: "Flexible" }),
+          /* @__PURE__ */ jsx("h4", { children: "Cost-Effective Options" }),
+          /* @__PURE__ */ jsx("p", { children: "Benefit from tailored financial solutions that align with your budget and operational needs, ensuring maximum value for your investment." })
+        ] }),
+        /* @__PURE__ */ jsxs("div", { className: "advan-bx", "data-aos": "fade-in", "data-aos-duration": "500", "data-aos-once": "true", "data-aos-delay": "800", children: [
+          /* @__PURE__ */ jsx("img", { src: Scalable, alt: "Scalable" }),
+          /* @__PURE__ */ jsx("h4", { children: "Scalable Operations" }),
+          /* @__PURE__ */ jsx("p", { children: "Easily adjust to fluctuations in demand with our flexible import management capabilities, designed to handle everything from small shipments to large-scale operations." })
+        ] })
+      ] }),
+      /* @__PURE__ */ jsx("p", { className: "mob-mrgin-btm-o txt-center", "data-aos": "fade-in", "data-aos-duration": "500", "data-aos-once": "true", "data-aos-delay": "1200", children: "Choose MRS for import management that delivers efficiency, compliance, and reliability. Experience seamless import processes tailored to your business needs, ensuring smooth operations and shared success." })
+    ] }) })
   ] });
-};
-const BlogArchive = () => {
+}
+function ImportManageCustomsBonded() {
+  useEffect(() => {
+    $(".cstm-bondReadMore").off("click").on("click", function() {
+      $(".cstm-bondReadMore").toggleClass("rotate");
+      $(".bond-moretext").slideToggle();
+      if ($(this).text() == "Read more") {
+        $(this).text("Read less");
+      } else {
+        $(this).text("Read more");
+      }
+    });
+    $(".accordion-list > li > .answer").hide();
+    $(".accordion-list > li").off("click").on("click", function() {
+      if ($(this).hasClass("active")) {
+        $(this).removeClass("active").find(".answer").slideUp();
+      } else {
+        $(".accordion-list > li.active .answer").slideUp();
+        $(".accordion-list > li.active").removeClass("active");
+        $(this).addClass("active").find(".answer").slideDown();
+      }
+      return false;
+    });
+  });
+  return /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsx("div", { className: "custom-bonded-sec section-padd-LR overflow", id: "BenefitsChoosingMRS", children: /* @__PURE__ */ jsx("div", { className: "main-container width-1200 black built-to-suit-container1 custom-bonded-cntr1", children: /* @__PURE__ */ jsxs("div", { className: "row built-row", children: [
+    /* @__PURE__ */ jsx("div", { className: "clm-2 built-img-clm", children: /* @__PURE__ */ jsx("img", { src: CustomsBonded, alt: "CustomsBonded", "data-aos": "fade-in", "data-aos-duration": "500", "data-aos-once": "true", "data-aos-delay": "500" }) }),
+    /* @__PURE__ */ jsxs("div", { className: "clm-2 built-cntnt-clm white", children: [
+      /* @__PURE__ */ jsx("h2", { className: "ttl-45px js-split-text", children: "Benefits of Choosing MRS" }),
+      /* @__PURE__ */ jsx("p", { "data-aos": "fade-in", "data-aos-duration": "500", "data-aos-once": "true", "data-aos-delay": "500", children: "Choosing MRS means partnering with an import management expert who prioritises your business’s efficiency and compliance. Our clients enjoy" }),
+      /* @__PURE__ */ jsxs("div", { className: "bond-moretext", children: [
+        /* @__PURE__ */ jsx("p", { children: "Cost Savings: Reduced operational costs through optimised import processes" }),
+        "    ",
+        /* @__PURE__ */ jsx("br", {}),
+        /* @__PURE__ */ jsx("p", { children: "Time Efficiency: Faster turnaround times thanks to our streamlined operations." }),
+        "  ",
+        /* @__PURE__ */ jsx("br", {}),
+        /* @__PURE__ */ jsx("p", { children: "Regulatory Compliance: Assurance of adherence to all import regulations, avoiding costly penalties." }),
+        " ",
+        /* @__PURE__ */ jsx("br", {}),
+        /* @__PURE__ */ jsx("p", { children: "Single Point of Contact: Simplified communication with a dedicated manager for all your import needs." }),
+        "  ",
+        /* @__PURE__ */ jsx("br", {})
+      ] }),
+      /* @__PURE__ */ jsx("a", { className: "cstm-bondReadMore white", "data-aos": "fade-in", "data-aos-duration": "500", "data-aos-once": "true", "data-aos-delay": "600", children: "Read more" })
+    ] })
+  ] }) }) }) });
+}
+function ImportManageinPlant() {
+  return /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsx("div", { className: "inPlant-sec section-padd-LR overflow", id: "CaseStudies", children: /* @__PURE__ */ jsxs("div", { className: "main-container width-1200 black built-to-suit-container1 inPlant-container", children: [
+    /* @__PURE__ */ jsxs("div", { className: "row built-row", children: [
+      /* @__PURE__ */ jsxs("div", { className: "clm-2 built-cntnt-clm", children: [
+        /* @__PURE__ */ jsx("h2", { className: "ttl-45px js-split-text", children: "Case Studies Success Stories" }),
+        /* @__PURE__ */ jsx("p", { "data-aos": "fade-in", "data-aos-duration": "500", "data-aos-once": "true", "data-aos-delay": "400", children: "Feature two or three short case studies that show how MRS has successfully managed imports for other companies. Focus on diverse industries to show versatility." })
+      ] }),
+      /* @__PURE__ */ jsx("div", { className: "clm-2 built-img-clm", children: /* @__PURE__ */ jsx("img", { src: In_Plant_warehousing, alt: "In_Plant_warehousing", "data-aos": "fade-in", "data-aos-duration": "500", "data-aos-once": "true", "data-aos-delay": "600" }) })
+    ] }),
+    /* @__PURE__ */ jsx("h3", { className: "we-offer-txt blue js-split-text", children: "Our services encompass:" }),
+    /* @__PURE__ */ jsx(
+      "img",
+      {
+        className: "built-line-img",
+        src: Line$3,
+        alt: "Line",
+        "data-aos": "fade-in",
+        "data-aos-duration": "500",
+        "data-aos-once": "true",
+        "data-aos-delay": "600"
+      }
+    ),
+    /* @__PURE__ */ jsxs("div", { children: [
+      /* @__PURE__ */ jsxs("ul", { className: "built-ul inplant-ul ", children: [
+        /* @__PURE__ */ jsxs("li", { "data-aos": "fade-in", "data-aos-duration": "500", "data-aos-once": "true", "data-aos-delay": "400", children: [
+          /* @__PURE__ */ jsx("h3", { className: "blue", children: "Tailored Import Solutions" }),
+          /* @__PURE__ */ jsx("p", { children: "We understand that every business has unique import requirements. Our team of experts customises import strategies to optimize your supply chain, reduce costs, and ensure the smooth flow of goods from international suppliers." })
+        ] }),
+        /* @__PURE__ */ jsxs("li", { "data-aos": "fade-in", "data-aos-duration": "500", "data-aos-once": "true", "data-aos-delay": "600", children: [
+          /* @__PURE__ */ jsx("h3", { children: "Advanced Compliance Management" }),
+          /* @__PURE__ */ jsx("p", { children: "Utilising cutting-edge systems, we ensure all your imports comply with international trade laws and India’s regulations. Our real-time tracking provides visibility and control, reducing the risk of delays or penalties." })
+        ] }),
+        /* @__PURE__ */ jsxs("li", { "data-aos": "fade-in", "data-aos-duration": "500", "data-aos-once": "true", "data-aos-delay": "800", children: [
+          /* @__PURE__ */ jsx("h3", { children: "Efficient Logistics Handling" }),
+          /* @__PURE__ */ jsx("p", { children: "Our import management services cover every aspect of logistics, from port to destination. We coordinate, transport, and safely deliver your goods with precision and efficiency, reducing transit time and costs." })
+        ] }),
+        /* @__PURE__ */ jsxs("li", { "data-aos": "fade-in", "data-aos-duration": "500", "data-aos-once": "true", "data-aos-delay": "900", children: [
+          /* @__PURE__ */ jsx("h3", { children: "Seamless Integration with Operations" }),
+          /* @__PURE__ */ jsx("p", { children: "Our import management integrates seamlessly with your existing processes, aligning shipments with your production or business schedules. This coordination minimises downtime and keeps your operations running smoothly." })
+        ] }),
+        /* @__PURE__ */ jsxs("li", { "data-aos": "fade-in", "data-aos-duration": "500", "data-aos-once": "true", "data-aos-delay": "1000", children: [
+          /* @__PURE__ */ jsx("h3", { children: "Scalable and Adaptable Support" }),
+          /* @__PURE__ */ jsx("p", { children: "As your business grows, so do our services. Whether you’re scaling up operations or managing fluctuating demand, our import solutions adapt to your needs, ensuring uninterrupted supply chain operations." })
+        ] })
+      ] }),
+      /* @__PURE__ */ jsx("p", { className: "", "data-aos": "fade-in", "data-aos-duration": "500", "data-aos-once": "true", "data-aos-delay": "800", children: "Partner with MRS for import management services designed to drive efficiency, compliance, and reliability at every step." })
+    ] })
+  ] }) }) });
+}
+function ImportManageinnerCTA() {
+  useEffect(() => {
+  });
+  return /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsx("div", { className: "cta-sec section-padd-LR overflow inner-cta-sec", children: /* @__PURE__ */ jsx("div", { className: "main-container", children: /* @__PURE__ */ jsxs("div", { className: "client-img-bx global-cta", children: [
+    /* @__PURE__ */ jsx("img", { className: "first_Company-img", src: About_CTA, alt: "About_CTA", "data-aos": "fade-in", "data-aos-duration": "500", "data-aos-once": "true", "data-aos-delay": "600" }),
+    /* @__PURE__ */ jsxs("div", { className: "client-contnt-bx", children: [
+      /* @__PURE__ */ jsxs("h2", { className: "white ttl-60px", "data-aos": "fade-in", "data-aos-duration": "500", "data-aos-once": "true", "data-aos-delay": "600", children: [
+        "We are the 1st Company in Kutch to Provide Single Largest Warehouse of Grade ",
+        /* @__PURE__ */ jsx("span", { className: "bold", children: "A" }),
+        " category"
+      ] }),
+      /* @__PURE__ */ jsx("div", { className: "client-btn inner-cta-btn enquire_btn", id: "btn-styl", "data-aos": "fade-up", "data-aos-duration": "1000", "data-aos-once": "true", "data-aos-delay": "600", children: /* @__PURE__ */ jsxs("a", { children: [
+        /* @__PURE__ */ jsx("span", { className: "btn_name", children: "Contact Us for Warehousing Excellence" }),
+        " ",
+        /* @__PURE__ */ jsx("img", { src: white_Arrow, alt: "Arrow", className: "inner-cta-img" })
+      ] }) })
+    ] })
+  ] }) }) }) });
+}
+const ImportanMagement = () => {
   useEffect(() => {
     function handleAnimation(entries, observer) {
       entries.forEach((entry) => {
@@ -6495,76 +7606,21 @@ const BlogArchive = () => {
       });
     }
     document.querySelectorAll(".js-split-text").forEach((element) => {
-      let observer = new IntersectionObserver(handleAnimation, {
-        threshold: 0.5
-      });
+      let observer = new IntersectionObserver(handleAnimation, { threshold: 0.5 });
       observer.observe(element);
     });
     AOS.init();
   });
   return /* @__PURE__ */ jsxs(Fragment, { children: [
-    /* @__PURE__ */ jsxs(Helmet, { children: [
-      /* @__PURE__ */ jsx("title", { children: "News & Blog - MRS" }),
-      /* @__PURE__ */ jsx("meta", { name: "description", content: "Latest Happenings" })
-    ] }),
     /* @__PURE__ */ jsx(Header2, {}),
-    /* @__PURE__ */ jsx("div", { className: "section inner-spotlight-sec section-padd-LR overflow blogarchive-sec", children: /* @__PURE__ */ jsx("div", { className: "main-container width-1250 flex", children: /* @__PURE__ */ jsxs("div", { className: "inner-spot-clm-1", children: [
-      /* @__PURE__ */ jsx("h1", { className: "js-split-text white", children: "News & Blog" }),
-      /* @__PURE__ */ jsx(
-        "h2",
-        {
-          className: "sldr-sub-ttl blg-sub-ttl",
-          "data-aos": "fade-up",
-          "data-aos-duration": "800",
-          "data-aos-once": "true",
-          "data-aos-delay": "400",
-          children: "Latest Happenings"
-        }
-      ),
-      /* @__PURE__ */ jsxs(
-        "div",
-        {
-          className: "btn inner-spt-btn white",
-          "data-aos": "fade-up",
-          "data-aos-duration": "1000",
-          "data-aos-once": "true",
-          "data-aos-delay": "600",
-          children: [
-            /* @__PURE__ */ jsxs("a", { className: "white-60", href: "/", children: [
-              "Home",
-              " "
-            ] }),
-            " > ",
-            /* @__PURE__ */ jsx("a", { className: "white-60", children: "News & Blog" })
-          ]
-        }
-      )
-    ] }) }) }),
-    /* @__PURE__ */ jsx("div", { className: "blog-archive-sec section-padd-LR", children: /* @__PURE__ */ jsx("div", { className: "main-container", children: /* @__PURE__ */ jsx("div", { className: "blog-bx", children: /* @__PURE__ */ jsx("div", { className: "blg-content-dv", children: /* @__PURE__ */ jsx("ul", { className: "blg-list", children: postsData.map((post) => /* @__PURE__ */ jsxs("li", { children: [
-      /* @__PURE__ */ jsx(
-        "img",
-        {
-          src: post.featureImage,
-          className: "featureImg",
-          alt: post.imgAltTag
-        }
-      ),
-      /* @__PURE__ */ jsx("div", { className: "date-box", children: /* @__PURE__ */ jsxs("p", { children: [
-        post.category,
-        " · ",
-        post.publishDate
-      ] }) }),
-      /* @__PURE__ */ jsx("h2", { className: "post-ttl", children: post.title }),
-      /* @__PURE__ */ jsx(
-        "a",
-        {
-          className: "btn grey",
-          id: "btn-styl",
-          href: `/blog/${post.slug}`,
-          children: /* @__PURE__ */ jsx("span", { className: "btn_name", children: "Read more" })
-        }
-      )
-    ] }, post.id)) }) }) }) }) }),
+    /* @__PURE__ */ jsx(ImportManageServicesSpotlight, {}),
+    /* @__PURE__ */ jsx(ImportManagemultiUserAbout, {}),
+    /* @__PURE__ */ jsx(ImportManageBuiltoSuit, {}),
+    /* @__PURE__ */ jsx(ImportManageMultiuserWarehousing, {}),
+    /* @__PURE__ */ jsx(ImportManageCustomsBonded, {}),
+    /* @__PURE__ */ jsx(ImportManageinPlant, {}),
+    /* @__PURE__ */ jsx(ImportManageinnerCTA, {}),
+    /* @__PURE__ */ jsx(formSection, {}),
     /* @__PURE__ */ jsx(Footer, {})
   ] });
 };
@@ -6945,7 +8001,9 @@ function Contactpage() {
       });
     }
     document.querySelectorAll(".js-split-text").forEach((element) => {
-      let observer = new IntersectionObserver(handleAnimation, { threshold: 0.5 });
+      let observer = new IntersectionObserver(handleAnimation, {
+        threshold: 0.5
+      });
       observer.observe(element);
     });
     AOS.init();
@@ -6953,1136 +8011,19 @@ function Contactpage() {
   return /* @__PURE__ */ jsxs(Fragment, { children: [
     /* @__PURE__ */ jsxs(Helmet, { children: [
       /* @__PURE__ */ jsx("title", { children: "Careers - MRS" }),
-      /* @__PURE__ */ jsx("meta", { name: "description", content: "Explore Opportunities: Embark on a Rewarding Career with MRS Group" })
+      /* @__PURE__ */ jsx(
+        "meta",
+        {
+          name: "description",
+          content: "Explore Opportunities: Embark on a Rewarding Career with MRS Group"
+        }
+      )
     ] }),
     /* @__PURE__ */ jsx(Header2, {}),
     /* @__PURE__ */ jsx(CareerSpotlight, {}),
     /* @__PURE__ */ jsx(SectorAbout$6, {}),
     /* @__PURE__ */ jsx(ourCulture, {}),
     /* @__PURE__ */ jsx(applyNow, {}),
-    /* @__PURE__ */ jsx(formSection, {}),
-    /* @__PURE__ */ jsx(Footer, {})
-  ] });
-}
-const Warehousing_Solution$4 = "/assets/ArtsExhibitions-7ZIMfCgA.jpg";
-function SectorSpotlight$5() {
-  useEffect(() => {
-  });
-  return /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsxs("div", { className: "service-spotlight custom-brokerage-sec section inner-spotlight-sec section-padd-LR overflow arts-hdr", children: [
-    /* @__PURE__ */ jsx("div", { className: "main-container width-1250 flex", children: /* @__PURE__ */ jsxs("div", { className: "inner-spot-clm-1", id: "inner-spot-clm-1", children: [
-      /* @__PURE__ */ jsx("h2", { className: "sldr-sub-ttl", "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "0", children: "Sector Solutions" }),
-      /* @__PURE__ */ jsxs("h1", { className: "js-split-text white", children: [
-        "Arts, Exhibitions, and ",
-        /* @__PURE__ */ jsx("br", {}),
-        "Luxury Goods "
-      ] }),
-      /* @__PURE__ */ jsx("img", { src: Line$4, alt: "Line", "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "300" }),
-      /* @__PURE__ */ jsx("p", { className: "white", "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "300", children: "Elevating the Art of Luxury Logistics" }),
-      /* @__PURE__ */ jsxs("div", { className: "btn inner-spt-btn white", "data-aos": "fade-in", "data-aos-duration": "1000", "data-aos-once": "true", "data-aos-delay": "300", children: [
-        /* @__PURE__ */ jsx("a", { className: "white-60", href: "/", children: "Home " }),
-        " > ",
-        /* @__PURE__ */ jsx("a", { className: "white-60", children: "Sectors " }),
-        " > ",
-        /* @__PURE__ */ jsx("a", { className: "white-60", children: "Arts, Exhibitions, and Luxury Goods" })
-      ] })
-    ] }) }),
-    /* @__PURE__ */ jsx("div", { className: "inner-img-sec", children: /* @__PURE__ */ jsx("div", { className: "inner-spot-clm-2", children: /* @__PURE__ */ jsx("img", { src: Warehousing_Solution$4, alt: "supplyChainImage", className: "lToR", "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "300" }) }) })
-  ] }) });
-}
-function SectorAbout$5() {
-  return /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsx("div", { className: "roadRailAbt-sec section-padd-LR overflow", children: /* @__PURE__ */ jsxs("div", { className: "main-container width-1250 black tech-driven-numbrs1", children: [
-    /* @__PURE__ */ jsx("h2", { className: "ttl-45px trusted-ttl js-split-text", children: "Expert Handling and Storage for Arts, Exhibitions, and High-Value Goods" }),
-    /* @__PURE__ */ jsx("p", { className: "mob-mrgin-o", "data-aos": "fade-in", "data-aos-duration": "500", "data-aos-once": "true", "data-aos-delay": "200", children: "In the world of arts, exhibitions, and luxury goods, the importance of meticulous handling, secure transportation, and specialised storage cannot be overstated. MRS Supply Chain offers a suite of services tailored to meet the unique needs of this sector, ensuring that high-value commodities are managed with the utmost care and precision." })
-  ] }) }) });
-}
-function SectorSolutions$5() {
-  return /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsx("div", { className: "custom-bonded-sec2 section-padd-LR overflow sectorSolution-sec", children: /* @__PURE__ */ jsxs("div", { className: "main-container width-1250 built-to-suit-container1", children: [
-    /* @__PURE__ */ jsx("h3", { className: "we-offer-txt bond-txt black js-split-text key-fetr-ttl", children: "Specialised Logistics Solutions for Arts, Exhibitions, and Luxury Goods:" }),
-    /* @__PURE__ */ jsx("img", { className: "built-line-img", src: Line$1, alt: "Line", "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "" }),
-    /* @__PURE__ */ jsxs("div", { className: "row built-row T-B-Padding B-padding-o ", children: [
-      /* @__PURE__ */ jsxs("div", { className: "clm-2 solution-clm", children: [
-        /* @__PURE__ */ jsx("h3", { "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "", children: "High-Value Commodities and Exhibition Cargo" }),
-        /* @__PURE__ */ jsx("p", { "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "", children: "Handling and logistics for exhibitions, art pieces, and luxury items, ensuring their pristine condition and timely delivery for global showcases." }),
-        /* @__PURE__ */ jsx("h3", { "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "", children: "Duty-Free Warehousing" }),
-        /* @__PURE__ */ jsx("p", { "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "", children: "Secure, climate-controlled storage solutions that leverage duty-free benefits, providing an ideal environment for the preservation and staging of valuable goods." })
-      ] }),
-      /* @__PURE__ */ jsx("div", { className: "clm-2 built-img-clm", children: /* @__PURE__ */ jsx("img", { src: Inplant$2, alt: "Inplant", "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "500" }) })
-    ] })
-  ] }) }) });
-}
-function KeySector$5() {
-  useEffect(() => {
-    new Swiper(".sector-sldr", {
-      navigation: {
-        nextEl: ".sector-swiper-button-next",
-        prevEl: ".sector-swiper-button-prev"
-      },
-      slidesPerView: 3.1,
-      spaceBetween: 40,
-      breakpoints: {
-        320: {
-          slidesPerView: 1.1
-        },
-        768: {
-          slidesPerView: 2.1
-        },
-        1024: {
-          slidesPerView: 3.1
-        }
-      }
-    });
-  });
-  return /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsx("div", { className: "sector-sec section-padd-LR", children: /* @__PURE__ */ jsxs("div", { className: "main-container width-1250", children: [
-    /* @__PURE__ */ jsx("div", { className: "ovrflw-hdn", children: /* @__PURE__ */ jsx("h2", { className: "sectr-ttl black js-split-text", children: "Key Sectors we work with" }) }),
-    /* @__PURE__ */ jsxs("div", { className: "swiper sector-sldr", "data-aos": "fade-in", "data-aos-duration": "800", "data-aos-once": "true", "data-aos-delay": "500", children: [
-      /* @__PURE__ */ jsxs("div", { className: "pegination-arrow2", children: [
-        /* @__PURE__ */ jsx("div", { className: "sector-swiper-button-next cursor", children: /* @__PURE__ */ jsx("svg", { xmlns: "http://www.w3.org/2000/svg", width: "41", height: "41", viewBox: "0 0 41 41", fill: "none", children: /* @__PURE__ */ jsxs("g", { opacity: "0.7", children: [
-          /* @__PURE__ */ jsx("path", { d: "M12 20H28", stroke: "#929292", strokeLinecap: "round" }),
-          /* @__PURE__ */ jsx("path", { d: "M21 12L29 20L21 28", stroke: "#929292", strokeLinecap: "round" }),
-          "    ",
-          /* @__PURE__ */ jsx("circle", { cx: "20.5", cy: "20.5", r: "20", transform: "matrix(-1 0 0 1 41 0)", stroke: "#929292" })
-        ] }) }) }),
-        /* @__PURE__ */ jsx("div", { className: "sector-swiper-button-prev cursor", children: /* @__PURE__ */ jsx("svg", { xmlns: "http://www.w3.org/2000/svg", width: "41", height: "41", viewBox: "0 0 41 41", fill: "none", children: /* @__PURE__ */ jsxs("g", { opacity: "0.7", children: [
-          /* @__PURE__ */ jsx("path", { d: "M29 20H13", stroke: "#929292", strokeLinecap: "round" }),
-          /* @__PURE__ */ jsx("path", { d: "M20 12L12 20L20 28", stroke: "#929292", strokeLinecap: "round" }),
-          "    ",
-          /* @__PURE__ */ jsx("circle", { cx: "20.5", cy: "20.5", r: "20", stroke: "#929292" })
-        ] }) }) })
-      ] }),
-      /* @__PURE__ */ jsxs("div", { className: "swiper-wrapper", children: [
-        /* @__PURE__ */ jsx("div", { className: "swiper-slide", children: /* @__PURE__ */ jsxs("div", { className: "sector-bx", children: [
-          /* @__PURE__ */ jsx("img", { src: Science_and_Health_Care, alt: "Science_and_Health_Care" }),
-          /* @__PURE__ */ jsxs("div", { className: "content-dv", children: [
-            /* @__PURE__ */ jsx("h2", { children: "Renewable Energy and Infrastructure Projects:  " }),
-            /* @__PURE__ */ jsxs("div", { className: "inner-content-dv", children: [
-              /* @__PURE__ */ jsx("p", { children: "Powering the future with specialised logistics for the renewable energy and infrastructure sectors, where precision meets scale." }),
-              /* @__PURE__ */ jsx("a", { className: "btn grey", id: "btn-styl", href: "/sector/renewable-energy-and-infrastructure-projects", children: /* @__PURE__ */ jsx("span", { className: "btn_name", children: "Read more" }) })
-            ] })
-          ] })
-        ] }) }),
-        /* @__PURE__ */ jsx("div", { className: "swiper-slide", children: /* @__PURE__ */ jsxs("div", { className: "sector-bx", children: [
-          /* @__PURE__ */ jsx("img", { src: RenewableEnergy, alt: "RenewableEnergy" }),
-          /* @__PURE__ */ jsxs("div", { className: "content-dv", children: [
-            /* @__PURE__ */ jsx("h2", { children: "Manufacturing, Automotive, Technology, and Consumer Goods: " }),
-            /* @__PURE__ */ jsxs("div", { className: "inner-content-dv", children: [
-              /* @__PURE__ */ jsx("p", { children: "Driving innovation through integrated logistics, keeping the wheels of industry turning smoothly." }),
-              /* @__PURE__ */ jsx("a", { className: "btn grey", id: "btn-styl", href: "/sector/manufacturing-automotive-technology-and-consumer-goods", children: /* @__PURE__ */ jsx("span", { className: "btn_name", children: "Read more" }) })
-            ] })
-          ] })
-        ] }) }),
-        /* @__PURE__ */ jsx("div", { className: "swiper-slide", children: /* @__PURE__ */ jsxs("div", { className: "sector-bx", children: [
-          /* @__PURE__ */ jsx("img", { src: Industrial, alt: "Industrial" }),
-          /* @__PURE__ */ jsxs("div", { className: "content-dv", children: [
-            /* @__PURE__ */ jsx("h2", { children: "Industrial Equipment:" }),
-            /* @__PURE__ */ jsxs("div", { className: "inner-content-dv", children: [
-              /* @__PURE__ */ jsx("p", { children: "Heavy-duty logistics for heavy-duty equipment, ensuring the backbone of industry remains strong and operational." }),
-              /* @__PURE__ */ jsx("a", { className: "btn grey", id: "btn-styl", href: "/sector/industrial-sector", children: /* @__PURE__ */ jsx("span", { className: "btn_name", children: "Read more" }) })
-            ] })
-          ] })
-        ] }) }),
-        /* @__PURE__ */ jsx("div", { className: "swiper-slide", children: /* @__PURE__ */ jsxs("div", { className: "sector-bx", children: [
-          /* @__PURE__ */ jsx("img", { src: Chemicals, alt: "Chemicals" }),
-          /* @__PURE__ */ jsxs("div", { className: "content-dv", children: [
-            /* @__PURE__ */ jsx("h2", { children: "Agriculture, Chemicals, Construction, and Energy: " }),
-            /* @__PURE__ */ jsxs("div", { className: "inner-content-dv", children: [
-              /* @__PURE__ */ jsx("p", { children: "Cultivating success with tailored logistics for the essential sectors that fuel our world and build our futures." }),
-              /* @__PURE__ */ jsx("a", { className: "btn grey", id: "btn-styl", href: "/sector/chemicals-construction-energy-and-agriculture", children: /* @__PURE__ */ jsx("span", { className: "btn_name", children: "Read more" }) })
-            ] })
-          ] })
-        ] }) }),
-        /* @__PURE__ */ jsx("div", { className: "swiper-slide", children: /* @__PURE__ */ jsxs("div", { className: "sector-bx", children: [
-          /* @__PURE__ */ jsx("img", { src: Ecommerce$1, alt: "Ecommerce" }),
-          /* @__PURE__ */ jsxs("div", { className: "content-dv", children: [
-            /* @__PURE__ */ jsx("h2", { children: "E-commerce and Retail:" }),
-            /* @__PURE__ */ jsxs("div", { className: "inner-content-dv", children: [
-              /* @__PURE__ */ jsx("p", { children: "Revolutionising retail with cutting-edge logistics, delivering the future of commerce today." }),
-              /* @__PURE__ */ jsx("a", { className: "btn grey", id: "btn-styl", href: "/sector/e-commerce-and-retail", children: /* @__PURE__ */ jsx("span", { className: "btn_name", children: "Read more" }) })
-            ] })
-          ] })
-        ] }) })
-      ] })
-    ] })
-  ] }) }) });
-}
-function innerCTA() {
-  useEffect(() => {
-  });
-  return /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsx("div", { className: "cta-sec section-padd-LR overflow inner-cta-sec", children: /* @__PURE__ */ jsx("div", { className: "main-container", children: /* @__PURE__ */ jsxs("div", { className: "client-img-bx global-cta", "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "900", children: [
-    /* @__PURE__ */ jsx("img", { className: "first_Company-img", src: About_CTA, alt: "About_CTA" }),
-    /* @__PURE__ */ jsxs("div", { className: "client-contnt-bx", children: [
-      /* @__PURE__ */ jsxs("h2", { className: "white ttl-60px", "data-aos": "fade-in", "data-aos-duration": "500", "data-aos-once": "true", "data-aos-delay": "600", children: [
-        "We are the 1st Company in Kutch to Provide Single Largest Warehouse of Grade ",
-        /* @__PURE__ */ jsx("span", { className: "bold", children: "A" }),
-        " category"
-      ] }),
-      /* @__PURE__ */ jsx("div", { className: "client-btn inner-cta-btn enquire_btn", id: "btn-styl", "data-aos": "fade-up", "data-aos-duration": "800", "data-aos-once": "true", "data-aos-delay": "600", children: /* @__PURE__ */ jsxs("a", { children: [
-        /* @__PURE__ */ jsx("span", { className: "btn_name", children: "Elevate Your Supply Chain Today" }),
-        " ",
-        /* @__PURE__ */ jsx("img", { src: white_Arrow, alt: "Arrow", className: "inner-cta-img" })
-      ] }) })
-    ] })
-  ] }) }) }) });
-}
-function ArtsPage() {
-  useEffect(() => {
-    function handleAnimation(entries, observer) {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.style.opacity = 1;
-          animateText(entry.target);
-          observer.unobserve(entry.target);
-        }
-      });
-    }
-    function animateText(target) {
-      let split = new SplitType(target, {
-        split: "lines"
-      });
-      let tl = gsap.timeline();
-      tl.from(split.lines, {
-        opacity: 0,
-        y: 50,
-        duration: 0.6,
-        ease: "cubic-bezier(0.25, 0.46, 0.45, 0.94)",
-        stagger: 0.2
-      });
-    }
-    document.querySelectorAll(".js-split-text").forEach((element) => {
-      let observer = new IntersectionObserver(handleAnimation, { threshold: 0.5 });
-      observer.observe(element);
-    });
-    AOS.init();
-  });
-  return /* @__PURE__ */ jsxs(Fragment, { children: [
-    /* @__PURE__ */ jsxs(Helmet, { children: [
-      /* @__PURE__ */ jsx("title", { children: "Secure Logistics for Luxury Goods & Art Exhibitions | MRSSupplyChain" }),
-      /* @__PURE__ */ jsx("meta", { name: "description", content: "Explore secure logistics solutions for luxury goods and art exhibitions with MRSSupplyChain." }),
-      /* @__PURE__ */ jsx("meta", { name: "keywords", content: "Luxury Goods Logistics, Art Exhibitions Transport, Secure Logistics for Luxury Items, Exhibition Goods Warehousing, High-Value Item Logistics" })
-    ] }),
-    /* @__PURE__ */ jsx(Header2, {}),
-    /* @__PURE__ */ jsx(SectorSpotlight$5, {}),
-    /* @__PURE__ */ jsx(SectorAbout$5, {}),
-    /* @__PURE__ */ jsx(SectorSolutions$5, {}),
-    /* @__PURE__ */ jsx(KeySector$5, {}),
-    /* @__PURE__ */ jsx(innerCTA, {}),
-    /* @__PURE__ */ jsx(formSection, {}),
-    /* @__PURE__ */ jsx(Footer, {})
-  ] });
-}
-const Warehousing_Solution$3 = "/assets/RenewablEenergy-3Id6HinR.jpg";
-function SectorSpotlight$4() {
-  useEffect(() => {
-  });
-  return /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsxs("div", { className: "service-spotlight custom-brokerage-sec section inner-spotlight-sec section-padd-LR overflow renewalEnergy-hdr", children: [
-    /* @__PURE__ */ jsx("div", { className: "main-container width-1250 flex", children: /* @__PURE__ */ jsxs("div", { className: "inner-spot-clm-1", id: "inner-spot-clm-1", children: [
-      /* @__PURE__ */ jsx("h2", { className: "sldr-sub-ttl", "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "0", children: "Sector Solutions" }),
-      /* @__PURE__ */ jsxs("h1", { className: "js-split-text white", children: [
-        "Renewable Energy and ",
-        /* @__PURE__ */ jsx("br", {}),
-        "Infrastructure Projects "
-      ] }),
-      /* @__PURE__ */ jsx("img", { src: Line$4, alt: "Line", "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "300" }),
-      /* @__PURE__ */ jsx("p", { className: "white", "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "300", children: "Powering Progress with Logistics Solutions" }),
-      /* @__PURE__ */ jsxs("div", { className: "btn inner-spt-btn white", "data-aos": "fade-in", "data-aos-duration": "1000", "data-aos-once": "true", "data-aos-delay": "300", children: [
-        /* @__PURE__ */ jsx("a", { className: "white-60", href: "/", children: "Home " }),
-        " > ",
-        /* @__PURE__ */ jsx("a", { className: "white-60", children: "Sectors " }),
-        " > ",
-        /* @__PURE__ */ jsx("a", { className: "white-60", children: "Renewable Energy and Infrastructure Projects" })
-      ] })
-    ] }) }),
-    /* @__PURE__ */ jsx("div", { className: "inner-img-sec", children: /* @__PURE__ */ jsx("div", { className: "inner-spot-clm-2", children: /* @__PURE__ */ jsx("img", { src: Warehousing_Solution$3, alt: "supplyChainImage", className: "lToR", "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "300" }) }) })
-  ] }) });
-}
-function SectorAbout$4() {
-  return /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsx("div", { className: "roadRailAbt-sec section-padd-LR overflow", children: /* @__PURE__ */ jsxs("div", { className: "main-container width-1250 black tech-driven-numbrs1", children: [
-    /* @__PURE__ */ jsx("h2", { className: "ttl-45px trusted-ttl js-split-text", children: "Experts in Project Cargo and Compliance for Renewable Energy and Infrastructure" }),
-    /* @__PURE__ */ jsx("p", { className: "mob-mrgin-o", "data-aos": "fade-in", "data-aos-duration": "500", "data-aos-once": "true", "data-aos-delay": "200", children: "In this segment, we have worked with one of the largest solar module manufacturing companies - Mundra Solar PV Ltd, under renewable energy and infrastructure projects." })
-  ] }) }) });
-}
-const LogisticsIndustrialSector = "/assets/LogisticsIndustrialSector-JkArh1-B.jpg";
-function SectorSolutions$4() {
-  return /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsx("div", { className: "custom-bonded-sec2 section-padd-LR overflow sectorSolution-sec", children: /* @__PURE__ */ jsxs("div", { className: "main-container width-1250 built-to-suit-container1", children: [
-    /* @__PURE__ */ jsx("h3", { className: "we-offer-txt bond-txt black js-split-text key-fetr-ttl", children: "Specialised Logistics Solutions for Renewable Energy and Infrastructure Projects:" }),
-    /* @__PURE__ */ jsx("img", { className: "built-line-img", src: Line$1, alt: "Line", "data-aos": "fade-in", "data-aos-duration": "500", "data-aos-once": "true", "data-aos-delay": "" }),
-    /* @__PURE__ */ jsxs("div", { className: "row built-row T-B-Padding B-padding-o ", children: [
-      /* @__PURE__ */ jsxs("div", { className: "clm-2 solution-clm", children: [
-        /* @__PURE__ */ jsx("h3", { "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "", children: "General and Project Cargo" }),
-        /* @__PURE__ */ jsx("p", { "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "", children: "Specialised logistics for the transportation and handling of oversized, heavy, or otherwise challenging cargo essential for infrastructure and renewable energy projects." }),
-        /* @__PURE__ */ jsx("h3", { "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "", children: "Regulatory Compliance and Documentation" }),
-        /* @__PURE__ */ jsx("p", { "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "", children: "Expert assistance with the complex regulatory environment surrounding large projects, ensuring compliance and smooth operations." })
-      ] }),
-      /* @__PURE__ */ jsx("div", { className: "clm-2 built-img-clm", children: /* @__PURE__ */ jsx("img", { src: LogisticsIndustrialSector, alt: "Inplant", "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "500" }) })
-    ] })
-  ] }) }) });
-}
-function KeySector$4() {
-  useEffect(() => {
-    new Swiper(".sector-sldr", {
-      navigation: {
-        nextEl: ".sector-swiper-button-next",
-        prevEl: ".sector-swiper-button-prev"
-      },
-      slidesPerView: 3.1,
-      spaceBetween: 40,
-      breakpoints: {
-        320: {
-          slidesPerView: 1.1
-        },
-        768: {
-          slidesPerView: 2.1
-        },
-        1024: {
-          slidesPerView: 3.1
-        }
-      }
-    });
-  });
-  return /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsx("div", { className: "sector-sec section-padd-LR", children: /* @__PURE__ */ jsxs("div", { className: "main-container width-1250", children: [
-    /* @__PURE__ */ jsx("div", { className: "ovrflw-hdn", children: /* @__PURE__ */ jsx("h2", { className: "sectr-ttl black js-split-text", children: "Key Sectors we work with" }) }),
-    /* @__PURE__ */ jsxs("div", { className: "swiper sector-sldr", "data-aos": "fade-in", "data-aos-duration": "800", "data-aos-once": "true", "data-aos-delay": "500", children: [
-      /* @__PURE__ */ jsxs("div", { className: "pegination-arrow2", children: [
-        /* @__PURE__ */ jsx("div", { className: "sector-swiper-button-next cursor", children: /* @__PURE__ */ jsx("svg", { xmlns: "http://www.w3.org/2000/svg", width: "41", height: "41", viewBox: "0 0 41 41", fill: "none", children: /* @__PURE__ */ jsxs("g", { opacity: "0.7", children: [
-          /* @__PURE__ */ jsx("path", { d: "M12 20H28", stroke: "#929292", strokeLinecap: "round" }),
-          /* @__PURE__ */ jsx("path", { d: "M21 12L29 20L21 28", stroke: "#929292", strokeLinecap: "round" }),
-          "    ",
-          /* @__PURE__ */ jsx("circle", { cx: "20.5", cy: "20.5", r: "20", transform: "matrix(-1 0 0 1 41 0)", stroke: "#929292" })
-        ] }) }) }),
-        /* @__PURE__ */ jsx("div", { className: "sector-swiper-button-prev cursor", children: /* @__PURE__ */ jsx("svg", { xmlns: "http://www.w3.org/2000/svg", width: "41", height: "41", viewBox: "0 0 41 41", fill: "none", children: /* @__PURE__ */ jsxs("g", { opacity: "0.7", children: [
-          /* @__PURE__ */ jsx("path", { d: "M29 20H13", stroke: "#929292", strokeLinecap: "round" }),
-          /* @__PURE__ */ jsx("path", { d: "M20 12L12 20L20 28", stroke: "#929292", strokeLinecap: "round" }),
-          "    ",
-          /* @__PURE__ */ jsx("circle", { cx: "20.5", cy: "20.5", r: "20", stroke: "#929292" })
-        ] }) }) })
-      ] }),
-      /* @__PURE__ */ jsxs("div", { className: "swiper-wrapper", children: [
-        /* @__PURE__ */ jsx("div", { className: "swiper-slide", children: /* @__PURE__ */ jsxs("div", { className: "sector-bx", children: [
-          /* @__PURE__ */ jsx("img", { src: RenewableEnergy, alt: "RenewableEnergy" }),
-          /* @__PURE__ */ jsxs("div", { className: "content-dv", children: [
-            /* @__PURE__ */ jsx("h2", { children: "Manufacturing, Automotive, Technology, and Consumer Goods: " }),
-            /* @__PURE__ */ jsxs("div", { className: "inner-content-dv", children: [
-              /* @__PURE__ */ jsx("p", { children: "Driving innovation through integrated logistics, keeping the wheels of industry turning smoothly." }),
-              /* @__PURE__ */ jsx("a", { className: "btn grey", id: "btn-styl", href: "/sector/manufacturing-automotive-technology-and-consumer-goods", children: /* @__PURE__ */ jsx("span", { className: "btn_name", children: "Read more" }) })
-            ] })
-          ] })
-        ] }) }),
-        /* @__PURE__ */ jsx("div", { className: "swiper-slide", children: /* @__PURE__ */ jsxs("div", { className: "sector-bx", children: [
-          /* @__PURE__ */ jsx("img", { src: Industrial, alt: "Industrial" }),
-          /* @__PURE__ */ jsxs("div", { className: "content-dv", children: [
-            /* @__PURE__ */ jsx("h2", { children: "Industrial Equipment:" }),
-            /* @__PURE__ */ jsxs("div", { className: "inner-content-dv", children: [
-              /* @__PURE__ */ jsx("p", { children: "Heavy-duty logistics for heavy-duty equipment, ensuring the backbone of industry remains strong and operational." }),
-              /* @__PURE__ */ jsx("a", { className: "btn grey", id: "btn-styl", href: "/sector/industrial-sector", children: /* @__PURE__ */ jsx("span", { className: "btn_name", children: "Read more" }) })
-            ] })
-          ] })
-        ] }) }),
-        /* @__PURE__ */ jsx("div", { className: "swiper-slide", children: /* @__PURE__ */ jsxs("div", { className: "sector-bx", children: [
-          /* @__PURE__ */ jsx("img", { src: Chemicals, alt: "Chemicals" }),
-          /* @__PURE__ */ jsxs("div", { className: "content-dv", children: [
-            /* @__PURE__ */ jsx("h2", { children: "Agriculture, Chemicals, Construction, and Energy: " }),
-            /* @__PURE__ */ jsxs("div", { className: "inner-content-dv", children: [
-              /* @__PURE__ */ jsx("p", { children: "Cultivating success with tailored logistics for the essential sectors that fuel our world and build our futures." }),
-              /* @__PURE__ */ jsx("a", { className: "btn grey", id: "btn-styl", href: "/sector/chemicals-construction-energy-and-agriculture", children: /* @__PURE__ */ jsx("span", { className: "btn_name", children: "Read more" }) })
-            ] })
-          ] })
-        ] }) }),
-        /* @__PURE__ */ jsx("div", { className: "swiper-slide", children: /* @__PURE__ */ jsxs("div", { className: "sector-bx", children: [
-          /* @__PURE__ */ jsx("img", { src: Ecommerce$1, alt: "Ecommerce" }),
-          /* @__PURE__ */ jsxs("div", { className: "content-dv", children: [
-            /* @__PURE__ */ jsx("h2", { children: "E-commerce and Retail:" }),
-            /* @__PURE__ */ jsxs("div", { className: "inner-content-dv", children: [
-              /* @__PURE__ */ jsx("p", { children: "Revolutionising retail with cutting-edge logistics, delivering the future of commerce today." }),
-              /* @__PURE__ */ jsx("a", { className: "btn grey", id: "btn-styl", href: "/sector/e-commerce-and-retail", children: /* @__PURE__ */ jsx("span", { className: "btn_name", children: "Read more" }) })
-            ] })
-          ] })
-        ] }) }),
-        /* @__PURE__ */ jsx("div", { className: "swiper-slide", children: /* @__PURE__ */ jsxs("div", { className: "sector-bx", children: [
-          /* @__PURE__ */ jsx("img", { src: Arts, alt: "Arts" }),
-          /* @__PURE__ */ jsxs("div", { className: "content-dv", children: [
-            /* @__PURE__ */ jsx("h2", { children: "Arts, Exhibitions, and Luxury Goods: " }),
-            /* @__PURE__ */ jsxs("div", { className: "inner-content-dv", children: [
-              /* @__PURE__ */ jsx("p", { children: "Elevating the art of logistics for the world's treasures, ensuring every masterpiece arrives in perfect form." }),
-              /* @__PURE__ */ jsx("a", { className: "btn grey", id: "btn-styl", href: "/sector/arts-exhibitions-and-luxury-Goods", children: /* @__PURE__ */ jsx("span", { className: "btn_name", children: "Read more" }) })
-            ] })
-          ] })
-        ] }) })
-      ] })
-    ] })
-  ] }) }) });
-}
-function RenewableEnergyPage() {
-  useEffect(() => {
-    function handleAnimation(entries, observer) {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.style.opacity = 1;
-          animateText(entry.target);
-          observer.unobserve(entry.target);
-        }
-      });
-    }
-    function animateText(target) {
-      let split = new SplitType(target, {
-        split: "lines"
-      });
-      let tl = gsap.timeline();
-      tl.from(split.lines, {
-        opacity: 0,
-        y: 50,
-        duration: 0.6,
-        ease: "cubic-bezier(0.25, 0.46, 0.45, 0.94)",
-        stagger: 0.2
-      });
-    }
-    document.querySelectorAll(".js-split-text").forEach((element) => {
-      let observer = new IntersectionObserver(handleAnimation, { threshold: 0.5 });
-      observer.observe(element);
-    });
-    AOS.init();
-  });
-  return /* @__PURE__ */ jsxs(Fragment, { children: [
-    /* @__PURE__ */ jsxs(Helmet, { children: [
-      /* @__PURE__ */ jsx("title", { children: "Comprehensive Logistics for Renewable Energy & Infrastructure Projects | MRSSupplyChain" }),
-      /* @__PURE__ */ jsx("meta", { name: "description", content: "Trust MRSSupplyChain for efficient logistics solutions tailored for renewable energy and infrastructure projects." }),
-      /* @__PURE__ */ jsx("meta", { name: "keywords", content: "Renewable Energy Logistics, Infrastructure Supply Chain, Logistics for Renewable Projects, Efficient Infrastructure Transport, Supply Chain for Energy Projects" })
-    ] }),
-    /* @__PURE__ */ jsx(Header2, {}),
-    /* @__PURE__ */ jsx(SectorSpotlight$4, {}),
-    /* @__PURE__ */ jsx(SectorAbout$4, {}),
-    /* @__PURE__ */ jsx(SectorSolutions$4, {}),
-    /* @__PURE__ */ jsx(KeySector$4, {}),
-    /* @__PURE__ */ jsx(innerCTA, {}),
-    /* @__PURE__ */ jsx(formSection, {}),
-    /* @__PURE__ */ jsx(Footer, {})
-  ] });
-}
-const Warehousing_Solution$2 = "/assets/IndustrialSector-n2SPl2My.jpg";
-function SectorSpotlight$3() {
-  useEffect(() => {
-  });
-  return /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsxs("div", { className: "service-spotlight custom-brokerage-sec section inner-spotlight-sec section-padd-LR overflow indus-hdr", children: [
-    /* @__PURE__ */ jsx("div", { className: "main-container width-1250 flex", children: /* @__PURE__ */ jsxs("div", { className: "inner-spot-clm-1", id: "inner-spot-clm-1", children: [
-      /* @__PURE__ */ jsx("h2", { className: "sldr-sub-ttl", "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "0", children: "Sector Solutions" }),
-      /* @__PURE__ */ jsx("h1", { className: "js-split-text white", children: "Industrial Sector " }),
-      /* @__PURE__ */ jsx("img", { src: Line$4, alt: "Line", "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "300" }),
-      /* @__PURE__ */ jsx("p", { className: "white", "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "300", children: "Efficient Handling and Tech-Enhanced Delivery for Industrial Assets" }),
-      /* @__PURE__ */ jsxs("div", { className: "btn inner-spt-btn white", "data-aos": "fade-in", "data-aos-duration": "1000", "data-aos-once": "true", "data-aos-delay": "300", children: [
-        /* @__PURE__ */ jsx("a", { className: "white-60", href: "/", children: "Home " }),
-        " > ",
-        /* @__PURE__ */ jsx("a", { className: "white-60", children: "Sectors " }),
-        " > ",
-        /* @__PURE__ */ jsx("a", { className: "white-60", children: "Industrial Sector" })
-      ] })
-    ] }) }),
-    /* @__PURE__ */ jsx("div", { className: "inner-img-sec", children: /* @__PURE__ */ jsx("div", { className: "inner-spot-clm-2", children: /* @__PURE__ */ jsx("img", { src: Warehousing_Solution$2, alt: "supplyChainImage", className: "lToR", "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "300" }) }) })
-  ] }) });
-}
-function SectorAbout$3() {
-  return /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsx("div", { className: "roadRailAbt-sec section-padd-LR overflow", children: /* @__PURE__ */ jsxs("div", { className: "main-container width-1250 black tech-driven-numbrs1", children: [
-    /* @__PURE__ */ jsx("h2", { className: "ttl-45px trusted-ttl js-split-text", children: "Empowering the Industrial Sector with Precision Logistics and Smart Delivery Systems" }),
-    /* @__PURE__ */ jsx("p", { className: "mob-mrgin-o", "data-aos": "fade-in", "data-aos-duration": "500", "data-aos-once": "true", "data-aos-delay": "200", children: "In the industrial sector, the movement of heavy machinery and equipment demands a logistics partner with the capability to manage challenging loads. MRS Supply Chain provides robust solutions for the transportation, storage, and final delivery of industrial equipment, ensuring operational continuity." })
-  ] }) }) });
-}
-function SectorSolutions$3() {
-  return /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsx("div", { className: "custom-bonded-sec2 section-padd-LR overflow sectorSolution-sec", children: /* @__PURE__ */ jsxs("div", { className: "main-container width-1250 built-to-suit-container1", children: [
-    /* @__PURE__ */ jsx("h3", { className: "we-offer-txt bond-txt black js-split-text key-fetr-ttl", children: "Specialised Logistics Solutions for the Industrial Sector:" }),
-    /* @__PURE__ */ jsx("img", { className: "built-line-img", src: Line$1, alt: "Line", "data-aos": "fade-in", "data-aos-duration": "500", "data-aos-once": "true", "data-aos-delay": "" }),
-    /* @__PURE__ */ jsxs("div", { className: "row built-row T-B-Padding B-padding-o ", children: [
-      /* @__PURE__ */ jsxs("div", { className: "clm-2 solution-clm", children: [
-        /* @__PURE__ */ jsx("h3", { "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "", children: "General and Project Cargo" }),
-        /* @__PURE__ */ jsx("p", { "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "", children: "Logistics services for the transportation and handling of heavy industrial equipment, ensuring safety and efficiency." }),
-        /* @__PURE__ */ jsx("h3", { "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "", children: "Tech-Driven Last-Mile Delivery" }),
-        /* @__PURE__ */ jsx("p", { "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "", children: "Leveraging technology to optimise the final delivery phase, enhancing efficiency and reliability for industrial clients." })
-      ] }),
-      /* @__PURE__ */ jsx("div", { className: "clm-2 built-img-clm", children: /* @__PURE__ */ jsx("img", { src: LogisticsIndustrialSector, alt: "Inplant", "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "500" }) })
-    ] })
-  ] }) }) });
-}
-function KeySector$3() {
-  useEffect(() => {
-    new Swiper(".sector-sldr", {
-      navigation: {
-        nextEl: ".sector-swiper-button-next",
-        prevEl: ".sector-swiper-button-prev"
-      },
-      slidesPerView: 3.1,
-      spaceBetween: 40,
-      breakpoints: {
-        320: {
-          slidesPerView: 1.1
-        },
-        768: {
-          slidesPerView: 2.1
-        },
-        1024: {
-          slidesPerView: 3.1
-        }
-      }
-    });
-  });
-  return /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsx("div", { className: "sector-sec section-padd-LR", children: /* @__PURE__ */ jsxs("div", { className: "main-container width-1250", children: [
-    /* @__PURE__ */ jsx("div", { className: "ovrflw-hdn", children: /* @__PURE__ */ jsx("h2", { className: "sectr-ttl black js-split-text", children: "Key Sectors we work with" }) }),
-    /* @__PURE__ */ jsxs("div", { className: "swiper sector-sldr", "data-aos": "fade-in", "data-aos-duration": "800", "data-aos-once": "true", "data-aos-delay": "500", children: [
-      /* @__PURE__ */ jsxs("div", { className: "pegination-arrow2", children: [
-        /* @__PURE__ */ jsx("div", { className: "sector-swiper-button-next cursor", children: /* @__PURE__ */ jsx("svg", { xmlns: "http://www.w3.org/2000/svg", width: "41", height: "41", viewBox: "0 0 41 41", fill: "none", children: /* @__PURE__ */ jsxs("g", { opacity: "0.7", children: [
-          /* @__PURE__ */ jsx("path", { d: "M12 20H28", stroke: "#929292", strokeLinecap: "round" }),
-          /* @__PURE__ */ jsx("path", { d: "M21 12L29 20L21 28", stroke: "#929292", strokeLinecap: "round" }),
-          "    ",
-          /* @__PURE__ */ jsx("circle", { cx: "20.5", cy: "20.5", r: "20", transform: "matrix(-1 0 0 1 41 0)", stroke: "#929292" })
-        ] }) }) }),
-        /* @__PURE__ */ jsx("div", { className: "sector-swiper-button-prev cursor", children: /* @__PURE__ */ jsx("svg", { xmlns: "http://www.w3.org/2000/svg", width: "41", height: "41", viewBox: "0 0 41 41", fill: "none", children: /* @__PURE__ */ jsxs("g", { opacity: "0.7", children: [
-          /* @__PURE__ */ jsx("path", { d: "M29 20H13", stroke: "#929292", strokeLinecap: "round" }),
-          /* @__PURE__ */ jsx("path", { d: "M20 12L12 20L20 28", stroke: "#929292", strokeLinecap: "round" }),
-          "    ",
-          /* @__PURE__ */ jsx("circle", { cx: "20.5", cy: "20.5", r: "20", stroke: "#929292" })
-        ] }) }) })
-      ] }),
-      /* @__PURE__ */ jsxs("div", { className: "swiper-wrapper", children: [
-        /* @__PURE__ */ jsx("div", { className: "swiper-slide", children: /* @__PURE__ */ jsxs("div", { className: "sector-bx", children: [
-          /* @__PURE__ */ jsx("img", { src: Science_and_Health_Care, alt: "Science_and_Health_Care" }),
-          /* @__PURE__ */ jsxs("div", { className: "content-dv", children: [
-            /* @__PURE__ */ jsx("h2", { children: "Renewable Energy and Infrastructure Projects:  " }),
-            /* @__PURE__ */ jsxs("div", { className: "inner-content-dv", children: [
-              /* @__PURE__ */ jsx("p", { children: "Powering the future with specialised logistics for the renewable energy and infrastructure sectors, where precision meets scale." }),
-              /* @__PURE__ */ jsx("a", { className: "btn grey", id: "btn-styl", href: "/sector/renewable-energy-and-infrastructure-projects", children: /* @__PURE__ */ jsx("span", { className: "btn_name", children: "Read more" }) })
-            ] })
-          ] })
-        ] }) }),
-        /* @__PURE__ */ jsx("div", { className: "swiper-slide", children: /* @__PURE__ */ jsxs("div", { className: "sector-bx", children: [
-          /* @__PURE__ */ jsx("img", { src: RenewableEnergy, alt: "RenewableEnergy" }),
-          /* @__PURE__ */ jsxs("div", { className: "content-dv", children: [
-            /* @__PURE__ */ jsx("h2", { children: "Manufacturing, Automotive, Technology, and Consumer Goods: " }),
-            /* @__PURE__ */ jsxs("div", { className: "inner-content-dv", children: [
-              /* @__PURE__ */ jsx("p", { children: "Driving innovation through integrated logistics, keeping the wheels of industry turning smoothly." }),
-              /* @__PURE__ */ jsx("a", { className: "btn grey", id: "btn-styl", href: "/sector/manufacturing-automotive-technology-and-consumer-goods", children: /* @__PURE__ */ jsx("span", { className: "btn_name", children: "Read more" }) })
-            ] })
-          ] })
-        ] }) }),
-        /* @__PURE__ */ jsx("div", { className: "swiper-slide", children: /* @__PURE__ */ jsxs("div", { className: "sector-bx", children: [
-          /* @__PURE__ */ jsx("img", { src: Chemicals, alt: "Chemicals" }),
-          /* @__PURE__ */ jsxs("div", { className: "content-dv", children: [
-            /* @__PURE__ */ jsx("h2", { children: "Agriculture, Chemicals, Construction, and Energy: " }),
-            /* @__PURE__ */ jsxs("div", { className: "inner-content-dv", children: [
-              /* @__PURE__ */ jsx("p", { children: "Cultivating success with tailored logistics for the essential sectors that fuel our world and build our futures." }),
-              /* @__PURE__ */ jsx("a", { className: "btn grey", id: "btn-styl", href: "/sector/chemicals-construction-energy-and-agriculture", children: /* @__PURE__ */ jsx("span", { className: "btn_name", children: "Read more" }) })
-            ] })
-          ] })
-        ] }) }),
-        /* @__PURE__ */ jsx("div", { className: "swiper-slide", children: /* @__PURE__ */ jsxs("div", { className: "sector-bx", children: [
-          /* @__PURE__ */ jsx("img", { src: Ecommerce$1, alt: "Ecommerce" }),
-          /* @__PURE__ */ jsxs("div", { className: "content-dv", children: [
-            /* @__PURE__ */ jsx("h2", { children: "E-commerce and Retail:" }),
-            /* @__PURE__ */ jsxs("div", { className: "inner-content-dv", children: [
-              /* @__PURE__ */ jsx("p", { children: "Revolutionising retail with cutting-edge logistics, delivering the future of commerce today." }),
-              /* @__PURE__ */ jsx("a", { className: "btn grey", id: "btn-styl", href: "/sector/e-commerce-and-retail", children: /* @__PURE__ */ jsx("span", { className: "btn_name", children: "Read more" }) })
-            ] })
-          ] })
-        ] }) }),
-        /* @__PURE__ */ jsx("div", { className: "swiper-slide", children: /* @__PURE__ */ jsxs("div", { className: "sector-bx", children: [
-          /* @__PURE__ */ jsx("img", { src: Arts, alt: "Arts" }),
-          /* @__PURE__ */ jsxs("div", { className: "content-dv", children: [
-            /* @__PURE__ */ jsx("h2", { children: "Arts, Exhibitions, and Luxury Goods: " }),
-            /* @__PURE__ */ jsxs("div", { className: "inner-content-dv", children: [
-              /* @__PURE__ */ jsx("p", { children: "Elevating the art of logistics for the world's treasures, ensuring every masterpiece arrives in perfect form." }),
-              /* @__PURE__ */ jsx("a", { className: "btn grey", id: "btn-styl", href: "/sector/arts-exhibitions-and-luxury-Goods", children: /* @__PURE__ */ jsx("span", { className: "btn_name", children: "Read more" }) })
-            ] })
-          ] })
-        ] }) })
-      ] })
-    ] })
-  ] }) }) });
-}
-function IndustrialSectorPage() {
-  useEffect(() => {
-    function handleAnimation(entries, observer) {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.style.opacity = 1;
-          animateText(entry.target);
-          observer.unobserve(entry.target);
-        }
-      });
-    }
-    function animateText(target) {
-      let split = new SplitType(target, {
-        split: "lines"
-      });
-      let tl = gsap.timeline();
-      tl.from(split.lines, {
-        opacity: 0,
-        y: 50,
-        duration: 0.6,
-        ease: "cubic-bezier(0.25, 0.46, 0.45, 0.94)",
-        stagger: 0.2
-      });
-    }
-    document.querySelectorAll(".js-split-text").forEach((element) => {
-      let observer = new IntersectionObserver(handleAnimation, { threshold: 0.5 });
-      observer.observe(element);
-    });
-    AOS.init();
-  });
-  return /* @__PURE__ */ jsxs(Fragment, { children: [
-    /* @__PURE__ */ jsxs(Helmet, { children: [
-      /* @__PURE__ */ jsx("title", { children: "Streamlined Industrial Logistics & Supply Chain Solutions | MRSSupplyChain" }),
-      /* @__PURE__ */ jsx("meta", { name: "description", content: "Partner with MRSSupplyChain for comprehensive logistics solutions tailored for the industrial sector." }),
-      /* @__PURE__ */ jsx("meta", { name: "keywords", content: "Industrial Logistics, Heavy Industry Supply Chain, Industrial Warehousing, Logistics for Industrial Goods, Efficient Industrial Transport" })
-    ] }),
-    /* @__PURE__ */ jsx(Header2, {}),
-    /* @__PURE__ */ jsx(SectorSpotlight$3, {}),
-    /* @__PURE__ */ jsx(SectorAbout$3, {}),
-    /* @__PURE__ */ jsx(SectorSolutions$3, {}),
-    /* @__PURE__ */ jsx(KeySector$3, {}),
-    /* @__PURE__ */ jsx(innerCTA, {}),
-    /* @__PURE__ */ jsx(formSection, {}),
-    /* @__PURE__ */ jsx(Footer, {})
-  ] });
-}
-const Warehousing_Solution$1 = "/assets/chemicals-ifHoFVIv.jpg";
-function SectorSpotlight$2() {
-  useEffect(() => {
-  });
-  return /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsxs("div", { className: "service-spotlight custom-brokerage-sec section inner-spotlight-sec section-padd-LR overflow chemical-hdr", children: [
-    /* @__PURE__ */ jsx("div", { className: "main-container width-1250 flex", children: /* @__PURE__ */ jsxs("div", { className: "inner-spot-clm-1 width-50", id: "inner-spot-clm-1", children: [
-      /* @__PURE__ */ jsx("h2", { className: "sldr-sub-ttl", "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "0", children: "Sector Solutions" }),
-      /* @__PURE__ */ jsx("h1", { className: "js-split-text white", children: "Chemicals, Construction, Energy, and Agriculture " }),
-      /* @__PURE__ */ jsx("img", { src: Line$4, alt: "Line", "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "300" }),
-      /* @__PURE__ */ jsx("p", { className: "white", "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "300", children: "Navigating the Complexities of Bulk Logistics in Key Economic Sectors" }),
-      /* @__PURE__ */ jsxs("div", { className: "btn inner-spt-btn white", "data-aos": "fade-in", "data-aos-duration": "1000", "data-aos-once": "true", "data-aos-delay": "300", children: [
-        /* @__PURE__ */ jsx("a", { className: "white-60", href: "/", children: "Home " }),
-        " > ",
-        /* @__PURE__ */ jsx("a", { className: "white-60", children: "Sectors " }),
-        " > ",
-        /* @__PURE__ */ jsx("a", { className: "white-60", children: "Agriculture, Chemicals, Construction, Energy" })
-      ] })
-    ] }) }),
-    /* @__PURE__ */ jsx("div", { className: "inner-img-sec", children: /* @__PURE__ */ jsx("div", { className: "inner-spot-clm-2", children: /* @__PURE__ */ jsx("img", { src: Warehousing_Solution$1, alt: "supplyChainImage", className: "lToR", "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "300" }) }) })
-  ] }) });
-}
-function SectorAbout$2() {
-  return /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsx("div", { className: "roadRailAbt-sec section-padd-LR overflow", children: /* @__PURE__ */ jsxs("div", { className: "main-container width-1250 black tech-driven-numbrs1", children: [
-    /* @__PURE__ */ jsx("h2", { className: "ttl-45px trusted-ttl js-split-text", children: "Essential Logistics for Core Industries: Chemicals, Construction, Energy, and Agriculture" }),
-    /* @__PURE__ */ jsx("p", { className: "mob-mrgin-o", "data-aos": "fade-in", "data-aos-duration": "500", "data-aos-once": "true", "data-aos-delay": "200", children: "These foundational sectors of the global economy—agriculture, chemicals, construction, and energy—require specialised logistics solutions for the handling of bulk materials. MRS Supply Chain's expertise ensures that these critical resources are moved efficiently and safely." })
-  ] }) }) });
-}
-const Inplant = "/assets/Chemical_Solutions-I60VlKXF.jpg";
-function SectorSolutions$2() {
-  return /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsx("div", { className: "custom-bonded-sec2 section-padd-LR overflow sectorSolution-sec", children: /* @__PURE__ */ jsxs("div", { className: "main-container width-1250 built-to-suit-container1", children: [
-    /* @__PURE__ */ jsx("h3", { className: "we-offer-txt bond-txt black js-split-text key-fetr-ttl", children: "Specialised Solutions for the Safe and Efficient Movement of Bulk Materials" }),
-    /* @__PURE__ */ jsx("img", { className: "built-line-img", src: Line$1, alt: "Line", "data-aos": "fade-in", "data-aos-duration": "500", "data-aos-once": "true", "data-aos-delay": "" }),
-    /* @__PURE__ */ jsxs("div", { className: "row built-row T-B-Padding B-padding-o ", children: [
-      /* @__PURE__ */ jsxs("div", { className: "clm-2 solution-clm", children: [
-        /* @__PURE__ */ jsx("h3", { "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "", children: "Liquid/Dry Bulk and Break-Bulk Cargo" }),
-        /* @__PURE__ */ jsx("p", { "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "", children: "Tailored logistics solutions for the transportation of bulk materials, from liquids to granular products, essential for these industries." }),
-        /* @__PURE__ */ jsx("h3", { "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "", children: "Duty-Free Warehousing" }),
-        /* @__PURE__ */ jsx("p", { "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "", children: "Strategic warehousing solutions near major transportation hubs, facilitating the seamless movement of bulk goods in international trade." })
-      ] }),
-      /* @__PURE__ */ jsx("div", { className: "clm-2 built-img-clm", children: /* @__PURE__ */ jsx("img", { src: Inplant, alt: "Inplant", "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "500" }) })
-    ] })
-  ] }) }) });
-}
-function KeySector$2() {
-  useEffect(() => {
-    new Swiper(".sector-sldr", {
-      navigation: {
-        nextEl: ".sector-swiper-button-next",
-        prevEl: ".sector-swiper-button-prev"
-      },
-      slidesPerView: 3.1,
-      spaceBetween: 40,
-      breakpoints: {
-        320: {
-          slidesPerView: 1.1
-        },
-        768: {
-          slidesPerView: 2.1
-        },
-        1024: {
-          slidesPerView: 3.1
-        }
-      }
-    });
-  });
-  return /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsx("div", { className: "sector-sec section-padd-LR", children: /* @__PURE__ */ jsxs("div", { className: "main-container width-1250", children: [
-    /* @__PURE__ */ jsx("div", { className: "ovrflw-hdn", children: /* @__PURE__ */ jsx("h2", { className: "sectr-ttl black js-split-text", children: "Key Sectors we work with" }) }),
-    /* @__PURE__ */ jsxs("div", { className: "swiper sector-sldr", "data-aos": "fade-in", "data-aos-duration": "800", "data-aos-once": "true", "data-aos-delay": "500", children: [
-      /* @__PURE__ */ jsxs("div", { className: "pegination-arrow2", children: [
-        /* @__PURE__ */ jsx("div", { className: "sector-swiper-button-next cursor", children: /* @__PURE__ */ jsx("svg", { xmlns: "http://www.w3.org/2000/svg", width: "41", height: "41", viewBox: "0 0 41 41", fill: "none", children: /* @__PURE__ */ jsxs("g", { opacity: "0.7", children: [
-          /* @__PURE__ */ jsx("path", { d: "M12 20H28", stroke: "#929292", strokeLinecap: "round" }),
-          /* @__PURE__ */ jsx("path", { d: "M21 12L29 20L21 28", stroke: "#929292", strokeLinecap: "round" }),
-          "    ",
-          /* @__PURE__ */ jsx("circle", { cx: "20.5", cy: "20.5", r: "20", transform: "matrix(-1 0 0 1 41 0)", stroke: "#929292" })
-        ] }) }) }),
-        /* @__PURE__ */ jsx("div", { className: "sector-swiper-button-prev cursor", children: /* @__PURE__ */ jsx("svg", { xmlns: "http://www.w3.org/2000/svg", width: "41", height: "41", viewBox: "0 0 41 41", fill: "none", children: /* @__PURE__ */ jsxs("g", { opacity: "0.7", children: [
-          /* @__PURE__ */ jsx("path", { d: "M29 20H13", stroke: "#929292", strokeLinecap: "round" }),
-          /* @__PURE__ */ jsx("path", { d: "M20 12L12 20L20 28", stroke: "#929292", strokeLinecap: "round" }),
-          "    ",
-          /* @__PURE__ */ jsx("circle", { cx: "20.5", cy: "20.5", r: "20", stroke: "#929292" })
-        ] }) }) })
-      ] }),
-      /* @__PURE__ */ jsxs("div", { className: "swiper-wrapper", children: [
-        /* @__PURE__ */ jsx("div", { className: "swiper-slide", children: /* @__PURE__ */ jsxs("div", { className: "sector-bx", children: [
-          /* @__PURE__ */ jsx("img", { src: Science_and_Health_Care, alt: "Science_and_Health_Care" }),
-          /* @__PURE__ */ jsxs("div", { className: "content-dv", children: [
-            /* @__PURE__ */ jsx("h2", { children: "Renewable Energy and Infrastructure Projects:  " }),
-            /* @__PURE__ */ jsxs("div", { className: "inner-content-dv", children: [
-              /* @__PURE__ */ jsx("p", { children: "Powering the future with specialised logistics for the renewable energy and infrastructure sectors, where precision meets scale." }),
-              /* @__PURE__ */ jsx("a", { className: "btn grey", id: "btn-styl", href: "/sector/renewable-energy-and-infrastructure-projects", children: /* @__PURE__ */ jsx("span", { className: "btn_name", children: "Read more" }) })
-            ] })
-          ] })
-        ] }) }),
-        /* @__PURE__ */ jsx("div", { className: "swiper-slide", children: /* @__PURE__ */ jsxs("div", { className: "sector-bx", children: [
-          /* @__PURE__ */ jsx("img", { src: RenewableEnergy, alt: "RenewableEnergy" }),
-          /* @__PURE__ */ jsxs("div", { className: "content-dv", children: [
-            /* @__PURE__ */ jsx("h2", { children: "Manufacturing, Automotive, Technology, and Consumer Goods: " }),
-            /* @__PURE__ */ jsxs("div", { className: "inner-content-dv", children: [
-              /* @__PURE__ */ jsx("p", { children: "Driving innovation through integrated logistics, keeping the wheels of industry turning smoothly." }),
-              /* @__PURE__ */ jsx("a", { className: "btn grey", id: "btn-styl", href: "/sector/manufacturing-automotive-technology-and-consumer-goods", children: /* @__PURE__ */ jsx("span", { className: "btn_name", children: "Read more" }) })
-            ] })
-          ] })
-        ] }) }),
-        /* @__PURE__ */ jsx("div", { className: "swiper-slide", children: /* @__PURE__ */ jsxs("div", { className: "sector-bx", children: [
-          /* @__PURE__ */ jsx("img", { src: Industrial, alt: "Industrial" }),
-          /* @__PURE__ */ jsxs("div", { className: "content-dv", children: [
-            /* @__PURE__ */ jsx("h2", { children: "Industrial Equipment:" }),
-            /* @__PURE__ */ jsxs("div", { className: "inner-content-dv", children: [
-              /* @__PURE__ */ jsx("p", { children: "Heavy-duty logistics for heavy-duty equipment, ensuring the backbone of industry remains strong and operational." }),
-              /* @__PURE__ */ jsx("a", { className: "btn grey", id: "btn-styl", href: "/sector/industrial-sector", children: /* @__PURE__ */ jsx("span", { className: "btn_name", children: "Read more" }) })
-            ] })
-          ] })
-        ] }) }),
-        /* @__PURE__ */ jsx("div", { className: "swiper-slide", children: /* @__PURE__ */ jsxs("div", { className: "sector-bx", children: [
-          /* @__PURE__ */ jsx("img", { src: Ecommerce$1, alt: "Ecommerce" }),
-          /* @__PURE__ */ jsxs("div", { className: "content-dv", children: [
-            /* @__PURE__ */ jsx("h2", { children: "E-commerce and Retail:" }),
-            /* @__PURE__ */ jsxs("div", { className: "inner-content-dv", children: [
-              /* @__PURE__ */ jsx("p", { children: "Revolutionising retail with cutting-edge logistics, delivering the future of commerce today." }),
-              /* @__PURE__ */ jsx("a", { className: "btn grey", id: "btn-styl", href: "/sector/e-commerce-and-retail", children: /* @__PURE__ */ jsx("span", { className: "btn_name", children: "Read more" }) })
-            ] })
-          ] })
-        ] }) }),
-        /* @__PURE__ */ jsx("div", { className: "swiper-slide", children: /* @__PURE__ */ jsxs("div", { className: "sector-bx", children: [
-          /* @__PURE__ */ jsx("img", { src: Arts, alt: "Arts" }),
-          /* @__PURE__ */ jsxs("div", { className: "content-dv", children: [
-            /* @__PURE__ */ jsx("h2", { children: "Arts, Exhibitions, and Luxury Goods: " }),
-            /* @__PURE__ */ jsxs("div", { className: "inner-content-dv", children: [
-              /* @__PURE__ */ jsx("p", { children: "Elevating the art of logistics for the world's treasures, ensuring every masterpiece arrives in perfect form." }),
-              /* @__PURE__ */ jsx("a", { className: "btn grey", id: "btn-styl", href: "/sector/arts-exhibitions-and-luxury-Goods", children: /* @__PURE__ */ jsx("span", { className: "btn_name", children: "Read more" }) })
-            ] })
-          ] })
-        ] }) })
-      ] })
-    ] })
-  ] }) }) });
-}
-function chemicalsPage() {
-  useEffect(() => {
-    function handleAnimation(entries, observer) {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.style.opacity = 1;
-          animateText(entry.target);
-          observer.unobserve(entry.target);
-        }
-      });
-    }
-    function animateText(target) {
-      let split = new SplitType(target, {
-        split: "lines"
-      });
-      let tl = gsap.timeline();
-      tl.from(split.lines, {
-        opacity: 0,
-        y: 50,
-        duration: 0.6,
-        ease: "cubic-bezier(0.25, 0.46, 0.45, 0.94)",
-        stagger: 0.2
-      });
-    }
-    document.querySelectorAll(".js-split-text").forEach((element) => {
-      let observer = new IntersectionObserver(handleAnimation, { threshold: 0.5 });
-      observer.observe(element);
-    });
-    AOS.init();
-  });
-  return /* @__PURE__ */ jsxs(Fragment, { children: [
-    /* @__PURE__ */ jsxs(Helmet, { children: [
-      /* @__PURE__ */ jsx("title", { children: "Integrated Logistics Solutions for Chemicals, Construction, Energy, & Agriculture | MRSSupplyChain" }),
-      /* @__PURE__ */ jsx("meta", { name: "description", content: "Explore comprehensive logistics solutions for chemicals, construction, energy, and agriculture sectors with MRSSupplyChain." }),
-      /* @__PURE__ */ jsx("meta", { name: "keywords", content: "Chemical Logistics, Construction Supply Chain, Energy Logistics, Agricultural Goods Transport, Hazardous Cargo Warehousing" })
-    ] }),
-    /* @__PURE__ */ jsx(Header2, {}),
-    /* @__PURE__ */ jsx(SectorSpotlight$2, {}),
-    /* @__PURE__ */ jsx(SectorAbout$2, {}),
-    /* @__PURE__ */ jsx(SectorSolutions$2, {}),
-    /* @__PURE__ */ jsx(KeySector$2, {}),
-    /* @__PURE__ */ jsx(innerCTA, {}),
-    /* @__PURE__ */ jsx(formSection, {}),
-    /* @__PURE__ */ jsx(Footer, {})
-  ] });
-}
-const Ecommerce = "/assets/E-commerce-cdnjKsW8.jpg";
-function SectorSpotlight$1() {
-  useEffect(() => {
-  });
-  return /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsxs("div", { className: "service-spotlight custom-brokerage-sec section inner-spotlight-sec section-padd-LR overflow eCom-hdr", children: [
-    /* @__PURE__ */ jsx("div", { className: "main-container width-1250 flex", children: /* @__PURE__ */ jsxs("div", { className: "inner-spot-clm-1", id: "inner-spot-clm-1", children: [
-      /* @__PURE__ */ jsx("h2", { className: "sldr-sub-ttl", "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "0", children: "Sector Solutions" }),
-      /* @__PURE__ */ jsx("h1", { className: "js-split-text white", children: "E-commerce and Retail " }),
-      /* @__PURE__ */ jsx("img", { src: Line$4, alt: "Line", "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "300" }),
-      /* @__PURE__ */ jsx("p", { className: "white", "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "300", children: "Elevating Customer Satisfaction with Innovative Logistics Services" }),
-      /* @__PURE__ */ jsxs("div", { className: "btn inner-spt-btn white", "data-aos": "fade-in", "data-aos-duration": "1000", "data-aos-once": "true", "data-aos-delay": "300", children: [
-        /* @__PURE__ */ jsx("a", { className: "white-60", href: "/", children: "Home " }),
-        " > ",
-        /* @__PURE__ */ jsx("a", { className: "white-60", children: "Sectors " }),
-        " > ",
-        /* @__PURE__ */ jsx("a", { className: "white-60", children: "E-commerce and Retail" })
-      ] })
-    ] }) }),
-    /* @__PURE__ */ jsx("div", { className: "inner-img-sec", children: /* @__PURE__ */ jsx("div", { className: "inner-spot-clm-2", children: /* @__PURE__ */ jsx("img", { src: Ecommerce, alt: "supplyChainImage", className: "lToR", "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "300" }) }) })
-  ] }) });
-}
-function SectorAbout$1() {
-  return /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsx("div", { className: "roadRailAbt-sec section-padd-LR overflow", children: /* @__PURE__ */ jsxs("div", { className: "main-container width-1250 black tech-driven-numbrs1", children: [
-    /* @__PURE__ */ jsx("h2", { className: "ttl-45px trusted-ttl js-split-text", children: "Revolutionising E-commerce and Retail Logistics" }),
-    /* @__PURE__ */ jsx("p", { className: "mob-mrgin-o", "data-aos": "fade-in", "data-aos-duration": "500", "data-aos-once": "true", "data-aos-delay": "200", children: "The dynamic world of e-commerce and retail demands logistics solutions that can keep pace with rapid turnover and the expectation of prompt delivery. MRS Supply Chain's tech-driven services are designed to meet these challenges, ensuring customer satisfaction and operational excellence." })
-  ] }) }) });
-}
-function SectorSolutions$1() {
-  return /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsx("div", { className: "custom-bonded-sec2 section-padd-LR overflow sectorSolution-sec", children: /* @__PURE__ */ jsxs("div", { className: "main-container width-1250 built-to-suit-container1", children: [
-    /* @__PURE__ */ jsx("h3", { className: "we-offer-txt bond-txt black js-split-text key-fetr-ttl", children: "Specialised Solutions for the Safe and Efficient Movement of Bulk Materials" }),
-    /* @__PURE__ */ jsx("img", { className: "built-line-img", src: Line$1, alt: "Line", "data-aos": "fade-in", "data-aos-duration": "500", "data-aos-once": "true", "data-aos-delay": "" }),
-    /* @__PURE__ */ jsxs("div", { className: "row built-row T-B-Padding B-padding-o ", children: [
-      /* @__PURE__ */ jsxs("div", { className: "clm-2 solution-clm", children: [
-        /* @__PURE__ */ jsx("h3", { "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "", children: "Tech-Driven Last-Mile Delivery" }),
-        /* @__PURE__ */ jsx("p", { "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "", children: "Innovative delivery solutions that address the fast-paced demands of e-commerce and retail, ensuring timely and accurate delivery to the end customer." }),
-        /* @__PURE__ */ jsx("h3", { "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "", children: "Duty-Free Warehousing" }),
-        /* @__PURE__ */ jsx("p", { "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "", children: "Flexible warehousing solutions that support the diverse storage and distribution needs of the retail sector, from inventory management to order fulfilment." })
-      ] }),
-      /* @__PURE__ */ jsx("div", { className: "clm-2 built-img-clm", children: /* @__PURE__ */ jsx("img", { src: Inplant$1, alt: "Inplant", "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "500" }) })
-    ] })
-  ] }) }) });
-}
-function KeySector$1() {
-  useEffect(() => {
-    new Swiper(".sector-sldr", {
-      navigation: {
-        nextEl: ".sector-swiper-button-next",
-        prevEl: ".sector-swiper-button-prev"
-      },
-      slidesPerView: 3.1,
-      spaceBetween: 40,
-      breakpoints: {
-        320: {
-          slidesPerView: 1.1
-        },
-        768: {
-          slidesPerView: 2.1
-        },
-        1024: {
-          slidesPerView: 3.1
-        }
-      }
-    });
-  });
-  return /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsx("div", { className: "sector-sec section-padd-LR", children: /* @__PURE__ */ jsxs("div", { className: "main-container width-1250", children: [
-    /* @__PURE__ */ jsx("div", { className: "ovrflw-hdn", children: /* @__PURE__ */ jsx("h2", { className: "sectr-ttl black js-split-text", children: "Key Sectors we work with" }) }),
-    /* @__PURE__ */ jsxs("div", { className: "swiper sector-sldr", "data-aos": "fade-in", "data-aos-duration": "800", "data-aos-once": "true", "data-aos-delay": "500", children: [
-      /* @__PURE__ */ jsxs("div", { className: "pegination-arrow2", children: [
-        /* @__PURE__ */ jsx("div", { className: "sector-swiper-button-next cursor", children: /* @__PURE__ */ jsx("svg", { xmlns: "http://www.w3.org/2000/svg", width: "41", height: "41", viewBox: "0 0 41 41", fill: "none", children: /* @__PURE__ */ jsxs("g", { opacity: "0.7", children: [
-          /* @__PURE__ */ jsx("path", { d: "M12 20H28", stroke: "#929292", strokeLinecap: "round" }),
-          /* @__PURE__ */ jsx("path", { d: "M21 12L29 20L21 28", stroke: "#929292", strokeLinecap: "round" }),
-          "    ",
-          /* @__PURE__ */ jsx("circle", { cx: "20.5", cy: "20.5", r: "20", transform: "matrix(-1 0 0 1 41 0)", stroke: "#929292" })
-        ] }) }) }),
-        /* @__PURE__ */ jsx("div", { className: "sector-swiper-button-prev cursor", children: /* @__PURE__ */ jsx("svg", { xmlns: "http://www.w3.org/2000/svg", width: "41", height: "41", viewBox: "0 0 41 41", fill: "none", children: /* @__PURE__ */ jsxs("g", { opacity: "0.7", children: [
-          /* @__PURE__ */ jsx("path", { d: "M29 20H13", stroke: "#929292", strokeLinecap: "round" }),
-          /* @__PURE__ */ jsx("path", { d: "M20 12L12 20L20 28", stroke: "#929292", strokeLinecap: "round" }),
-          "    ",
-          /* @__PURE__ */ jsx("circle", { cx: "20.5", cy: "20.5", r: "20", stroke: "#929292" })
-        ] }) }) })
-      ] }),
-      /* @__PURE__ */ jsxs("div", { className: "swiper-wrapper", children: [
-        /* @__PURE__ */ jsx("div", { className: "swiper-slide", children: /* @__PURE__ */ jsxs("div", { className: "sector-bx", children: [
-          /* @__PURE__ */ jsx("img", { src: Science_and_Health_Care, alt: "Science_and_Health_Care" }),
-          /* @__PURE__ */ jsxs("div", { className: "content-dv", children: [
-            /* @__PURE__ */ jsx("h2", { children: "Renewable Energy and Infrastructure Projects:  " }),
-            /* @__PURE__ */ jsxs("div", { className: "inner-content-dv", children: [
-              /* @__PURE__ */ jsx("p", { children: "Powering the future with specialised logistics for the renewable energy and infrastructure sectors, where precision meets scale." }),
-              /* @__PURE__ */ jsx("a", { className: "btn grey", id: "btn-styl", href: "/sector/renewable-energy-and-infrastructure-projects", children: /* @__PURE__ */ jsx("span", { className: "btn_name", children: "Read more" }) })
-            ] })
-          ] })
-        ] }) }),
-        /* @__PURE__ */ jsx("div", { className: "swiper-slide", children: /* @__PURE__ */ jsxs("div", { className: "sector-bx", children: [
-          /* @__PURE__ */ jsx("img", { src: RenewableEnergy, alt: "RenewableEnergy" }),
-          /* @__PURE__ */ jsxs("div", { className: "content-dv", children: [
-            /* @__PURE__ */ jsx("h2", { children: "Manufacturing, Automotive, Technology, and Consumer Goods: " }),
-            /* @__PURE__ */ jsxs("div", { className: "inner-content-dv", children: [
-              /* @__PURE__ */ jsx("p", { children: "Driving innovation through integrated logistics, keeping the wheels of industry turning smoothly." }),
-              /* @__PURE__ */ jsx("a", { className: "btn grey", id: "btn-styl", href: "/sector/manufacturing-automotive-technology-and-consumer-goods", children: /* @__PURE__ */ jsx("span", { className: "btn_name", children: "Read more" }) })
-            ] })
-          ] })
-        ] }) }),
-        /* @__PURE__ */ jsx("div", { className: "swiper-slide", children: /* @__PURE__ */ jsxs("div", { className: "sector-bx", children: [
-          /* @__PURE__ */ jsx("img", { src: Industrial, alt: "Industrial" }),
-          /* @__PURE__ */ jsxs("div", { className: "content-dv", children: [
-            /* @__PURE__ */ jsx("h2", { children: "Industrial Equipment:" }),
-            /* @__PURE__ */ jsxs("div", { className: "inner-content-dv", children: [
-              /* @__PURE__ */ jsx("p", { children: "Heavy-duty logistics for heavy-duty equipment, ensuring the backbone of industry remains strong and operational." }),
-              /* @__PURE__ */ jsx("a", { className: "btn grey", id: "btn-styl", href: "/sector/industrial-sector", children: /* @__PURE__ */ jsx("span", { className: "btn_name", children: "Read more" }) })
-            ] })
-          ] })
-        ] }) }),
-        /* @__PURE__ */ jsx("div", { className: "swiper-slide", children: /* @__PURE__ */ jsxs("div", { className: "sector-bx", children: [
-          /* @__PURE__ */ jsx("img", { src: Chemicals, alt: "Chemicals" }),
-          /* @__PURE__ */ jsxs("div", { className: "content-dv", children: [
-            /* @__PURE__ */ jsx("h2", { children: "Agriculture, Chemicals, Construction, and Energy: " }),
-            /* @__PURE__ */ jsxs("div", { className: "inner-content-dv", children: [
-              /* @__PURE__ */ jsx("p", { children: "Cultivating success with tailored logistics for the essential sectors that fuel our world and build our futures." }),
-              /* @__PURE__ */ jsx("a", { className: "btn grey", id: "btn-styl", href: "/sector/chemicals-construction-energy-and-agriculture", children: /* @__PURE__ */ jsx("span", { className: "btn_name", children: "Read more" }) })
-            ] })
-          ] })
-        ] }) }),
-        /* @__PURE__ */ jsx("div", { className: "swiper-slide", children: /* @__PURE__ */ jsxs("div", { className: "sector-bx", children: [
-          /* @__PURE__ */ jsx("img", { src: Arts, alt: "Arts" }),
-          /* @__PURE__ */ jsxs("div", { className: "content-dv", children: [
-            /* @__PURE__ */ jsx("h2", { children: "Arts, Exhibitions, and Luxury Goods: " }),
-            /* @__PURE__ */ jsxs("div", { className: "inner-content-dv", children: [
-              /* @__PURE__ */ jsx("p", { children: "Elevating the art of logistics for the world's treasures, ensuring every masterpiece arrives in perfect form." }),
-              /* @__PURE__ */ jsx("a", { className: "btn grey", id: "btn-styl", href: "/sector/arts-exhibitions-and-luxury-Goods", children: /* @__PURE__ */ jsx("span", { className: "btn_name", children: "Read more" }) })
-            ] })
-          ] })
-        ] }) })
-      ] })
-    ] })
-  ] }) }) });
-}
-function EcommercePage() {
-  useEffect(() => {
-    function handleAnimation(entries, observer) {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.style.opacity = 1;
-          animateText(entry.target);
-          observer.unobserve(entry.target);
-        }
-      });
-    }
-    function animateText(target) {
-      let split = new SplitType(target, {
-        split: "lines"
-      });
-      let tl = gsap.timeline();
-      tl.from(split.lines, {
-        opacity: 0,
-        y: 50,
-        duration: 0.6,
-        ease: "cubic-bezier(0.25, 0.46, 0.45, 0.94)",
-        stagger: 0.2
-      });
-    }
-    document.querySelectorAll(".js-split-text").forEach((element) => {
-      let observer = new IntersectionObserver(handleAnimation, { threshold: 0.5 });
-      observer.observe(element);
-    });
-    AOS.init();
-  });
-  return /* @__PURE__ */ jsxs(Fragment, { children: [
-    /* @__PURE__ */ jsxs(Helmet, { children: [
-      /* @__PURE__ */ jsx("title", { children: "Optimized E-commerce Logistics & Retail Supply Chain Solutions | MRSSupplyChain" }),
-      /* @__PURE__ */ jsx("meta", { name: "description", content: "Discover efficient logistics solutions for e-commerce and retail sectors with MRSSupplyChain." }),
-      /* @__PURE__ */ jsx("meta", { name: "keywords", content: "E-commerce Logistics, Retail Supply Chain, Online Retail Warehousing, Fast Retail Delivery, Efficient E-commerce Transport" })
-    ] }),
-    /* @__PURE__ */ jsx(Header2, {}),
-    /* @__PURE__ */ jsx(SectorSpotlight$1, {}),
-    /* @__PURE__ */ jsx(SectorAbout$1, {}),
-    /* @__PURE__ */ jsx(SectorSolutions$1, {}),
-    /* @__PURE__ */ jsx(KeySector$1, {}),
-    /* @__PURE__ */ jsx(innerCTA, {}),
-    /* @__PURE__ */ jsx(formSection, {}),
-    /* @__PURE__ */ jsx(Footer, {})
-  ] });
-}
-const Warehousing_Solution = "/assets/manufacturing_sector-OQ3jQEpA.jpg";
-function SectorSpotlight() {
-  useEffect(() => {
-  });
-  return /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsxs("div", { className: "service-spotlight custom-brokerage-sec section inner-spotlight-sec section-padd-LR overflow manufactr-hdr", children: [
-    /* @__PURE__ */ jsx("div", { className: "main-container width-1250 flex", children: /* @__PURE__ */ jsxs("div", { className: "inner-spot-clm-1", id: "inner-spot-clm-1", children: [
-      /* @__PURE__ */ jsx("h2", { className: "sldr-sub-ttl", "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "0", children: "Sector Solutions" }),
-      /* @__PURE__ */ jsx("h1", { className: "js-split-text white manufctr-ttl", children: "Manufacturing, Automotive, Technology, and Consumer Goods " }),
-      /* @__PURE__ */ jsx("img", { src: Line$4, alt: "Line", "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "300" }),
-      /* @__PURE__ */ jsx("p", { className: "white", "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "300", children: "Powering Progress with Logistics Solutions" }),
-      /* @__PURE__ */ jsxs("div", { className: "btn inner-spt-btn white", "data-aos": "fade-in", "data-aos-duration": "1000", "data-aos-once": "true", "data-aos-delay": "300", children: [
-        /* @__PURE__ */ jsx("a", { className: "white-60", href: "/", children: "Home " }),
-        " > ",
-        /* @__PURE__ */ jsx("a", { className: "white-60", children: "Sectors " }),
-        " > ",
-        /* @__PURE__ */ jsx("a", { className: "white-60", children: "Manufacturing, Automotive, Technology, and Consumer Goods" })
-      ] })
-    ] }) }),
-    /* @__PURE__ */ jsx("div", { className: "inner-img-sec", children: /* @__PURE__ */ jsx("div", { className: "inner-spot-clm-2", children: /* @__PURE__ */ jsx("img", { src: Warehousing_Solution, alt: "supplyChainImage", className: "lToR", "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "300" }) }) })
-  ] }) });
-}
-function SectorAbout() {
-  return /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsx("div", { className: "roadRailAbt-sec section-padd-LR overflow", children: /* @__PURE__ */ jsxs("div", { className: "main-container width-1250 black tech-driven-numbrs1", children: [
-    /* @__PURE__ */ jsx("h2", { className: "ttl-45px trusted-ttl js-split-text", children: "Driving Manufacturing and Consumer Goods Forward" }),
-    /* @__PURE__ */ jsx("p", { className: "mob-mrgin-o", "data-aos": "fade-in", "data-aos-duration": "500", "data-aos-once": "true", "data-aos-delay": "200", children: "The sectors of manufacturing, automotive, technology, and consumer goods are the backbone of the global economy, requiring integrated logistics solutions that support production and distribution. MRS Supply Chain offers a comprehensive suite of services to ensure these industries remain at the forefront of efficiency and innovation." })
-  ] }) }) });
-}
-function SectorSolutions() {
-  return /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsx("div", { className: "custom-bonded-sec2 section-padd-LR overflow sectorSolution-sec", children: /* @__PURE__ */ jsxs("div", { className: "main-container width-1250 built-to-suit-container1", children: [
-    /* @__PURE__ */ jsx("h3", { className: "we-offer-txt bond-txt black js-split-text key-fetr-ttl", children: "Streamlining Production and Distribution with Expert Solutions" }),
-    /* @__PURE__ */ jsx("img", { className: "built-line-img", src: Line$1, alt: "Line", "data-aos": "fade-in", "data-aos-duration": "500", "data-aos-once": "true", "data-aos-delay": "" }),
-    /* @__PURE__ */ jsxs("div", { className: "row built-row T-B-Padding B-padding-o ", children: [
-      /* @__PURE__ */ jsxs("div", { className: "clm-2 solution-clm", children: [
-        /* @__PURE__ */ jsx("h3", { "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "", children: "Regulatory Compliance and Documentation" }),
-        /* @__PURE__ */ jsx("p", { "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "", children: "Navigating the intricate web of customs and international trade regulations is critical for these sectors, and MRS provides the expertise needed to ensure seamless operations." }),
-        /* @__PURE__ */ jsx("h3", { "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "", children: "Tech-Driven Last-Mile Delivery" }),
-        /* @__PURE__ */ jsx("p", { "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "", children: "Advanced delivery services tailored to the needs of fast-paced manufacturing and consumer goods sectors, enhancing supply chain efficiency." }),
-        /* @__PURE__ */ jsx("h3", { "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "", children: "Duty-Free Warehousing" }),
-        /* @__PURE__ */ jsx("p", { "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "", children: "Strategic warehousing solutions that complement the manufacturing process, from raw materials storage to finished goods distribution, ensuring a smooth supply chain flow." })
-      ] }),
-      /* @__PURE__ */ jsx("div", { className: "clm-2 built-img-clm", children: /* @__PURE__ */ jsx("img", { src: MultiuserWarehousing$2, alt: "MultiuserWarehousing", "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "500" }) })
-    ] })
-  ] }) }) });
-}
-function KeySector() {
-  useEffect(() => {
-    new Swiper(".sector-sldr", {
-      navigation: {
-        nextEl: ".sector-swiper-button-next",
-        prevEl: ".sector-swiper-button-prev"
-      },
-      slidesPerView: 3.1,
-      spaceBetween: 40,
-      breakpoints: {
-        320: {
-          slidesPerView: 1.1
-        },
-        768: {
-          slidesPerView: 2.1
-        },
-        1024: {
-          slidesPerView: 3.1
-        }
-      }
-    });
-  });
-  return /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsx("div", { className: "sector-sec section-padd-LR", children: /* @__PURE__ */ jsxs("div", { className: "main-container width-1250", children: [
-    /* @__PURE__ */ jsx("div", { className: "ovrflw-hdn", children: /* @__PURE__ */ jsx("h2", { className: "sectr-ttl black js-split-text", children: "Key Sectors we work with" }) }),
-    /* @__PURE__ */ jsxs("div", { className: "swiper sector-sldr", "data-aos": "fade-in", "data-aos-duration": "800", "data-aos-once": "true", "data-aos-delay": "500", children: [
-      /* @__PURE__ */ jsxs("div", { className: "pegination-arrow2", children: [
-        /* @__PURE__ */ jsx("div", { className: "sector-swiper-button-next cursor", children: /* @__PURE__ */ jsx("svg", { xmlns: "http://www.w3.org/2000/svg", width: "41", height: "41", viewBox: "0 0 41 41", fill: "none", children: /* @__PURE__ */ jsxs("g", { opacity: "0.7", children: [
-          /* @__PURE__ */ jsx("path", { d: "M12 20H28", stroke: "#929292", strokeLinecap: "round" }),
-          /* @__PURE__ */ jsx("path", { d: "M21 12L29 20L21 28", stroke: "#929292", strokeLinecap: "round" }),
-          "    ",
-          /* @__PURE__ */ jsx("circle", { cx: "20.5", cy: "20.5", r: "20", transform: "matrix(-1 0 0 1 41 0)", stroke: "#929292" })
-        ] }) }) }),
-        /* @__PURE__ */ jsx("div", { className: "sector-swiper-button-prev cursor", children: /* @__PURE__ */ jsx("svg", { xmlns: "http://www.w3.org/2000/svg", width: "41", height: "41", viewBox: "0 0 41 41", fill: "none", children: /* @__PURE__ */ jsxs("g", { opacity: "0.7", children: [
-          /* @__PURE__ */ jsx("path", { d: "M29 20H13", stroke: "#929292", strokeLinecap: "round" }),
-          /* @__PURE__ */ jsx("path", { d: "M20 12L12 20L20 28", stroke: "#929292", strokeLinecap: "round" }),
-          "    ",
-          /* @__PURE__ */ jsx("circle", { cx: "20.5", cy: "20.5", r: "20", stroke: "#929292" })
-        ] }) }) })
-      ] }),
-      /* @__PURE__ */ jsxs("div", { className: "swiper-wrapper", children: [
-        /* @__PURE__ */ jsx("div", { className: "swiper-slide", children: /* @__PURE__ */ jsxs("div", { className: "sector-bx", children: [
-          /* @__PURE__ */ jsx("img", { src: Science_and_Health_Care, alt: "Science_and_Health_Care" }),
-          /* @__PURE__ */ jsxs("div", { className: "content-dv", children: [
-            /* @__PURE__ */ jsx("h2", { children: "Renewable Energy and Infrastructure Projects:  " }),
-            /* @__PURE__ */ jsxs("div", { className: "inner-content-dv", children: [
-              /* @__PURE__ */ jsx("p", { children: "Powering the future with specialised logistics for the renewable energy and infrastructure sectors, where precision meets scale." }),
-              /* @__PURE__ */ jsx("a", { className: "btn grey", id: "btn-styl", href: "/sector/renewable-energy-and-infrastructure-projects", children: /* @__PURE__ */ jsx("span", { className: "btn_name", children: "Read more" }) })
-            ] })
-          ] })
-        ] }) }),
-        /* @__PURE__ */ jsx("div", { className: "swiper-slide", children: /* @__PURE__ */ jsxs("div", { className: "sector-bx", children: [
-          /* @__PURE__ */ jsx("img", { src: Industrial, alt: "Industrial" }),
-          /* @__PURE__ */ jsxs("div", { className: "content-dv", children: [
-            /* @__PURE__ */ jsx("h2", { children: "Industrial Equipment:" }),
-            /* @__PURE__ */ jsxs("div", { className: "inner-content-dv", children: [
-              /* @__PURE__ */ jsx("p", { children: "Heavy-duty logistics for heavy-duty equipment, ensuring the backbone of industry remains strong and operational." }),
-              /* @__PURE__ */ jsx("a", { className: "btn grey", id: "btn-styl", href: "/sector/industrial-sector", children: /* @__PURE__ */ jsx("span", { className: "btn_name", children: "Read more" }) })
-            ] })
-          ] })
-        ] }) }),
-        /* @__PURE__ */ jsx("div", { className: "swiper-slide", children: /* @__PURE__ */ jsxs("div", { className: "sector-bx", children: [
-          /* @__PURE__ */ jsx("img", { src: Chemicals, alt: "Chemicals" }),
-          /* @__PURE__ */ jsxs("div", { className: "content-dv", children: [
-            /* @__PURE__ */ jsx("h2", { children: "Agriculture, Chemicals, Construction, and Energy: " }),
-            /* @__PURE__ */ jsxs("div", { className: "inner-content-dv", children: [
-              /* @__PURE__ */ jsx("p", { children: "Cultivating success with tailored logistics for the essential sectors that fuel our world and build our futures." }),
-              /* @__PURE__ */ jsx("a", { className: "btn grey", id: "btn-styl", href: "/sector/chemicals-construction-energy-and-agriculture", children: /* @__PURE__ */ jsx("span", { className: "btn_name", children: "Read more" }) })
-            ] })
-          ] })
-        ] }) }),
-        /* @__PURE__ */ jsx("div", { className: "swiper-slide", children: /* @__PURE__ */ jsxs("div", { className: "sector-bx", children: [
-          /* @__PURE__ */ jsx("img", { src: Ecommerce$1, alt: "Ecommerce" }),
-          /* @__PURE__ */ jsxs("div", { className: "content-dv", children: [
-            /* @__PURE__ */ jsx("h2", { children: "E-commerce and Retail:" }),
-            /* @__PURE__ */ jsxs("div", { className: "inner-content-dv", children: [
-              /* @__PURE__ */ jsx("p", { children: "Revolutionising retail with cutting-edge logistics, delivering the future of commerce today." }),
-              /* @__PURE__ */ jsx("a", { className: "btn grey", id: "btn-styl", href: "/sector/e-commerce-and-retail", children: /* @__PURE__ */ jsx("span", { className: "btn_name", children: "Read more" }) })
-            ] })
-          ] })
-        ] }) }),
-        /* @__PURE__ */ jsx("div", { className: "swiper-slide", children: /* @__PURE__ */ jsxs("div", { className: "sector-bx", children: [
-          /* @__PURE__ */ jsx("img", { src: Arts, alt: "Arts" }),
-          /* @__PURE__ */ jsxs("div", { className: "content-dv", children: [
-            /* @__PURE__ */ jsx("h2", { children: "Arts, Exhibitions, and Luxury Goods: " }),
-            /* @__PURE__ */ jsxs("div", { className: "inner-content-dv", children: [
-              /* @__PURE__ */ jsx("p", { children: "Elevating the art of logistics for the world's treasures, ensuring every masterpiece arrives in perfect form." }),
-              /* @__PURE__ */ jsx("a", { className: "btn grey", id: "btn-styl", href: "/sector/arts-exhibitions-and-luxury-Goods", children: /* @__PURE__ */ jsx("span", { className: "btn_name", children: "Read more" }) })
-            ] })
-          ] })
-        ] }) })
-      ] })
-    ] })
-  ] }) }) });
-}
-function ManufacturingPage() {
-  useEffect(() => {
-    function handleAnimation(entries, observer) {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.style.opacity = 1;
-          animateText(entry.target);
-          observer.unobserve(entry.target);
-        }
-      });
-    }
-    function animateText(target) {
-      let split = new SplitType(target, {
-        split: "lines"
-      });
-      let tl = gsap.timeline();
-      tl.from(split.lines, {
-        opacity: 0,
-        y: 50,
-        duration: 0.6,
-        ease: "cubic-bezier(0.25, 0.46, 0.45, 0.94)",
-        stagger: 0.2
-      });
-    }
-    document.querySelectorAll(".js-split-text").forEach((element) => {
-      let observer = new IntersectionObserver(handleAnimation, { threshold: 0.5 });
-      observer.observe(element);
-    });
-    AOS.init();
-  });
-  return /* @__PURE__ */ jsxs(Fragment, { children: [
-    /* @__PURE__ */ jsxs(Helmet, { children: [
-      /* @__PURE__ */ jsx("title", { children: "Supply Chain Solutions for Manufacturing & Consumer Goods | MRSSupplyChain" }),
-      /* @__PURE__ */ jsx("meta", { name: "description", content: "Discover optimized logistics solutions for manufacturing, automotive, technology, and consumer goods industries with MRSSupplyChain." }),
-      /* @__PURE__ */ jsx("meta", { name: "keywords", content: "Manufacturing Logistics, Automotive Supply Chain, Technology Goods Logistics, Consumer Goods Warehousing, Efficient Supply Chain for Manufacturing" })
-    ] }),
-    /* @__PURE__ */ jsx(Header2, {}),
-    /* @__PURE__ */ jsx(SectorSpotlight, {}),
-    /* @__PURE__ */ jsx(SectorAbout, {}),
-    /* @__PURE__ */ jsx(SectorSolutions, {}),
-    /* @__PURE__ */ jsx(KeySector, {}),
-    /* @__PURE__ */ jsx(innerCTA, {}),
     /* @__PURE__ */ jsx(formSection, {}),
     /* @__PURE__ */ jsx(Footer, {})
   ] });
@@ -8280,281 +8221,166 @@ function SafetyPage() {
     /* @__PURE__ */ jsx(Footer, {})
   ] });
 }
-function ImportManageServicesSpotlight() {
+const Warehousing_Solution$4 = "/assets/ArtsExhibitions-7ZIMfCgA.jpg";
+function SectorSpotlight$5() {
   useEffect(() => {
   });
-  return /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsxs("div", { className: "service-spotlight section inner-spotlight-sec section-padd-LR overflow wareHousing-hdr", children: [
-    /* @__PURE__ */ jsx("div", { className: "main-container width-1250 flex", children: /* @__PURE__ */ jsxs("div", { className: "inner-spot-clm-1", children: [
+  return /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsxs("div", { className: "service-spotlight custom-brokerage-sec section inner-spotlight-sec section-padd-LR overflow arts-hdr", children: [
+    /* @__PURE__ */ jsx("div", { className: "main-container width-1250 flex", children: /* @__PURE__ */ jsxs("div", { className: "inner-spot-clm-1", id: "inner-spot-clm-1", children: [
+      /* @__PURE__ */ jsx("h2", { className: "sldr-sub-ttl", "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "0", children: "Sector Solutions" }),
       /* @__PURE__ */ jsxs("h1", { className: "js-split-text white", children: [
-        "Import",
+        "Arts, Exhibitions, and ",
         /* @__PURE__ */ jsx("br", {}),
-        "Management"
+        "Luxury Goods "
       ] }),
-      /* @__PURE__ */ jsx("h2", { className: "sldr-sub-ttl", "data-aos": "fade-up", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "800", children: "Efficient, Reliable, and Compliant Import Management Services Across Industries" }),
-      /* @__PURE__ */ jsx("img", { src: Line$4, alt: "Line", "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "900" }),
-      /* @__PURE__ */ jsx("p", { className: "white", "data-aos": "fade-up", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "900", children: "Streamline Your Imports with India’s Leading Import Management Partner." }),
-      /* @__PURE__ */ jsxs("div", { className: "btn inner-spt-btn white", "data-aos": "fade-up", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "900", children: [
+      /* @__PURE__ */ jsx("img", { src: Line$4, alt: "Line", "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "300" }),
+      /* @__PURE__ */ jsx("p", { className: "white", "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "300", children: "Elevating the Art of Luxury Logistics" }),
+      /* @__PURE__ */ jsxs("div", { className: "btn inner-spt-btn white", "data-aos": "fade-in", "data-aos-duration": "1000", "data-aos-once": "true", "data-aos-delay": "300", children: [
         /* @__PURE__ */ jsx("a", { className: "white-60", href: "/", children: "Home " }),
         " > ",
-        /* @__PURE__ */ jsx("a", { className: "white-60", children: "Services " }),
+        /* @__PURE__ */ jsx("a", { className: "white-60", children: "Sectors " }),
         " > ",
-        /* @__PURE__ */ jsx("a", { className: "white-60", children: "Import Management" })
+        /* @__PURE__ */ jsx("a", { className: "white-60", children: "Arts, Exhibitions, and Luxury Goods" })
       ] })
     ] }) }),
-    /* @__PURE__ */ jsx("div", { className: "inner-img-sec", children: /* @__PURE__ */ jsx("div", { className: "inner-spot-clm-2", children: /* @__PURE__ */ jsx("img", { src: ImportManagement, alt: "supplyChainImage", className: "lToR", "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "1000" }) }) })
+    /* @__PURE__ */ jsx("div", { className: "inner-img-sec", children: /* @__PURE__ */ jsx("div", { className: "inner-spot-clm-2", children: /* @__PURE__ */ jsx("img", { src: Warehousing_Solution$4, alt: "supplyChainImage", className: "lToR", "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "300" }) }) })
   ] }) });
 }
-function ImportManagemultiUserAbout() {
-  return /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsxs("div", { className: "abt_us-section section-padd-LR overflow", children: [
-    /* @__PURE__ */ jsxs("div", { className: "main-container width-1200 black multiuser-container1", children: [
-      /* @__PURE__ */ jsxs("div", { className: "services-hdng black", "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "400", children: [
-        /* @__PURE__ */ jsx("a", { href: "/services/import-management#AboutIME", "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "600", children: "About MRS’s Import Management Expertise" }),
-        /* @__PURE__ */ jsxs("a", { href: "/services/import-management#DetailedServicesBreakdown", "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "700", children: [
-          "Detailed ",
-          /* @__PURE__ */ jsx("br", {}),
-          "Services Breakdown"
-        ] }),
-        /* @__PURE__ */ jsxs("a", { href: "/services/import-management#BenefitsChoosingMRS", "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "800", children: [
-          "Benefits of ",
-          /* @__PURE__ */ jsx("br", {}),
-          " Choosing MRS"
-        ] }),
-        /* @__PURE__ */ jsxs("a", { href: "/services/import-management#CaseStudies", "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "900", children: [
-          "Case Studies/ ",
-          /* @__PURE__ */ jsx("br", {}),
-          "Success Stories"
-        ] })
-      ] }),
-      /* @__PURE__ */ jsx("h2", { className: "ttl-45px trusted-ttl js-split-text", children: "Your Trusted Partner in Gujarat for Comprehensive Import Management" }),
-      /* @__PURE__ */ jsxs("div", { className: "row", children: [
-        /* @__PURE__ */ jsx("div", { className: "clm-2", children: /* @__PURE__ */ jsx("p", { className: "mob-mrgin-o", "data-aos": "fade-in", "data-aos-duration": "500", "data-aos-once": "true", "data-aos-delay": "400", children: "When working for an importer, managing the entire import process is crucial. This includes meticulous attention to documentation, customs clearance, and the timely release of goods. From the moment a container arrives at the port to its clearance and final handover to the importer, every step requires precision and timely execution to ensure a smooth import process." }) }),
-        /* @__PURE__ */ jsx("div", { className: "clm-2", "data-aos": "fade-in", "data-aos-duration": "500", "data-aos-once": "true", "data-aos-delay": "600", children: /* @__PURE__ */ jsx("p", { className: "mob-mrgin-btm-o", children: "At MRS, we are proud to be the preferred import management partner for leading businesses across Gujarat. With our strategic presence near major ports like Hazira, Kandla, and Mundra, and the unique advantage of managing a Free Trade Warehousing Zone in Mundra, we facilitate seamless import processes backed by our robust infrastructure, including 3.5 Lakh Sq Ft of warehousing space." }) }),
-        /* @__PURE__ */ jsx("div", { className: "clm-2", "data-aos": "fade-in", "data-aos-duration": "500", "data-aos-once": "true", "data-aos-delay": "600", children: /* @__PURE__ */ jsx("p", { className: "mob-mrgin-btm-o", children: "Our import management solutions are tailored to meet the unique requirements of diverse industries. From expert Customs Brokerage to streamlined Logistics Coordination, and from Compliance Assurance to End-to-End Handling, we go beyond just managing imports. We are your strategic partner in ensuring efficient, cost-effective, and compliant import operations that enhance your supply chain’s efficiency." }) })
-      ] })
-    ] }),
-    /* @__PURE__ */ jsxs("div", { className: "main-container width-1250 multiuser-container2", id: "no-pad-mob", children: [
-      /* @__PURE__ */ jsx("div", {}),
-      /* @__PURE__ */ jsxs("div", { className: "user-numbers-sec", "data-aos": "fade-in", "data-aos-delay": "400", "data-aos-once": "true", children: [
-        /* @__PURE__ */ jsxs("div", { className: "user-numbers-dv", "data-aos": "fade-in", "data-aos-delay": "0", "data-aos-once": "true", children: [
-          /* @__PURE__ */ jsxs("h4", { className: "numbers blue", children: [
-            " 14 ",
-            /* @__PURE__ */ jsx("span", { className: "num-ttl", children: "years" })
-          ] }),
-          /* @__PURE__ */ jsx("p", { className: "grey user-numbers-desc", children: "Experience in 3PL and Warehousing Services." })
-        ] }),
-        /* @__PURE__ */ jsxs("div", { className: "user-numbers-dv", "data-aos": "fade-in", "data-aos-delay": "300", "data-aos-once": "true", children: [
-          /* @__PURE__ */ jsxs("h4", { className: "numbers blue", children: [
-            "07 ",
-            /* @__PURE__ */ jsx("sapn", { className: "num-ttl", children: "Lacs Sq ft" })
-          ] }),
-          /* @__PURE__ */ jsx("p", { className: "grey user-numbers-desc", children: "Warehouses Leased Out for Food Grains and Bulk Cargo." })
-        ] }),
-        /* @__PURE__ */ jsxs("div", { className: "user-numbers-dv", "data-aos": "fade-in", "data-aos-delay": "500", "data-aos-once": "true", children: [
-          /* @__PURE__ */ jsxs("h4", { className: "numbers blue", children: [
-            "3.5 ",
-            /* @__PURE__ */ jsx("sapn", { className: "num-ttl", children: "Lacs" })
-          ] }),
-          /* @__PURE__ */ jsx("p", { className: "grey user-numbers-desc", children: "Grade A Warehousing Space in Kutch." })
-        ] })
-      ] })
-    ] })
-  ] }) });
+function SectorAbout$5() {
+  return /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsx("div", { className: "roadRailAbt-sec section-padd-LR overflow", children: /* @__PURE__ */ jsxs("div", { className: "main-container width-1250 black tech-driven-numbrs1", children: [
+    /* @__PURE__ */ jsx("h2", { className: "ttl-45px trusted-ttl js-split-text", children: "Expert Handling and Storage for Arts, Exhibitions, and High-Value Goods" }),
+    /* @__PURE__ */ jsx("p", { className: "mob-mrgin-o", "data-aos": "fade-in", "data-aos-duration": "500", "data-aos-once": "true", "data-aos-delay": "200", children: "In the world of arts, exhibitions, and luxury goods, the importance of meticulous handling, secure transportation, and specialised storage cannot be overstated. MRS Supply Chain offers a suite of services tailored to meet the unique needs of this sector, ensuring that high-value commodities are managed with the utmost care and precision." })
+  ] }) }) });
 }
-function ImportManageBuiltoSuit() {
-  return /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsx("div", { className: "built-to-suit-sec section-padd-LR overflow", id: "DetailedServicesBreakdown", children: /* @__PURE__ */ jsxs("div", { className: "main-container width-1200 built-to-suit-container1 white", children: [
-    /* @__PURE__ */ jsxs("div", { className: "row built-row", children: [
-      /* @__PURE__ */ jsxs("div", { className: "clm-2 built-cntnt-clm", children: [
-        /* @__PURE__ */ jsx("h2", { className: "ttl-45px js-split-text", children: "Detailed Services Breakdown" }),
-        /* @__PURE__ */ jsx("p", { "data-aos": "fade-in", "data-aos-duration": "500", "data-aos-once": "true", "data-aos-delay": "800", children: "Import management oversees the efficient flow of goods from foreign suppliers to a business, handling logistics, documentation, and customs compliance. By navigating complex trade regulations and coordinating each step, it ensures timely, cost-effective delivery and smooth supply chain operations." })
+function SectorSolutions$5() {
+  return /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsx("div", { className: "custom-bonded-sec2 section-padd-LR overflow sectorSolution-sec", children: /* @__PURE__ */ jsxs("div", { className: "main-container width-1250 built-to-suit-container1", children: [
+    /* @__PURE__ */ jsx("h3", { className: "we-offer-txt bond-txt black js-split-text key-fetr-ttl", children: "Specialised Logistics Solutions for Arts, Exhibitions, and Luxury Goods:" }),
+    /* @__PURE__ */ jsx("img", { className: "built-line-img", src: Line$1, alt: "Line", "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "" }),
+    /* @__PURE__ */ jsxs("div", { className: "row built-row T-B-Padding B-padding-o ", children: [
+      /* @__PURE__ */ jsxs("div", { className: "clm-2 solution-clm", children: [
+        /* @__PURE__ */ jsx("h3", { "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "", children: "High-Value Commodities and Exhibition Cargo" }),
+        /* @__PURE__ */ jsx("p", { "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "", children: "Handling and logistics for exhibitions, art pieces, and luxury items, ensuring their pristine condition and timely delivery for global showcases." }),
+        /* @__PURE__ */ jsx("h3", { "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "", children: "Duty-Free Warehousing" }),
+        /* @__PURE__ */ jsx("p", { "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "", children: "Secure, climate-controlled storage solutions that leverage duty-free benefits, providing an ideal environment for the preservation and staging of valuable goods." })
       ] }),
-      /* @__PURE__ */ jsx("div", { className: "clm-2 built-img-clm", children: /* @__PURE__ */ jsx("img", { src: BuiltWarehousing$4, alt: "BuiltWarehousing", "data-aos": "fade-in", "data-aos-duration": "500", "data-aos-once": "true", "data-aos-delay": "900" }) })
-    ] }),
-    /* @__PURE__ */ jsx("h3", { className: "we-offer-txt js-split-text", children: "At MRS, we offer a cutting-edge solution with your business in mind:" }),
-    /* @__PURE__ */ jsx("img", { className: "built-line-img", src: Line$4, alt: "Line", "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "900" }),
-    /* @__PURE__ */ jsxs("div", { children: [
-      /* @__PURE__ */ jsxs("ul", { className: "built-ul", children: [
-        /* @__PURE__ */ jsxs("li", { "data-aos": "fade-in", "data-aos-duration": "500", "data-aos-once": "true", "data-aos-delay": "500", children: [
-          /* @__PURE__ */ jsx("h3", { children: "Customs Brokerage" }),
-          /* @__PURE__ */ jsx("p", { children: "Expert handling of all customs documentation and procedures." })
-        ] }),
-        /* @__PURE__ */ jsxs("li", { "data-aos": "fade-in", "data-aos-duration": "500", "data-aos-once": "true", "data-aos-delay": "800", children: [
-          /* @__PURE__ */ jsx("h3", { children: "Compliance Assurance" }),
-          /* @__PURE__ */ jsx("p", { children: "Ensuring all imports meet India’s regulatory standards." })
-        ] }),
-        /* @__PURE__ */ jsxs("li", { "data-aos": "fade-in", "data-aos-duration": "500", "data-aos-once": "true", "data-aos-delay": "900", children: [
-          /* @__PURE__ */ jsx("h3", { children: "Logistics Coordination" }),
-          /* @__PURE__ */ jsx("p", { children: "Streamlined logistics solutions from the point of origin to your doorstep." })
-        ] }),
-        /* @__PURE__ */ jsxs("li", { "data-aos": "fade-in", "data-aos-duration": "500", "data-aos-once": "true", "data-aos-delay": "1000", children: [
-          /* @__PURE__ */ jsx("h3", { children: "End-to-End Handling" }),
-          /* @__PURE__ */ jsx("p", { children: "From documentation to delivery, we manage every aspect of your import process." })
-        ] })
-      ] }),
-      /* @__PURE__ */ jsx("p", { className: "margin-o", "data-aos": "fade-in", "data-aos-duration": "500", "data-aos-once": "true", "data-aos-delay": "600", children: "At MRS, we provide seamless import solutions. Our Customs Brokerage ensures expert handling of all documentation, while Compliance Assurance keeps you aligned with India’s regulations. With Logistics Coordination and End-to-End Handling, we manage everything from origin to delivery, so you can focus on your business." })
+      /* @__PURE__ */ jsx("div", { className: "clm-2 built-img-clm", children: /* @__PURE__ */ jsx("img", { src: Inplant$2, alt: "Inplant", "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "500" }) })
     ] })
   ] }) }) });
 }
-function ImportManageMultiuserWarehousing() {
+function KeySector$5() {
   useEffect(() => {
-    $(".readMore-button").off("click").on("click", function() {
-      $(".readMore-button").toggleClass("rotate");
-      $(".moretext").slideToggle();
-      if ($(this).text() == "Read more") {
-        $(this).text("Read less");
-      } else {
-        $(this).text("Read more");
+    new Swiper(".sector-sldr", {
+      navigation: {
+        nextEl: ".sector-swiper-button-next",
+        prevEl: ".sector-swiper-button-prev"
+      },
+      slidesPerView: 3.1,
+      spaceBetween: 40,
+      breakpoints: {
+        320: {
+          slidesPerView: 1.1
+        },
+        768: {
+          slidesPerView: 2.1
+        },
+        1024: {
+          slidesPerView: 3.1
+        }
       }
     });
   });
-  return /* @__PURE__ */ jsxs(Fragment, { children: [
-    /* @__PURE__ */ jsx("div", { className: "multiwarehouse section-padd-LR overflow", id: "AboutIME", children: /* @__PURE__ */ jsx("div", { className: "main-container width-1200 black built-to-suit-container1 multiwar-cont1", children: /* @__PURE__ */ jsxs("div", { className: "row built-row", children: [
-      /* @__PURE__ */ jsx("div", { className: "clm-2 built-img-clm", children: /* @__PURE__ */ jsx("img", { src: MultiuserWarehousing$2, alt: "Inplant", "data-aos": "fade-in", "data-aos-duration": "700", "data-aos-once": "true", "data-aos-delay": "400" }) }),
-      /* @__PURE__ */ jsxs("div", { className: "clm-2 built-cntnt-clm", children: [
-        /* @__PURE__ */ jsx("h2", { className: "ttl-45px js-split-text", children: "About MRS’s Import Management Expertise" }),
-        /* @__PURE__ */ jsx("p", { "data-aos": "fade-in", "data-aos-duration": "700", "data-aos-once": "true", "data-aos-delay": "700", children: "MRS Supply Chain Solutions has cemented its position as a leader in import management services throughout India. With over a decade of expertise, we navigate the complexities of customs and import regulations to bring you a seamless, compliant, and efficient import process. Our robust network and deep understanding of international trade laws ensure your goods move smoothly and swiftly across borders." }),
-        /* @__PURE__ */ jsx("div", { className: "moretext", children: /* @__PURE__ */ jsx("p", { children: "Shared Space, Shared Success - With our extensive warehouse network, knowledge sharing, extensive experience, and ongoing collaborative improvement projects, we stand committed to providing the highest quality solutions for your products. Our multi-user warehousing concept fosters synergy, ensuring your goods are handled with care and precision." }) }),
-        /* @__PURE__ */ jsx("a", { className: "readMore-button", "data-aos": "fade-in", "data-aos-duration": "500", "data-aos-once": "true", "data-aos-delay": "600", children: "Read more" })
+  return /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsx("div", { className: "sector-sec section-padd-LR", children: /* @__PURE__ */ jsxs("div", { className: "main-container width-1250", children: [
+    /* @__PURE__ */ jsx("div", { className: "ovrflw-hdn", children: /* @__PURE__ */ jsx("h2", { className: "sectr-ttl black js-split-text", children: "Key Sectors we work with" }) }),
+    /* @__PURE__ */ jsxs("div", { className: "swiper sector-sldr", "data-aos": "fade-in", "data-aos-duration": "800", "data-aos-once": "true", "data-aos-delay": "500", children: [
+      /* @__PURE__ */ jsxs("div", { className: "pegination-arrow2", children: [
+        /* @__PURE__ */ jsx("div", { className: "sector-swiper-button-next cursor", children: /* @__PURE__ */ jsx("svg", { xmlns: "http://www.w3.org/2000/svg", width: "41", height: "41", viewBox: "0 0 41 41", fill: "none", children: /* @__PURE__ */ jsxs("g", { opacity: "0.7", children: [
+          /* @__PURE__ */ jsx("path", { d: "M12 20H28", stroke: "#929292", strokeLinecap: "round" }),
+          /* @__PURE__ */ jsx("path", { d: "M21 12L29 20L21 28", stroke: "#929292", strokeLinecap: "round" }),
+          "    ",
+          /* @__PURE__ */ jsx("circle", { cx: "20.5", cy: "20.5", r: "20", transform: "matrix(-1 0 0 1 41 0)", stroke: "#929292" })
+        ] }) }) }),
+        /* @__PURE__ */ jsx("div", { className: "sector-swiper-button-prev cursor", children: /* @__PURE__ */ jsx("svg", { xmlns: "http://www.w3.org/2000/svg", width: "41", height: "41", viewBox: "0 0 41 41", fill: "none", children: /* @__PURE__ */ jsxs("g", { opacity: "0.7", children: [
+          /* @__PURE__ */ jsx("path", { d: "M29 20H13", stroke: "#929292", strokeLinecap: "round" }),
+          /* @__PURE__ */ jsx("path", { d: "M20 12L12 20L20 28", stroke: "#929292", strokeLinecap: "round" }),
+          "    ",
+          /* @__PURE__ */ jsx("circle", { cx: "20.5", cy: "20.5", r: "20", stroke: "#929292" })
+        ] }) }) })
+      ] }),
+      /* @__PURE__ */ jsxs("div", { className: "swiper-wrapper", children: [
+        /* @__PURE__ */ jsx("div", { className: "swiper-slide", children: /* @__PURE__ */ jsxs("div", { className: "sector-bx", children: [
+          /* @__PURE__ */ jsx("img", { src: Science_and_Health_Care, alt: "Science_and_Health_Care" }),
+          /* @__PURE__ */ jsxs("div", { className: "content-dv", children: [
+            /* @__PURE__ */ jsx("h2", { children: "Renewable Energy and Infrastructure Projects:  " }),
+            /* @__PURE__ */ jsxs("div", { className: "inner-content-dv", children: [
+              /* @__PURE__ */ jsx("p", { children: "Powering the future with specialised logistics for the renewable energy and infrastructure sectors, where precision meets scale." }),
+              /* @__PURE__ */ jsx("a", { className: "btn grey", id: "btn-styl", href: "/sector/renewable-energy-and-infrastructure-projects", children: /* @__PURE__ */ jsx("span", { className: "btn_name", children: "Read more" }) })
+            ] })
+          ] })
+        ] }) }),
+        /* @__PURE__ */ jsx("div", { className: "swiper-slide", children: /* @__PURE__ */ jsxs("div", { className: "sector-bx", children: [
+          /* @__PURE__ */ jsx("img", { src: RenewableEnergy, alt: "RenewableEnergy" }),
+          /* @__PURE__ */ jsxs("div", { className: "content-dv", children: [
+            /* @__PURE__ */ jsx("h2", { children: "Manufacturing, Automotive, Technology, and Consumer Goods: " }),
+            /* @__PURE__ */ jsxs("div", { className: "inner-content-dv", children: [
+              /* @__PURE__ */ jsx("p", { children: "Driving innovation through integrated logistics, keeping the wheels of industry turning smoothly." }),
+              /* @__PURE__ */ jsx("a", { className: "btn grey", id: "btn-styl", href: "/sector/manufacturing-automotive-technology-and-consumer-goods", children: /* @__PURE__ */ jsx("span", { className: "btn_name", children: "Read more" }) })
+            ] })
+          ] })
+        ] }) }),
+        /* @__PURE__ */ jsx("div", { className: "swiper-slide", children: /* @__PURE__ */ jsxs("div", { className: "sector-bx", children: [
+          /* @__PURE__ */ jsx("img", { src: Industrial, alt: "Industrial" }),
+          /* @__PURE__ */ jsxs("div", { className: "content-dv", children: [
+            /* @__PURE__ */ jsx("h2", { children: "Industrial Equipment:" }),
+            /* @__PURE__ */ jsxs("div", { className: "inner-content-dv", children: [
+              /* @__PURE__ */ jsx("p", { children: "Heavy-duty logistics for heavy-duty equipment, ensuring the backbone of industry remains strong and operational." }),
+              /* @__PURE__ */ jsx("a", { className: "btn grey", id: "btn-styl", href: "/sector/industrial-sector", children: /* @__PURE__ */ jsx("span", { className: "btn_name", children: "Read more" }) })
+            ] })
+          ] })
+        ] }) }),
+        /* @__PURE__ */ jsx("div", { className: "swiper-slide", children: /* @__PURE__ */ jsxs("div", { className: "sector-bx", children: [
+          /* @__PURE__ */ jsx("img", { src: Chemicals, alt: "Chemicals" }),
+          /* @__PURE__ */ jsxs("div", { className: "content-dv", children: [
+            /* @__PURE__ */ jsx("h2", { children: "Agriculture, Chemicals, Construction, and Energy: " }),
+            /* @__PURE__ */ jsxs("div", { className: "inner-content-dv", children: [
+              /* @__PURE__ */ jsx("p", { children: "Cultivating success with tailored logistics for the essential sectors that fuel our world and build our futures." }),
+              /* @__PURE__ */ jsx("a", { className: "btn grey", id: "btn-styl", href: "/sector/chemicals-construction-energy-and-agriculture", children: /* @__PURE__ */ jsx("span", { className: "btn_name", children: "Read more" }) })
+            ] })
+          ] })
+        ] }) }),
+        /* @__PURE__ */ jsx("div", { className: "swiper-slide", children: /* @__PURE__ */ jsxs("div", { className: "sector-bx", children: [
+          /* @__PURE__ */ jsx("img", { src: Ecommerce$1, alt: "Ecommerce" }),
+          /* @__PURE__ */ jsxs("div", { className: "content-dv", children: [
+            /* @__PURE__ */ jsx("h2", { children: "E-commerce and Retail:" }),
+            /* @__PURE__ */ jsxs("div", { className: "inner-content-dv", children: [
+              /* @__PURE__ */ jsx("p", { children: "Revolutionising retail with cutting-edge logistics, delivering the future of commerce today." }),
+              /* @__PURE__ */ jsx("a", { className: "btn grey", id: "btn-styl", href: "/sector/e-commerce-and-retail", children: /* @__PURE__ */ jsx("span", { className: "btn_name", children: "Read more" }) })
+            ] })
+          ] })
+        ] }) })
       ] })
-    ] }) }) }),
-    /* @__PURE__ */ jsx("div", { className: "inPlant-sec2 section-padd-LR overflow", children: /* @__PURE__ */ jsxs("div", { className: "main-container width-1200 black built-to-suit-container1", children: [
-      /* @__PURE__ */ jsx("h3", { className: "we-offer-txt advtg-txt blue js-split-text", children: "Advantages of Import Management with MRS" }),
-      /* @__PURE__ */ jsx("img", { className: "built-line-img", src: GreyLine, alt: "GreyLine", "data-aos": "fade-in", "data-aos-duration": "500", "data-aos-once": "true", "data-aos-delay": "800" }),
-      /* @__PURE__ */ jsxs("div", { className: "advant-containr", children: [
-        /* @__PURE__ */ jsxs("div", { className: "advan-bx", "data-aos": "fade-in", "data-aos-duration": "500", "data-aos-once": "true", "data-aos-delay": "400", children: [
-          /* @__PURE__ */ jsx("img", { src: VersatileStorage, alt: "VersatileStorage" }),
-          /* @__PURE__ */ jsx("h4", { children: "Versatile Solutions" }),
-          /* @__PURE__ */ jsx("p", { children: "Whether you need support for occasional shipments or ongoing import operations, our services are designed to meet your unique requirements." })
-        ] }),
-        /* @__PURE__ */ jsxs("div", { className: "advan-bx", "data-aos": "fade-in", "data-aos-duration": "500", "data-aos-once": "true", "data-aos-delay": "600", children: [
-          /* @__PURE__ */ jsx("img", { src: Flexible, alt: "Flexible" }),
-          /* @__PURE__ */ jsx("h4", { children: "Cost-Effective Options" }),
-          /* @__PURE__ */ jsx("p", { children: "Benefit from tailored financial solutions that align with your budget and operational needs, ensuring maximum value for your investment." })
-        ] }),
-        /* @__PURE__ */ jsxs("div", { className: "advan-bx", "data-aos": "fade-in", "data-aos-duration": "500", "data-aos-once": "true", "data-aos-delay": "800", children: [
-          /* @__PURE__ */ jsx("img", { src: Scalable, alt: "Scalable" }),
-          /* @__PURE__ */ jsx("h4", { children: "Scalable Operations" }),
-          /* @__PURE__ */ jsx("p", { children: "Easily adjust to fluctuations in demand with our flexible import management capabilities, designed to handle everything from small shipments to large-scale operations." })
-        ] })
-      ] }),
-      /* @__PURE__ */ jsx("p", { className: "mob-mrgin-btm-o txt-center", "data-aos": "fade-in", "data-aos-duration": "500", "data-aos-once": "true", "data-aos-delay": "1200", children: "Choose MRS for import management that delivers efficiency, compliance, and reliability. Experience seamless import processes tailored to your business needs, ensuring smooth operations and shared success." })
-    ] }) })
-  ] });
-}
-function ImportManageCustomsBonded() {
-  useEffect(() => {
-    $(".cstm-bondReadMore").off("click").on("click", function() {
-      $(".cstm-bondReadMore").toggleClass("rotate");
-      $(".bond-moretext").slideToggle();
-      if ($(this).text() == "Read more") {
-        $(this).text("Read less");
-      } else {
-        $(this).text("Read more");
-      }
-    });
-    $(".accordion-list > li > .answer").hide();
-    $(".accordion-list > li").off("click").on("click", function() {
-      if ($(this).hasClass("active")) {
-        $(this).removeClass("active").find(".answer").slideUp();
-      } else {
-        $(".accordion-list > li.active .answer").slideUp();
-        $(".accordion-list > li.active").removeClass("active");
-        $(this).addClass("active").find(".answer").slideDown();
-      }
-      return false;
-    });
-  });
-  return /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsx("div", { className: "custom-bonded-sec section-padd-LR overflow", id: "BenefitsChoosingMRS", children: /* @__PURE__ */ jsx("div", { className: "main-container width-1200 black built-to-suit-container1 custom-bonded-cntr1", children: /* @__PURE__ */ jsxs("div", { className: "row built-row", children: [
-    /* @__PURE__ */ jsx("div", { className: "clm-2 built-img-clm", children: /* @__PURE__ */ jsx("img", { src: CustomsBonded, alt: "CustomsBonded", "data-aos": "fade-in", "data-aos-duration": "500", "data-aos-once": "true", "data-aos-delay": "500" }) }),
-    /* @__PURE__ */ jsxs("div", { className: "clm-2 built-cntnt-clm white", children: [
-      /* @__PURE__ */ jsx("h2", { className: "ttl-45px js-split-text", children: "Benefits of Choosing MRS" }),
-      /* @__PURE__ */ jsx("p", { "data-aos": "fade-in", "data-aos-duration": "500", "data-aos-once": "true", "data-aos-delay": "500", children: "Choosing MRS means partnering with an import management expert who prioritises your business’s efficiency and compliance. Our clients enjoy" }),
-      /* @__PURE__ */ jsxs("div", { className: "bond-moretext", children: [
-        /* @__PURE__ */ jsx("p", { children: "Cost Savings: Reduced operational costs through optimised import processes" }),
-        "    ",
-        /* @__PURE__ */ jsx("br", {}),
-        /* @__PURE__ */ jsx("p", { children: "Time Efficiency: Faster turnaround times thanks to our streamlined operations." }),
-        "  ",
-        /* @__PURE__ */ jsx("br", {}),
-        /* @__PURE__ */ jsx("p", { children: "Regulatory Compliance: Assurance of adherence to all import regulations, avoiding costly penalties." }),
-        " ",
-        /* @__PURE__ */ jsx("br", {}),
-        /* @__PURE__ */ jsx("p", { children: "Single Point of Contact: Simplified communication with a dedicated manager for all your import needs." }),
-        "  ",
-        /* @__PURE__ */ jsx("br", {})
-      ] }),
-      /* @__PURE__ */ jsx("a", { className: "cstm-bondReadMore white", "data-aos": "fade-in", "data-aos-duration": "500", "data-aos-once": "true", "data-aos-delay": "600", children: "Read more" })
-    ] })
-  ] }) }) }) });
-}
-function ImportManageinPlant() {
-  return /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsx("div", { className: "inPlant-sec section-padd-LR overflow", id: "CaseStudies", children: /* @__PURE__ */ jsxs("div", { className: "main-container width-1200 black built-to-suit-container1 inPlant-container", children: [
-    /* @__PURE__ */ jsxs("div", { className: "row built-row", children: [
-      /* @__PURE__ */ jsxs("div", { className: "clm-2 built-cntnt-clm", children: [
-        /* @__PURE__ */ jsx("h2", { className: "ttl-45px js-split-text", children: "Case Studies Success Stories" }),
-        /* @__PURE__ */ jsx("p", { "data-aos": "fade-in", "data-aos-duration": "500", "data-aos-once": "true", "data-aos-delay": "400", children: "Feature two or three short case studies that show how MRS has successfully managed imports for other companies. Focus on diverse industries to show versatility." })
-      ] }),
-      /* @__PURE__ */ jsx("div", { className: "clm-2 built-img-clm", children: /* @__PURE__ */ jsx("img", { src: In_Plant_warehousing, alt: "In_Plant_warehousing", "data-aos": "fade-in", "data-aos-duration": "500", "data-aos-once": "true", "data-aos-delay": "600" }) })
-    ] }),
-    /* @__PURE__ */ jsx("h3", { className: "we-offer-txt blue js-split-text", children: "Our services encompass:" }),
-    /* @__PURE__ */ jsx(
-      "img",
-      {
-        className: "built-line-img",
-        src: Line$3,
-        alt: "Line",
-        "data-aos": "fade-in",
-        "data-aos-duration": "500",
-        "data-aos-once": "true",
-        "data-aos-delay": "600"
-      }
-    ),
-    /* @__PURE__ */ jsxs("div", { children: [
-      /* @__PURE__ */ jsxs("ul", { className: "built-ul inplant-ul ", children: [
-        /* @__PURE__ */ jsxs("li", { "data-aos": "fade-in", "data-aos-duration": "500", "data-aos-once": "true", "data-aos-delay": "400", children: [
-          /* @__PURE__ */ jsx("h3", { className: "blue", children: "Tailored Import Solutions" }),
-          /* @__PURE__ */ jsx("p", { children: "We understand that every business has unique import requirements. Our team of experts customises import strategies to optimize your supply chain, reduce costs, and ensure the smooth flow of goods from international suppliers." })
-        ] }),
-        /* @__PURE__ */ jsxs("li", { "data-aos": "fade-in", "data-aos-duration": "500", "data-aos-once": "true", "data-aos-delay": "600", children: [
-          /* @__PURE__ */ jsx("h3", { children: "Advanced Compliance Management" }),
-          /* @__PURE__ */ jsx("p", { children: "Utilising cutting-edge systems, we ensure all your imports comply with international trade laws and India’s regulations. Our real-time tracking provides visibility and control, reducing the risk of delays or penalties." })
-        ] }),
-        /* @__PURE__ */ jsxs("li", { "data-aos": "fade-in", "data-aos-duration": "500", "data-aos-once": "true", "data-aos-delay": "800", children: [
-          /* @__PURE__ */ jsx("h3", { children: "Efficient Logistics Handling" }),
-          /* @__PURE__ */ jsx("p", { children: "Our import management services cover every aspect of logistics, from port to destination. We coordinate, transport, and safely deliver your goods with precision and efficiency, reducing transit time and costs." })
-        ] }),
-        /* @__PURE__ */ jsxs("li", { "data-aos": "fade-in", "data-aos-duration": "500", "data-aos-once": "true", "data-aos-delay": "900", children: [
-          /* @__PURE__ */ jsx("h3", { children: "Seamless Integration with Operations" }),
-          /* @__PURE__ */ jsx("p", { children: "Our import management integrates seamlessly with your existing processes, aligning shipments with your production or business schedules. This coordination minimises downtime and keeps your operations running smoothly." })
-        ] }),
-        /* @__PURE__ */ jsxs("li", { "data-aos": "fade-in", "data-aos-duration": "500", "data-aos-once": "true", "data-aos-delay": "1000", children: [
-          /* @__PURE__ */ jsx("h3", { children: "Scalable and Adaptable Support" }),
-          /* @__PURE__ */ jsx("p", { children: "As your business grows, so do our services. Whether you’re scaling up operations or managing fluctuating demand, our import solutions adapt to your needs, ensuring uninterrupted supply chain operations." })
-        ] })
-      ] }),
-      /* @__PURE__ */ jsx("p", { className: "", "data-aos": "fade-in", "data-aos-duration": "500", "data-aos-once": "true", "data-aos-delay": "800", children: "Partner with MRS for import management services designed to drive efficiency, compliance, and reliability at every step." })
     ] })
   ] }) }) });
 }
-function ImportManageinnerCTA() {
+function innerCTA() {
   useEffect(() => {
   });
-  return /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsx("div", { className: "cta-sec section-padd-LR overflow inner-cta-sec", children: /* @__PURE__ */ jsx("div", { className: "main-container", children: /* @__PURE__ */ jsxs("div", { className: "client-img-bx global-cta", children: [
-    /* @__PURE__ */ jsx("img", { className: "first_Company-img", src: About_CTA, alt: "About_CTA", "data-aos": "fade-in", "data-aos-duration": "500", "data-aos-once": "true", "data-aos-delay": "600" }),
+  return /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsx("div", { className: "cta-sec section-padd-LR overflow inner-cta-sec", children: /* @__PURE__ */ jsx("div", { className: "main-container", children: /* @__PURE__ */ jsxs("div", { className: "client-img-bx global-cta", "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "900", children: [
+    /* @__PURE__ */ jsx("img", { className: "first_Company-img", src: About_CTA, alt: "About_CTA" }),
     /* @__PURE__ */ jsxs("div", { className: "client-contnt-bx", children: [
       /* @__PURE__ */ jsxs("h2", { className: "white ttl-60px", "data-aos": "fade-in", "data-aos-duration": "500", "data-aos-once": "true", "data-aos-delay": "600", children: [
         "We are the 1st Company in Kutch to Provide Single Largest Warehouse of Grade ",
         /* @__PURE__ */ jsx("span", { className: "bold", children: "A" }),
         " category"
       ] }),
-      /* @__PURE__ */ jsx("div", { className: "client-btn inner-cta-btn enquire_btn", id: "btn-styl", "data-aos": "fade-up", "data-aos-duration": "1000", "data-aos-once": "true", "data-aos-delay": "600", children: /* @__PURE__ */ jsxs("a", { children: [
-        /* @__PURE__ */ jsx("span", { className: "btn_name", children: "Contact Us for Warehousing Excellence" }),
+      /* @__PURE__ */ jsx("div", { className: "client-btn inner-cta-btn enquire_btn", id: "btn-styl", "data-aos": "fade-up", "data-aos-duration": "800", "data-aos-once": "true", "data-aos-delay": "600", children: /* @__PURE__ */ jsxs("a", { children: [
+        /* @__PURE__ */ jsx("span", { className: "btn_name", children: "Elevate Your Supply Chain Today" }),
         " ",
         /* @__PURE__ */ jsx("img", { src: white_Arrow, alt: "Arrow", className: "inner-cta-img" })
       ] }) })
     ] })
   ] }) }) }) });
 }
-const ImportanMagement = () => {
+function ArtsPage() {
   useEffect(() => {
     function handleAnimation(entries, observer) {
       entries.forEach((entry) => {
@@ -8579,116 +8405,1364 @@ const ImportanMagement = () => {
       });
     }
     document.querySelectorAll(".js-split-text").forEach((element) => {
-      let observer = new IntersectionObserver(handleAnimation, { threshold: 0.5 });
+      let observer = new IntersectionObserver(handleAnimation, {
+        threshold: 0.5
+      });
       observer.observe(element);
     });
     AOS.init();
   });
   return /* @__PURE__ */ jsxs(Fragment, { children: [
+    /* @__PURE__ */ jsxs(Helmet, { children: [
+      /* @__PURE__ */ jsx("title", { children: "Secure Logistics for Luxury Goods & Art Exhibitions | MRSSupplyChain" }),
+      /* @__PURE__ */ jsx(
+        "meta",
+        {
+          name: "description",
+          content: "Explore secure logistics solutions for luxury goods and art exhibitions with MRSSupplyChain."
+        }
+      ),
+      /* @__PURE__ */ jsx(
+        "meta",
+        {
+          name: "keywords",
+          content: "Luxury Goods Logistics, Art Exhibitions Transport, Secure Logistics for Luxury Items, Exhibition Goods Warehousing, High-Value Item Logistics"
+        }
+      )
+    ] }),
     /* @__PURE__ */ jsx(Header2, {}),
-    /* @__PURE__ */ jsx(ImportManageServicesSpotlight, {}),
-    /* @__PURE__ */ jsx(ImportManagemultiUserAbout, {}),
-    /* @__PURE__ */ jsx(ImportManageBuiltoSuit, {}),
-    /* @__PURE__ */ jsx(ImportManageMultiuserWarehousing, {}),
-    /* @__PURE__ */ jsx(ImportManageCustomsBonded, {}),
-    /* @__PURE__ */ jsx(ImportManageinPlant, {}),
-    /* @__PURE__ */ jsx(ImportManageinnerCTA, {}),
+    /* @__PURE__ */ jsx(SectorSpotlight$5, {}),
+    /* @__PURE__ */ jsx(SectorAbout$5, {}),
+    /* @__PURE__ */ jsx(SectorSolutions$5, {}),
+    /* @__PURE__ */ jsx(KeySector$5, {}),
+    /* @__PURE__ */ jsx(innerCTA, {}),
     /* @__PURE__ */ jsx(formSection, {}),
     /* @__PURE__ */ jsx(Footer, {})
   ] });
+}
+const Warehousing_Solution$3 = "/assets/RenewablEenergy-3Id6HinR.jpg";
+function SectorSpotlight$4() {
+  useEffect(() => {
+  });
+  return /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsxs("div", { className: "service-spotlight custom-brokerage-sec section inner-spotlight-sec section-padd-LR overflow renewalEnergy-hdr", children: [
+    /* @__PURE__ */ jsx("div", { className: "main-container width-1250 flex", children: /* @__PURE__ */ jsxs("div", { className: "inner-spot-clm-1", id: "inner-spot-clm-1", children: [
+      /* @__PURE__ */ jsx("h2", { className: "sldr-sub-ttl", "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "0", children: "Sector Solutions" }),
+      /* @__PURE__ */ jsxs("h1", { className: "js-split-text white", children: [
+        "Renewable Energy and ",
+        /* @__PURE__ */ jsx("br", {}),
+        "Infrastructure Projects "
+      ] }),
+      /* @__PURE__ */ jsx("img", { src: Line$4, alt: "Line", "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "300" }),
+      /* @__PURE__ */ jsx("p", { className: "white", "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "300", children: "Powering Progress with Logistics Solutions" }),
+      /* @__PURE__ */ jsxs("div", { className: "btn inner-spt-btn white", "data-aos": "fade-in", "data-aos-duration": "1000", "data-aos-once": "true", "data-aos-delay": "300", children: [
+        /* @__PURE__ */ jsx("a", { className: "white-60", href: "/", children: "Home " }),
+        " > ",
+        /* @__PURE__ */ jsx("a", { className: "white-60", children: "Sectors " }),
+        " > ",
+        /* @__PURE__ */ jsx("a", { className: "white-60", children: "Renewable Energy and Infrastructure Projects" })
+      ] })
+    ] }) }),
+    /* @__PURE__ */ jsx("div", { className: "inner-img-sec", children: /* @__PURE__ */ jsx("div", { className: "inner-spot-clm-2", children: /* @__PURE__ */ jsx("img", { src: Warehousing_Solution$3, alt: "supplyChainImage", className: "lToR", "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "300" }) }) })
+  ] }) });
+}
+function SectorAbout$4() {
+  return /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsx("div", { className: "roadRailAbt-sec section-padd-LR overflow", children: /* @__PURE__ */ jsxs("div", { className: "main-container width-1250 black tech-driven-numbrs1", children: [
+    /* @__PURE__ */ jsx("h2", { className: "ttl-45px trusted-ttl js-split-text", children: "Experts in Project Cargo and Compliance for Renewable Energy and Infrastructure" }),
+    /* @__PURE__ */ jsx("p", { className: "mob-mrgin-o", "data-aos": "fade-in", "data-aos-duration": "500", "data-aos-once": "true", "data-aos-delay": "200", children: "In this segment, we have worked with one of the largest solar module manufacturing companies - Mundra Solar PV Ltd, under renewable energy and infrastructure projects." })
+  ] }) }) });
+}
+const LogisticsIndustrialSector = "/assets/LogisticsIndustrialSector-JkArh1-B.jpg";
+function SectorSolutions$4() {
+  return /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsx("div", { className: "custom-bonded-sec2 section-padd-LR overflow sectorSolution-sec", children: /* @__PURE__ */ jsxs("div", { className: "main-container width-1250 built-to-suit-container1", children: [
+    /* @__PURE__ */ jsx("h3", { className: "we-offer-txt bond-txt black js-split-text key-fetr-ttl", children: "Specialised Logistics Solutions for Renewable Energy and Infrastructure Projects:" }),
+    /* @__PURE__ */ jsx("img", { className: "built-line-img", src: Line$1, alt: "Line", "data-aos": "fade-in", "data-aos-duration": "500", "data-aos-once": "true", "data-aos-delay": "" }),
+    /* @__PURE__ */ jsxs("div", { className: "row built-row T-B-Padding B-padding-o ", children: [
+      /* @__PURE__ */ jsxs("div", { className: "clm-2 solution-clm", children: [
+        /* @__PURE__ */ jsx("h3", { "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "", children: "General and Project Cargo" }),
+        /* @__PURE__ */ jsx("p", { "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "", children: "Specialised logistics for the transportation and handling of oversized, heavy, or otherwise challenging cargo essential for infrastructure and renewable energy projects." }),
+        /* @__PURE__ */ jsx("h3", { "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "", children: "Regulatory Compliance and Documentation" }),
+        /* @__PURE__ */ jsx("p", { "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "", children: "Expert assistance with the complex regulatory environment surrounding large projects, ensuring compliance and smooth operations." })
+      ] }),
+      /* @__PURE__ */ jsx("div", { className: "clm-2 built-img-clm", children: /* @__PURE__ */ jsx("img", { src: LogisticsIndustrialSector, alt: "Inplant", "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "500" }) })
+    ] })
+  ] }) }) });
+}
+function KeySector$4() {
+  useEffect(() => {
+    new Swiper(".sector-sldr", {
+      navigation: {
+        nextEl: ".sector-swiper-button-next",
+        prevEl: ".sector-swiper-button-prev"
+      },
+      slidesPerView: 3.1,
+      spaceBetween: 40,
+      breakpoints: {
+        320: {
+          slidesPerView: 1.1
+        },
+        768: {
+          slidesPerView: 2.1
+        },
+        1024: {
+          slidesPerView: 3.1
+        }
+      }
+    });
+  });
+  return /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsx("div", { className: "sector-sec section-padd-LR", children: /* @__PURE__ */ jsxs("div", { className: "main-container width-1250", children: [
+    /* @__PURE__ */ jsx("div", { className: "ovrflw-hdn", children: /* @__PURE__ */ jsx("h2", { className: "sectr-ttl black js-split-text", children: "Key Sectors we work with" }) }),
+    /* @__PURE__ */ jsxs("div", { className: "swiper sector-sldr", "data-aos": "fade-in", "data-aos-duration": "800", "data-aos-once": "true", "data-aos-delay": "500", children: [
+      /* @__PURE__ */ jsxs("div", { className: "pegination-arrow2", children: [
+        /* @__PURE__ */ jsx("div", { className: "sector-swiper-button-next cursor", children: /* @__PURE__ */ jsx("svg", { xmlns: "http://www.w3.org/2000/svg", width: "41", height: "41", viewBox: "0 0 41 41", fill: "none", children: /* @__PURE__ */ jsxs("g", { opacity: "0.7", children: [
+          /* @__PURE__ */ jsx("path", { d: "M12 20H28", stroke: "#929292", strokeLinecap: "round" }),
+          /* @__PURE__ */ jsx("path", { d: "M21 12L29 20L21 28", stroke: "#929292", strokeLinecap: "round" }),
+          "    ",
+          /* @__PURE__ */ jsx("circle", { cx: "20.5", cy: "20.5", r: "20", transform: "matrix(-1 0 0 1 41 0)", stroke: "#929292" })
+        ] }) }) }),
+        /* @__PURE__ */ jsx("div", { className: "sector-swiper-button-prev cursor", children: /* @__PURE__ */ jsx("svg", { xmlns: "http://www.w3.org/2000/svg", width: "41", height: "41", viewBox: "0 0 41 41", fill: "none", children: /* @__PURE__ */ jsxs("g", { opacity: "0.7", children: [
+          /* @__PURE__ */ jsx("path", { d: "M29 20H13", stroke: "#929292", strokeLinecap: "round" }),
+          /* @__PURE__ */ jsx("path", { d: "M20 12L12 20L20 28", stroke: "#929292", strokeLinecap: "round" }),
+          "    ",
+          /* @__PURE__ */ jsx("circle", { cx: "20.5", cy: "20.5", r: "20", stroke: "#929292" })
+        ] }) }) })
+      ] }),
+      /* @__PURE__ */ jsxs("div", { className: "swiper-wrapper", children: [
+        /* @__PURE__ */ jsx("div", { className: "swiper-slide", children: /* @__PURE__ */ jsxs("div", { className: "sector-bx", children: [
+          /* @__PURE__ */ jsx("img", { src: RenewableEnergy, alt: "RenewableEnergy" }),
+          /* @__PURE__ */ jsxs("div", { className: "content-dv", children: [
+            /* @__PURE__ */ jsx("h2", { children: "Manufacturing, Automotive, Technology, and Consumer Goods: " }),
+            /* @__PURE__ */ jsxs("div", { className: "inner-content-dv", children: [
+              /* @__PURE__ */ jsx("p", { children: "Driving innovation through integrated logistics, keeping the wheels of industry turning smoothly." }),
+              /* @__PURE__ */ jsx("a", { className: "btn grey", id: "btn-styl", href: "/sector/manufacturing-automotive-technology-and-consumer-goods", children: /* @__PURE__ */ jsx("span", { className: "btn_name", children: "Read more" }) })
+            ] })
+          ] })
+        ] }) }),
+        /* @__PURE__ */ jsx("div", { className: "swiper-slide", children: /* @__PURE__ */ jsxs("div", { className: "sector-bx", children: [
+          /* @__PURE__ */ jsx("img", { src: Industrial, alt: "Industrial" }),
+          /* @__PURE__ */ jsxs("div", { className: "content-dv", children: [
+            /* @__PURE__ */ jsx("h2", { children: "Industrial Equipment:" }),
+            /* @__PURE__ */ jsxs("div", { className: "inner-content-dv", children: [
+              /* @__PURE__ */ jsx("p", { children: "Heavy-duty logistics for heavy-duty equipment, ensuring the backbone of industry remains strong and operational." }),
+              /* @__PURE__ */ jsx("a", { className: "btn grey", id: "btn-styl", href: "/sector/industrial-sector", children: /* @__PURE__ */ jsx("span", { className: "btn_name", children: "Read more" }) })
+            ] })
+          ] })
+        ] }) }),
+        /* @__PURE__ */ jsx("div", { className: "swiper-slide", children: /* @__PURE__ */ jsxs("div", { className: "sector-bx", children: [
+          /* @__PURE__ */ jsx("img", { src: Chemicals, alt: "Chemicals" }),
+          /* @__PURE__ */ jsxs("div", { className: "content-dv", children: [
+            /* @__PURE__ */ jsx("h2", { children: "Agriculture, Chemicals, Construction, and Energy: " }),
+            /* @__PURE__ */ jsxs("div", { className: "inner-content-dv", children: [
+              /* @__PURE__ */ jsx("p", { children: "Cultivating success with tailored logistics for the essential sectors that fuel our world and build our futures." }),
+              /* @__PURE__ */ jsx("a", { className: "btn grey", id: "btn-styl", href: "/sector/chemicals-construction-energy-and-agriculture", children: /* @__PURE__ */ jsx("span", { className: "btn_name", children: "Read more" }) })
+            ] })
+          ] })
+        ] }) }),
+        /* @__PURE__ */ jsx("div", { className: "swiper-slide", children: /* @__PURE__ */ jsxs("div", { className: "sector-bx", children: [
+          /* @__PURE__ */ jsx("img", { src: Ecommerce$1, alt: "Ecommerce" }),
+          /* @__PURE__ */ jsxs("div", { className: "content-dv", children: [
+            /* @__PURE__ */ jsx("h2", { children: "E-commerce and Retail:" }),
+            /* @__PURE__ */ jsxs("div", { className: "inner-content-dv", children: [
+              /* @__PURE__ */ jsx("p", { children: "Revolutionising retail with cutting-edge logistics, delivering the future of commerce today." }),
+              /* @__PURE__ */ jsx("a", { className: "btn grey", id: "btn-styl", href: "/sector/e-commerce-and-retail", children: /* @__PURE__ */ jsx("span", { className: "btn_name", children: "Read more" }) })
+            ] })
+          ] })
+        ] }) }),
+        /* @__PURE__ */ jsx("div", { className: "swiper-slide", children: /* @__PURE__ */ jsxs("div", { className: "sector-bx", children: [
+          /* @__PURE__ */ jsx("img", { src: Arts, alt: "Arts" }),
+          /* @__PURE__ */ jsxs("div", { className: "content-dv", children: [
+            /* @__PURE__ */ jsx("h2", { children: "Arts, Exhibitions, and Luxury Goods: " }),
+            /* @__PURE__ */ jsxs("div", { className: "inner-content-dv", children: [
+              /* @__PURE__ */ jsx("p", { children: "Elevating the art of logistics for the world's treasures, ensuring every masterpiece arrives in perfect form." }),
+              /* @__PURE__ */ jsx("a", { className: "btn grey", id: "btn-styl", href: "/sector/arts-exhibitions-and-luxury-Goods", children: /* @__PURE__ */ jsx("span", { className: "btn_name", children: "Read more" }) })
+            ] })
+          ] })
+        ] }) })
+      ] })
+    ] })
+  ] }) }) });
+}
+function RenewableEnergyPage() {
+  useEffect(() => {
+    function handleAnimation(entries, observer) {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.style.opacity = 1;
+          animateText(entry.target);
+          observer.unobserve(entry.target);
+        }
+      });
+    }
+    function animateText(target) {
+      let split = new SplitType(target, {
+        split: "lines"
+      });
+      let tl = gsap.timeline();
+      tl.from(split.lines, {
+        opacity: 0,
+        y: 50,
+        duration: 0.6,
+        ease: "cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+        stagger: 0.2
+      });
+    }
+    document.querySelectorAll(".js-split-text").forEach((element) => {
+      let observer = new IntersectionObserver(handleAnimation, {
+        threshold: 0.5
+      });
+      observer.observe(element);
+    });
+    AOS.init();
+  });
+  return /* @__PURE__ */ jsxs(Fragment, { children: [
+    /* @__PURE__ */ jsxs(Helmet, { children: [
+      /* @__PURE__ */ jsx("title", { children: "Comprehensive Logistics for Renewable Energy & Infrastructure Projects | MRSSupplyChain" }),
+      /* @__PURE__ */ jsx(
+        "meta",
+        {
+          name: "description",
+          content: "Trust MRSSupplyChain for efficient logistics solutions tailored for renewable energy and infrastructure projects."
+        }
+      ),
+      /* @__PURE__ */ jsx(
+        "meta",
+        {
+          name: "keywords",
+          content: "Renewable Energy Logistics, Infrastructure Supply Chain, Logistics for Renewable Projects, Efficient Infrastructure Transport, Supply Chain for Energy Projects"
+        }
+      )
+    ] }),
+    /* @__PURE__ */ jsx(Header2, {}),
+    /* @__PURE__ */ jsx(SectorSpotlight$4, {}),
+    /* @__PURE__ */ jsx(SectorAbout$4, {}),
+    /* @__PURE__ */ jsx(SectorSolutions$4, {}),
+    /* @__PURE__ */ jsx(KeySector$4, {}),
+    /* @__PURE__ */ jsx(innerCTA, {}),
+    /* @__PURE__ */ jsx(formSection, {}),
+    /* @__PURE__ */ jsx(Footer, {})
+  ] });
+}
+const Warehousing_Solution$2 = "/assets/IndustrialSector-n2SPl2My.jpg";
+function SectorSpotlight$3() {
+  useEffect(() => {
+  });
+  return /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsxs("div", { className: "service-spotlight custom-brokerage-sec section inner-spotlight-sec section-padd-LR overflow indus-hdr", children: [
+    /* @__PURE__ */ jsx("div", { className: "main-container width-1250 flex", children: /* @__PURE__ */ jsxs("div", { className: "inner-spot-clm-1", id: "inner-spot-clm-1", children: [
+      /* @__PURE__ */ jsx("h2", { className: "sldr-sub-ttl", "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "0", children: "Sector Solutions" }),
+      /* @__PURE__ */ jsx("h1", { className: "js-split-text white", children: "Industrial Sector " }),
+      /* @__PURE__ */ jsx("img", { src: Line$4, alt: "Line", "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "300" }),
+      /* @__PURE__ */ jsx("p", { className: "white", "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "300", children: "Efficient Handling and Tech-Enhanced Delivery for Industrial Assets" }),
+      /* @__PURE__ */ jsxs("div", { className: "btn inner-spt-btn white", "data-aos": "fade-in", "data-aos-duration": "1000", "data-aos-once": "true", "data-aos-delay": "300", children: [
+        /* @__PURE__ */ jsx("a", { className: "white-60", href: "/", children: "Home " }),
+        " > ",
+        /* @__PURE__ */ jsx("a", { className: "white-60", children: "Sectors " }),
+        " > ",
+        /* @__PURE__ */ jsx("a", { className: "white-60", children: "Industrial Sector" })
+      ] })
+    ] }) }),
+    /* @__PURE__ */ jsx("div", { className: "inner-img-sec", children: /* @__PURE__ */ jsx("div", { className: "inner-spot-clm-2", children: /* @__PURE__ */ jsx("img", { src: Warehousing_Solution$2, alt: "supplyChainImage", className: "lToR", "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "300" }) }) })
+  ] }) });
+}
+function SectorAbout$3() {
+  return /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsx("div", { className: "roadRailAbt-sec section-padd-LR overflow", children: /* @__PURE__ */ jsxs("div", { className: "main-container width-1250 black tech-driven-numbrs1", children: [
+    /* @__PURE__ */ jsx("h2", { className: "ttl-45px trusted-ttl js-split-text", children: "Empowering the Industrial Sector with Precision Logistics and Smart Delivery Systems" }),
+    /* @__PURE__ */ jsx("p", { className: "mob-mrgin-o", "data-aos": "fade-in", "data-aos-duration": "500", "data-aos-once": "true", "data-aos-delay": "200", children: "In the industrial sector, the movement of heavy machinery and equipment demands a logistics partner with the capability to manage challenging loads. MRS Supply Chain provides robust solutions for the transportation, storage, and final delivery of industrial equipment, ensuring operational continuity." })
+  ] }) }) });
+}
+function SectorSolutions$3() {
+  return /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsx("div", { className: "custom-bonded-sec2 section-padd-LR overflow sectorSolution-sec", children: /* @__PURE__ */ jsxs("div", { className: "main-container width-1250 built-to-suit-container1", children: [
+    /* @__PURE__ */ jsx("h3", { className: "we-offer-txt bond-txt black js-split-text key-fetr-ttl", children: "Specialised Logistics Solutions for the Industrial Sector:" }),
+    /* @__PURE__ */ jsx("img", { className: "built-line-img", src: Line$1, alt: "Line", "data-aos": "fade-in", "data-aos-duration": "500", "data-aos-once": "true", "data-aos-delay": "" }),
+    /* @__PURE__ */ jsxs("div", { className: "row built-row T-B-Padding B-padding-o ", children: [
+      /* @__PURE__ */ jsxs("div", { className: "clm-2 solution-clm", children: [
+        /* @__PURE__ */ jsx("h3", { "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "", children: "General and Project Cargo" }),
+        /* @__PURE__ */ jsx("p", { "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "", children: "Logistics services for the transportation and handling of heavy industrial equipment, ensuring safety and efficiency." }),
+        /* @__PURE__ */ jsx("h3", { "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "", children: "Tech-Driven Last-Mile Delivery" }),
+        /* @__PURE__ */ jsx("p", { "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "", children: "Leveraging technology to optimise the final delivery phase, enhancing efficiency and reliability for industrial clients." })
+      ] }),
+      /* @__PURE__ */ jsx("div", { className: "clm-2 built-img-clm", children: /* @__PURE__ */ jsx("img", { src: LogisticsIndustrialSector, alt: "Inplant", "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "500" }) })
+    ] })
+  ] }) }) });
+}
+function KeySector$3() {
+  useEffect(() => {
+    new Swiper(".sector-sldr", {
+      navigation: {
+        nextEl: ".sector-swiper-button-next",
+        prevEl: ".sector-swiper-button-prev"
+      },
+      slidesPerView: 3.1,
+      spaceBetween: 40,
+      breakpoints: {
+        320: {
+          slidesPerView: 1.1
+        },
+        768: {
+          slidesPerView: 2.1
+        },
+        1024: {
+          slidesPerView: 3.1
+        }
+      }
+    });
+  });
+  return /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsx("div", { className: "sector-sec section-padd-LR", children: /* @__PURE__ */ jsxs("div", { className: "main-container width-1250", children: [
+    /* @__PURE__ */ jsx("div", { className: "ovrflw-hdn", children: /* @__PURE__ */ jsx("h2", { className: "sectr-ttl black js-split-text", children: "Key Sectors we work with" }) }),
+    /* @__PURE__ */ jsxs("div", { className: "swiper sector-sldr", "data-aos": "fade-in", "data-aos-duration": "800", "data-aos-once": "true", "data-aos-delay": "500", children: [
+      /* @__PURE__ */ jsxs("div", { className: "pegination-arrow2", children: [
+        /* @__PURE__ */ jsx("div", { className: "sector-swiper-button-next cursor", children: /* @__PURE__ */ jsx("svg", { xmlns: "http://www.w3.org/2000/svg", width: "41", height: "41", viewBox: "0 0 41 41", fill: "none", children: /* @__PURE__ */ jsxs("g", { opacity: "0.7", children: [
+          /* @__PURE__ */ jsx("path", { d: "M12 20H28", stroke: "#929292", strokeLinecap: "round" }),
+          /* @__PURE__ */ jsx("path", { d: "M21 12L29 20L21 28", stroke: "#929292", strokeLinecap: "round" }),
+          "    ",
+          /* @__PURE__ */ jsx("circle", { cx: "20.5", cy: "20.5", r: "20", transform: "matrix(-1 0 0 1 41 0)", stroke: "#929292" })
+        ] }) }) }),
+        /* @__PURE__ */ jsx("div", { className: "sector-swiper-button-prev cursor", children: /* @__PURE__ */ jsx("svg", { xmlns: "http://www.w3.org/2000/svg", width: "41", height: "41", viewBox: "0 0 41 41", fill: "none", children: /* @__PURE__ */ jsxs("g", { opacity: "0.7", children: [
+          /* @__PURE__ */ jsx("path", { d: "M29 20H13", stroke: "#929292", strokeLinecap: "round" }),
+          /* @__PURE__ */ jsx("path", { d: "M20 12L12 20L20 28", stroke: "#929292", strokeLinecap: "round" }),
+          "    ",
+          /* @__PURE__ */ jsx("circle", { cx: "20.5", cy: "20.5", r: "20", stroke: "#929292" })
+        ] }) }) })
+      ] }),
+      /* @__PURE__ */ jsxs("div", { className: "swiper-wrapper", children: [
+        /* @__PURE__ */ jsx("div", { className: "swiper-slide", children: /* @__PURE__ */ jsxs("div", { className: "sector-bx", children: [
+          /* @__PURE__ */ jsx("img", { src: Science_and_Health_Care, alt: "Science_and_Health_Care" }),
+          /* @__PURE__ */ jsxs("div", { className: "content-dv", children: [
+            /* @__PURE__ */ jsx("h2", { children: "Renewable Energy and Infrastructure Projects:  " }),
+            /* @__PURE__ */ jsxs("div", { className: "inner-content-dv", children: [
+              /* @__PURE__ */ jsx("p", { children: "Powering the future with specialised logistics for the renewable energy and infrastructure sectors, where precision meets scale." }),
+              /* @__PURE__ */ jsx("a", { className: "btn grey", id: "btn-styl", href: "/sector/renewable-energy-and-infrastructure-projects", children: /* @__PURE__ */ jsx("span", { className: "btn_name", children: "Read more" }) })
+            ] })
+          ] })
+        ] }) }),
+        /* @__PURE__ */ jsx("div", { className: "swiper-slide", children: /* @__PURE__ */ jsxs("div", { className: "sector-bx", children: [
+          /* @__PURE__ */ jsx("img", { src: RenewableEnergy, alt: "RenewableEnergy" }),
+          /* @__PURE__ */ jsxs("div", { className: "content-dv", children: [
+            /* @__PURE__ */ jsx("h2", { children: "Manufacturing, Automotive, Technology, and Consumer Goods: " }),
+            /* @__PURE__ */ jsxs("div", { className: "inner-content-dv", children: [
+              /* @__PURE__ */ jsx("p", { children: "Driving innovation through integrated logistics, keeping the wheels of industry turning smoothly." }),
+              /* @__PURE__ */ jsx("a", { className: "btn grey", id: "btn-styl", href: "/sector/manufacturing-automotive-technology-and-consumer-goods", children: /* @__PURE__ */ jsx("span", { className: "btn_name", children: "Read more" }) })
+            ] })
+          ] })
+        ] }) }),
+        /* @__PURE__ */ jsx("div", { className: "swiper-slide", children: /* @__PURE__ */ jsxs("div", { className: "sector-bx", children: [
+          /* @__PURE__ */ jsx("img", { src: Chemicals, alt: "Chemicals" }),
+          /* @__PURE__ */ jsxs("div", { className: "content-dv", children: [
+            /* @__PURE__ */ jsx("h2", { children: "Agriculture, Chemicals, Construction, and Energy: " }),
+            /* @__PURE__ */ jsxs("div", { className: "inner-content-dv", children: [
+              /* @__PURE__ */ jsx("p", { children: "Cultivating success with tailored logistics for the essential sectors that fuel our world and build our futures." }),
+              /* @__PURE__ */ jsx("a", { className: "btn grey", id: "btn-styl", href: "/sector/chemicals-construction-energy-and-agriculture", children: /* @__PURE__ */ jsx("span", { className: "btn_name", children: "Read more" }) })
+            ] })
+          ] })
+        ] }) }),
+        /* @__PURE__ */ jsx("div", { className: "swiper-slide", children: /* @__PURE__ */ jsxs("div", { className: "sector-bx", children: [
+          /* @__PURE__ */ jsx("img", { src: Ecommerce$1, alt: "Ecommerce" }),
+          /* @__PURE__ */ jsxs("div", { className: "content-dv", children: [
+            /* @__PURE__ */ jsx("h2", { children: "E-commerce and Retail:" }),
+            /* @__PURE__ */ jsxs("div", { className: "inner-content-dv", children: [
+              /* @__PURE__ */ jsx("p", { children: "Revolutionising retail with cutting-edge logistics, delivering the future of commerce today." }),
+              /* @__PURE__ */ jsx("a", { className: "btn grey", id: "btn-styl", href: "/sector/e-commerce-and-retail", children: /* @__PURE__ */ jsx("span", { className: "btn_name", children: "Read more" }) })
+            ] })
+          ] })
+        ] }) }),
+        /* @__PURE__ */ jsx("div", { className: "swiper-slide", children: /* @__PURE__ */ jsxs("div", { className: "sector-bx", children: [
+          /* @__PURE__ */ jsx("img", { src: Arts, alt: "Arts" }),
+          /* @__PURE__ */ jsxs("div", { className: "content-dv", children: [
+            /* @__PURE__ */ jsx("h2", { children: "Arts, Exhibitions, and Luxury Goods: " }),
+            /* @__PURE__ */ jsxs("div", { className: "inner-content-dv", children: [
+              /* @__PURE__ */ jsx("p", { children: "Elevating the art of logistics for the world's treasures, ensuring every masterpiece arrives in perfect form." }),
+              /* @__PURE__ */ jsx("a", { className: "btn grey", id: "btn-styl", href: "/sector/arts-exhibitions-and-luxury-Goods", children: /* @__PURE__ */ jsx("span", { className: "btn_name", children: "Read more" }) })
+            ] })
+          ] })
+        ] }) })
+      ] })
+    ] })
+  ] }) }) });
+}
+function IndustrialSectorPage() {
+  useEffect(() => {
+    function handleAnimation(entries, observer) {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.style.opacity = 1;
+          animateText(entry.target);
+          observer.unobserve(entry.target);
+        }
+      });
+    }
+    function animateText(target) {
+      let split = new SplitType(target, {
+        split: "lines"
+      });
+      let tl = gsap.timeline();
+      tl.from(split.lines, {
+        opacity: 0,
+        y: 50,
+        duration: 0.6,
+        ease: "cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+        stagger: 0.2
+      });
+    }
+    document.querySelectorAll(".js-split-text").forEach((element) => {
+      let observer = new IntersectionObserver(handleAnimation, {
+        threshold: 0.5
+      });
+      observer.observe(element);
+    });
+    AOS.init();
+  });
+  return /* @__PURE__ */ jsxs(Fragment, { children: [
+    /* @__PURE__ */ jsxs(Helmet, { children: [
+      /* @__PURE__ */ jsx("title", { children: "Streamlined Industrial Logistics & Supply Chain Solutions | MRSSupplyChain" }),
+      /* @__PURE__ */ jsx(
+        "meta",
+        {
+          name: "description",
+          content: "Partner with MRSSupplyChain for comprehensive logistics solutions tailored for the industrial sector."
+        }
+      ),
+      /* @__PURE__ */ jsx(
+        "meta",
+        {
+          name: "keywords",
+          content: "Industrial Logistics, Heavy Industry Supply Chain, Industrial Warehousing, Logistics for Industrial Goods, Efficient Industrial Transport"
+        }
+      )
+    ] }),
+    /* @__PURE__ */ jsx(Header2, {}),
+    /* @__PURE__ */ jsx(SectorSpotlight$3, {}),
+    /* @__PURE__ */ jsx(SectorAbout$3, {}),
+    /* @__PURE__ */ jsx(SectorSolutions$3, {}),
+    /* @__PURE__ */ jsx(KeySector$3, {}),
+    /* @__PURE__ */ jsx(innerCTA, {}),
+    /* @__PURE__ */ jsx(formSection, {}),
+    /* @__PURE__ */ jsx(Footer, {})
+  ] });
+}
+const Warehousing_Solution$1 = "/assets/chemicals-ifHoFVIv.jpg";
+function SectorSpotlight$2() {
+  useEffect(() => {
+  });
+  return /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsxs("div", { className: "service-spotlight custom-brokerage-sec section inner-spotlight-sec section-padd-LR overflow chemical-hdr", children: [
+    /* @__PURE__ */ jsx("div", { className: "main-container width-1250 flex", children: /* @__PURE__ */ jsxs("div", { className: "inner-spot-clm-1 width-50", id: "inner-spot-clm-1", children: [
+      /* @__PURE__ */ jsx("h2", { className: "sldr-sub-ttl", "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "0", children: "Sector Solutions" }),
+      /* @__PURE__ */ jsx("h1", { className: "js-split-text white", children: "Chemicals, Construction, Energy, and Agriculture " }),
+      /* @__PURE__ */ jsx("img", { src: Line$4, alt: "Line", "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "300" }),
+      /* @__PURE__ */ jsx("p", { className: "white", "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "300", children: "Navigating the Complexities of Bulk Logistics in Key Economic Sectors" }),
+      /* @__PURE__ */ jsxs("div", { className: "btn inner-spt-btn white", "data-aos": "fade-in", "data-aos-duration": "1000", "data-aos-once": "true", "data-aos-delay": "300", children: [
+        /* @__PURE__ */ jsx("a", { className: "white-60", href: "/", children: "Home " }),
+        " > ",
+        /* @__PURE__ */ jsx("a", { className: "white-60", children: "Sectors " }),
+        " > ",
+        /* @__PURE__ */ jsx("a", { className: "white-60", children: "Agriculture, Chemicals, Construction, Energy" })
+      ] })
+    ] }) }),
+    /* @__PURE__ */ jsx("div", { className: "inner-img-sec", children: /* @__PURE__ */ jsx("div", { className: "inner-spot-clm-2", children: /* @__PURE__ */ jsx("img", { src: Warehousing_Solution$1, alt: "supplyChainImage", className: "lToR", "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "300" }) }) })
+  ] }) });
+}
+function SectorAbout$2() {
+  return /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsx("div", { className: "roadRailAbt-sec section-padd-LR overflow", children: /* @__PURE__ */ jsxs("div", { className: "main-container width-1250 black tech-driven-numbrs1", children: [
+    /* @__PURE__ */ jsx("h2", { className: "ttl-45px trusted-ttl js-split-text", children: "Essential Logistics for Core Industries: Chemicals, Construction, Energy, and Agriculture" }),
+    /* @__PURE__ */ jsx("p", { className: "mob-mrgin-o", "data-aos": "fade-in", "data-aos-duration": "500", "data-aos-once": "true", "data-aos-delay": "200", children: "These foundational sectors of the global economy—agriculture, chemicals, construction, and energy—require specialised logistics solutions for the handling of bulk materials. MRS Supply Chain's expertise ensures that these critical resources are moved efficiently and safely." })
+  ] }) }) });
+}
+const Inplant = "/assets/Chemical_Solutions-I60VlKXF.jpg";
+function SectorSolutions$2() {
+  return /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsx("div", { className: "custom-bonded-sec2 section-padd-LR overflow sectorSolution-sec", children: /* @__PURE__ */ jsxs("div", { className: "main-container width-1250 built-to-suit-container1", children: [
+    /* @__PURE__ */ jsx("h3", { className: "we-offer-txt bond-txt black js-split-text key-fetr-ttl", children: "Specialised Solutions for the Safe and Efficient Movement of Bulk Materials" }),
+    /* @__PURE__ */ jsx("img", { className: "built-line-img", src: Line$1, alt: "Line", "data-aos": "fade-in", "data-aos-duration": "500", "data-aos-once": "true", "data-aos-delay": "" }),
+    /* @__PURE__ */ jsxs("div", { className: "row built-row T-B-Padding B-padding-o ", children: [
+      /* @__PURE__ */ jsxs("div", { className: "clm-2 solution-clm", children: [
+        /* @__PURE__ */ jsx("h3", { "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "", children: "Liquid/Dry Bulk and Break-Bulk Cargo" }),
+        /* @__PURE__ */ jsx("p", { "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "", children: "Tailored logistics solutions for the transportation of bulk materials, from liquids to granular products, essential for these industries." }),
+        /* @__PURE__ */ jsx("h3", { "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "", children: "Duty-Free Warehousing" }),
+        /* @__PURE__ */ jsx("p", { "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "", children: "Strategic warehousing solutions near major transportation hubs, facilitating the seamless movement of bulk goods in international trade." })
+      ] }),
+      /* @__PURE__ */ jsx("div", { className: "clm-2 built-img-clm", children: /* @__PURE__ */ jsx("img", { src: Inplant, alt: "Inplant", "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "500" }) })
+    ] })
+  ] }) }) });
+}
+function KeySector$2() {
+  useEffect(() => {
+    new Swiper(".sector-sldr", {
+      navigation: {
+        nextEl: ".sector-swiper-button-next",
+        prevEl: ".sector-swiper-button-prev"
+      },
+      slidesPerView: 3.1,
+      spaceBetween: 40,
+      breakpoints: {
+        320: {
+          slidesPerView: 1.1
+        },
+        768: {
+          slidesPerView: 2.1
+        },
+        1024: {
+          slidesPerView: 3.1
+        }
+      }
+    });
+  });
+  return /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsx("div", { className: "sector-sec section-padd-LR", children: /* @__PURE__ */ jsxs("div", { className: "main-container width-1250", children: [
+    /* @__PURE__ */ jsx("div", { className: "ovrflw-hdn", children: /* @__PURE__ */ jsx("h2", { className: "sectr-ttl black js-split-text", children: "Key Sectors we work with" }) }),
+    /* @__PURE__ */ jsxs("div", { className: "swiper sector-sldr", "data-aos": "fade-in", "data-aos-duration": "800", "data-aos-once": "true", "data-aos-delay": "500", children: [
+      /* @__PURE__ */ jsxs("div", { className: "pegination-arrow2", children: [
+        /* @__PURE__ */ jsx("div", { className: "sector-swiper-button-next cursor", children: /* @__PURE__ */ jsx("svg", { xmlns: "http://www.w3.org/2000/svg", width: "41", height: "41", viewBox: "0 0 41 41", fill: "none", children: /* @__PURE__ */ jsxs("g", { opacity: "0.7", children: [
+          /* @__PURE__ */ jsx("path", { d: "M12 20H28", stroke: "#929292", strokeLinecap: "round" }),
+          /* @__PURE__ */ jsx("path", { d: "M21 12L29 20L21 28", stroke: "#929292", strokeLinecap: "round" }),
+          "    ",
+          /* @__PURE__ */ jsx("circle", { cx: "20.5", cy: "20.5", r: "20", transform: "matrix(-1 0 0 1 41 0)", stroke: "#929292" })
+        ] }) }) }),
+        /* @__PURE__ */ jsx("div", { className: "sector-swiper-button-prev cursor", children: /* @__PURE__ */ jsx("svg", { xmlns: "http://www.w3.org/2000/svg", width: "41", height: "41", viewBox: "0 0 41 41", fill: "none", children: /* @__PURE__ */ jsxs("g", { opacity: "0.7", children: [
+          /* @__PURE__ */ jsx("path", { d: "M29 20H13", stroke: "#929292", strokeLinecap: "round" }),
+          /* @__PURE__ */ jsx("path", { d: "M20 12L12 20L20 28", stroke: "#929292", strokeLinecap: "round" }),
+          "    ",
+          /* @__PURE__ */ jsx("circle", { cx: "20.5", cy: "20.5", r: "20", stroke: "#929292" })
+        ] }) }) })
+      ] }),
+      /* @__PURE__ */ jsxs("div", { className: "swiper-wrapper", children: [
+        /* @__PURE__ */ jsx("div", { className: "swiper-slide", children: /* @__PURE__ */ jsxs("div", { className: "sector-bx", children: [
+          /* @__PURE__ */ jsx("img", { src: Science_and_Health_Care, alt: "Science_and_Health_Care" }),
+          /* @__PURE__ */ jsxs("div", { className: "content-dv", children: [
+            /* @__PURE__ */ jsx("h2", { children: "Renewable Energy and Infrastructure Projects:  " }),
+            /* @__PURE__ */ jsxs("div", { className: "inner-content-dv", children: [
+              /* @__PURE__ */ jsx("p", { children: "Powering the future with specialised logistics for the renewable energy and infrastructure sectors, where precision meets scale." }),
+              /* @__PURE__ */ jsx("a", { className: "btn grey", id: "btn-styl", href: "/sector/renewable-energy-and-infrastructure-projects", children: /* @__PURE__ */ jsx("span", { className: "btn_name", children: "Read more" }) })
+            ] })
+          ] })
+        ] }) }),
+        /* @__PURE__ */ jsx("div", { className: "swiper-slide", children: /* @__PURE__ */ jsxs("div", { className: "sector-bx", children: [
+          /* @__PURE__ */ jsx("img", { src: RenewableEnergy, alt: "RenewableEnergy" }),
+          /* @__PURE__ */ jsxs("div", { className: "content-dv", children: [
+            /* @__PURE__ */ jsx("h2", { children: "Manufacturing, Automotive, Technology, and Consumer Goods: " }),
+            /* @__PURE__ */ jsxs("div", { className: "inner-content-dv", children: [
+              /* @__PURE__ */ jsx("p", { children: "Driving innovation through integrated logistics, keeping the wheels of industry turning smoothly." }),
+              /* @__PURE__ */ jsx("a", { className: "btn grey", id: "btn-styl", href: "/sector/manufacturing-automotive-technology-and-consumer-goods", children: /* @__PURE__ */ jsx("span", { className: "btn_name", children: "Read more" }) })
+            ] })
+          ] })
+        ] }) }),
+        /* @__PURE__ */ jsx("div", { className: "swiper-slide", children: /* @__PURE__ */ jsxs("div", { className: "sector-bx", children: [
+          /* @__PURE__ */ jsx("img", { src: Industrial, alt: "Industrial" }),
+          /* @__PURE__ */ jsxs("div", { className: "content-dv", children: [
+            /* @__PURE__ */ jsx("h2", { children: "Industrial Equipment:" }),
+            /* @__PURE__ */ jsxs("div", { className: "inner-content-dv", children: [
+              /* @__PURE__ */ jsx("p", { children: "Heavy-duty logistics for heavy-duty equipment, ensuring the backbone of industry remains strong and operational." }),
+              /* @__PURE__ */ jsx("a", { className: "btn grey", id: "btn-styl", href: "/sector/industrial-sector", children: /* @__PURE__ */ jsx("span", { className: "btn_name", children: "Read more" }) })
+            ] })
+          ] })
+        ] }) }),
+        /* @__PURE__ */ jsx("div", { className: "swiper-slide", children: /* @__PURE__ */ jsxs("div", { className: "sector-bx", children: [
+          /* @__PURE__ */ jsx("img", { src: Ecommerce$1, alt: "Ecommerce" }),
+          /* @__PURE__ */ jsxs("div", { className: "content-dv", children: [
+            /* @__PURE__ */ jsx("h2", { children: "E-commerce and Retail:" }),
+            /* @__PURE__ */ jsxs("div", { className: "inner-content-dv", children: [
+              /* @__PURE__ */ jsx("p", { children: "Revolutionising retail with cutting-edge logistics, delivering the future of commerce today." }),
+              /* @__PURE__ */ jsx("a", { className: "btn grey", id: "btn-styl", href: "/sector/e-commerce-and-retail", children: /* @__PURE__ */ jsx("span", { className: "btn_name", children: "Read more" }) })
+            ] })
+          ] })
+        ] }) }),
+        /* @__PURE__ */ jsx("div", { className: "swiper-slide", children: /* @__PURE__ */ jsxs("div", { className: "sector-bx", children: [
+          /* @__PURE__ */ jsx("img", { src: Arts, alt: "Arts" }),
+          /* @__PURE__ */ jsxs("div", { className: "content-dv", children: [
+            /* @__PURE__ */ jsx("h2", { children: "Arts, Exhibitions, and Luxury Goods: " }),
+            /* @__PURE__ */ jsxs("div", { className: "inner-content-dv", children: [
+              /* @__PURE__ */ jsx("p", { children: "Elevating the art of logistics for the world's treasures, ensuring every masterpiece arrives in perfect form." }),
+              /* @__PURE__ */ jsx("a", { className: "btn grey", id: "btn-styl", href: "/sector/arts-exhibitions-and-luxury-Goods", children: /* @__PURE__ */ jsx("span", { className: "btn_name", children: "Read more" }) })
+            ] })
+          ] })
+        ] }) })
+      ] })
+    ] })
+  ] }) }) });
+}
+function chemicalsPage() {
+  useEffect(() => {
+    function handleAnimation(entries, observer) {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.style.opacity = 1;
+          animateText(entry.target);
+          observer.unobserve(entry.target);
+        }
+      });
+    }
+    function animateText(target) {
+      let split = new SplitType(target, {
+        split: "lines"
+      });
+      let tl = gsap.timeline();
+      tl.from(split.lines, {
+        opacity: 0,
+        y: 50,
+        duration: 0.6,
+        ease: "cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+        stagger: 0.2
+      });
+    }
+    document.querySelectorAll(".js-split-text").forEach((element) => {
+      let observer = new IntersectionObserver(handleAnimation, {
+        threshold: 0.5
+      });
+      observer.observe(element);
+    });
+    AOS.init();
+  });
+  return /* @__PURE__ */ jsxs(Fragment, { children: [
+    /* @__PURE__ */ jsxs(Helmet, { children: [
+      /* @__PURE__ */ jsx("title", { children: "Integrated Logistics Solutions for Chemicals, Construction, Energy, & Agriculture | MRSSupplyChain" }),
+      /* @__PURE__ */ jsx(
+        "meta",
+        {
+          name: "description",
+          content: "Explore comprehensive logistics solutions for chemicals, construction, energy, and agriculture sectors with MRSSupplyChain."
+        }
+      ),
+      /* @__PURE__ */ jsx(
+        "meta",
+        {
+          name: "keywords",
+          content: "Chemical Logistics, Construction Supply Chain, Energy Logistics, Agricultural Goods Transport, Hazardous Cargo Warehousing"
+        }
+      )
+    ] }),
+    /* @__PURE__ */ jsx(Header2, {}),
+    /* @__PURE__ */ jsx(SectorSpotlight$2, {}),
+    /* @__PURE__ */ jsx(SectorAbout$2, {}),
+    /* @__PURE__ */ jsx(SectorSolutions$2, {}),
+    /* @__PURE__ */ jsx(KeySector$2, {}),
+    /* @__PURE__ */ jsx(innerCTA, {}),
+    /* @__PURE__ */ jsx(formSection, {}),
+    /* @__PURE__ */ jsx(Footer, {})
+  ] });
+}
+const Ecommerce = "/assets/E-commerce-cdnjKsW8.jpg";
+function SectorSpotlight$1() {
+  useEffect(() => {
+  });
+  return /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsxs("div", { className: "service-spotlight custom-brokerage-sec section inner-spotlight-sec section-padd-LR overflow eCom-hdr", children: [
+    /* @__PURE__ */ jsx("div", { className: "main-container width-1250 flex", children: /* @__PURE__ */ jsxs("div", { className: "inner-spot-clm-1", id: "inner-spot-clm-1", children: [
+      /* @__PURE__ */ jsx("h2", { className: "sldr-sub-ttl", "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "0", children: "Sector Solutions" }),
+      /* @__PURE__ */ jsx("h1", { className: "js-split-text white", children: "E-commerce and Retail " }),
+      /* @__PURE__ */ jsx("img", { src: Line$4, alt: "Line", "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "300" }),
+      /* @__PURE__ */ jsx("p", { className: "white", "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "300", children: "Elevating Customer Satisfaction with Innovative Logistics Services" }),
+      /* @__PURE__ */ jsxs("div", { className: "btn inner-spt-btn white", "data-aos": "fade-in", "data-aos-duration": "1000", "data-aos-once": "true", "data-aos-delay": "300", children: [
+        /* @__PURE__ */ jsx("a", { className: "white-60", href: "/", children: "Home " }),
+        " > ",
+        /* @__PURE__ */ jsx("a", { className: "white-60", children: "Sectors " }),
+        " > ",
+        /* @__PURE__ */ jsx("a", { className: "white-60", children: "E-commerce and Retail" })
+      ] })
+    ] }) }),
+    /* @__PURE__ */ jsx("div", { className: "inner-img-sec", children: /* @__PURE__ */ jsx("div", { className: "inner-spot-clm-2", children: /* @__PURE__ */ jsx("img", { src: Ecommerce, alt: "supplyChainImage", className: "lToR", "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "300" }) }) })
+  ] }) });
+}
+function SectorAbout$1() {
+  return /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsx("div", { className: "roadRailAbt-sec section-padd-LR overflow", children: /* @__PURE__ */ jsxs("div", { className: "main-container width-1250 black tech-driven-numbrs1", children: [
+    /* @__PURE__ */ jsx("h2", { className: "ttl-45px trusted-ttl js-split-text", children: "Revolutionising E-commerce and Retail Logistics" }),
+    /* @__PURE__ */ jsx("p", { className: "mob-mrgin-o", "data-aos": "fade-in", "data-aos-duration": "500", "data-aos-once": "true", "data-aos-delay": "200", children: "The dynamic world of e-commerce and retail demands logistics solutions that can keep pace with rapid turnover and the expectation of prompt delivery. MRS Supply Chain's tech-driven services are designed to meet these challenges, ensuring customer satisfaction and operational excellence." })
+  ] }) }) });
+}
+function SectorSolutions$1() {
+  return /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsx("div", { className: "custom-bonded-sec2 section-padd-LR overflow sectorSolution-sec", children: /* @__PURE__ */ jsxs("div", { className: "main-container width-1250 built-to-suit-container1", children: [
+    /* @__PURE__ */ jsx("h3", { className: "we-offer-txt bond-txt black js-split-text key-fetr-ttl", children: "Specialised Solutions for the Safe and Efficient Movement of Bulk Materials" }),
+    /* @__PURE__ */ jsx("img", { className: "built-line-img", src: Line$1, alt: "Line", "data-aos": "fade-in", "data-aos-duration": "500", "data-aos-once": "true", "data-aos-delay": "" }),
+    /* @__PURE__ */ jsxs("div", { className: "row built-row T-B-Padding B-padding-o ", children: [
+      /* @__PURE__ */ jsxs("div", { className: "clm-2 solution-clm", children: [
+        /* @__PURE__ */ jsx("h3", { "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "", children: "Tech-Driven Last-Mile Delivery" }),
+        /* @__PURE__ */ jsx("p", { "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "", children: "Innovative delivery solutions that address the fast-paced demands of e-commerce and retail, ensuring timely and accurate delivery to the end customer." }),
+        /* @__PURE__ */ jsx("h3", { "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "", children: "Duty-Free Warehousing" }),
+        /* @__PURE__ */ jsx("p", { "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "", children: "Flexible warehousing solutions that support the diverse storage and distribution needs of the retail sector, from inventory management to order fulfilment." })
+      ] }),
+      /* @__PURE__ */ jsx("div", { className: "clm-2 built-img-clm", children: /* @__PURE__ */ jsx("img", { src: Inplant$1, alt: "Inplant", "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "500" }) })
+    ] })
+  ] }) }) });
+}
+function KeySector$1() {
+  useEffect(() => {
+    new Swiper(".sector-sldr", {
+      navigation: {
+        nextEl: ".sector-swiper-button-next",
+        prevEl: ".sector-swiper-button-prev"
+      },
+      slidesPerView: 3.1,
+      spaceBetween: 40,
+      breakpoints: {
+        320: {
+          slidesPerView: 1.1
+        },
+        768: {
+          slidesPerView: 2.1
+        },
+        1024: {
+          slidesPerView: 3.1
+        }
+      }
+    });
+  });
+  return /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsx("div", { className: "sector-sec section-padd-LR", children: /* @__PURE__ */ jsxs("div", { className: "main-container width-1250", children: [
+    /* @__PURE__ */ jsx("div", { className: "ovrflw-hdn", children: /* @__PURE__ */ jsx("h2", { className: "sectr-ttl black js-split-text", children: "Key Sectors we work with" }) }),
+    /* @__PURE__ */ jsxs("div", { className: "swiper sector-sldr", "data-aos": "fade-in", "data-aos-duration": "800", "data-aos-once": "true", "data-aos-delay": "500", children: [
+      /* @__PURE__ */ jsxs("div", { className: "pegination-arrow2", children: [
+        /* @__PURE__ */ jsx("div", { className: "sector-swiper-button-next cursor", children: /* @__PURE__ */ jsx("svg", { xmlns: "http://www.w3.org/2000/svg", width: "41", height: "41", viewBox: "0 0 41 41", fill: "none", children: /* @__PURE__ */ jsxs("g", { opacity: "0.7", children: [
+          /* @__PURE__ */ jsx("path", { d: "M12 20H28", stroke: "#929292", strokeLinecap: "round" }),
+          /* @__PURE__ */ jsx("path", { d: "M21 12L29 20L21 28", stroke: "#929292", strokeLinecap: "round" }),
+          "    ",
+          /* @__PURE__ */ jsx("circle", { cx: "20.5", cy: "20.5", r: "20", transform: "matrix(-1 0 0 1 41 0)", stroke: "#929292" })
+        ] }) }) }),
+        /* @__PURE__ */ jsx("div", { className: "sector-swiper-button-prev cursor", children: /* @__PURE__ */ jsx("svg", { xmlns: "http://www.w3.org/2000/svg", width: "41", height: "41", viewBox: "0 0 41 41", fill: "none", children: /* @__PURE__ */ jsxs("g", { opacity: "0.7", children: [
+          /* @__PURE__ */ jsx("path", { d: "M29 20H13", stroke: "#929292", strokeLinecap: "round" }),
+          /* @__PURE__ */ jsx("path", { d: "M20 12L12 20L20 28", stroke: "#929292", strokeLinecap: "round" }),
+          "    ",
+          /* @__PURE__ */ jsx("circle", { cx: "20.5", cy: "20.5", r: "20", stroke: "#929292" })
+        ] }) }) })
+      ] }),
+      /* @__PURE__ */ jsxs("div", { className: "swiper-wrapper", children: [
+        /* @__PURE__ */ jsx("div", { className: "swiper-slide", children: /* @__PURE__ */ jsxs("div", { className: "sector-bx", children: [
+          /* @__PURE__ */ jsx("img", { src: Science_and_Health_Care, alt: "Science_and_Health_Care" }),
+          /* @__PURE__ */ jsxs("div", { className: "content-dv", children: [
+            /* @__PURE__ */ jsx("h2", { children: "Renewable Energy and Infrastructure Projects:  " }),
+            /* @__PURE__ */ jsxs("div", { className: "inner-content-dv", children: [
+              /* @__PURE__ */ jsx("p", { children: "Powering the future with specialised logistics for the renewable energy and infrastructure sectors, where precision meets scale." }),
+              /* @__PURE__ */ jsx("a", { className: "btn grey", id: "btn-styl", href: "/sector/renewable-energy-and-infrastructure-projects", children: /* @__PURE__ */ jsx("span", { className: "btn_name", children: "Read more" }) })
+            ] })
+          ] })
+        ] }) }),
+        /* @__PURE__ */ jsx("div", { className: "swiper-slide", children: /* @__PURE__ */ jsxs("div", { className: "sector-bx", children: [
+          /* @__PURE__ */ jsx("img", { src: RenewableEnergy, alt: "RenewableEnergy" }),
+          /* @__PURE__ */ jsxs("div", { className: "content-dv", children: [
+            /* @__PURE__ */ jsx("h2", { children: "Manufacturing, Automotive, Technology, and Consumer Goods: " }),
+            /* @__PURE__ */ jsxs("div", { className: "inner-content-dv", children: [
+              /* @__PURE__ */ jsx("p", { children: "Driving innovation through integrated logistics, keeping the wheels of industry turning smoothly." }),
+              /* @__PURE__ */ jsx("a", { className: "btn grey", id: "btn-styl", href: "/sector/manufacturing-automotive-technology-and-consumer-goods", children: /* @__PURE__ */ jsx("span", { className: "btn_name", children: "Read more" }) })
+            ] })
+          ] })
+        ] }) }),
+        /* @__PURE__ */ jsx("div", { className: "swiper-slide", children: /* @__PURE__ */ jsxs("div", { className: "sector-bx", children: [
+          /* @__PURE__ */ jsx("img", { src: Industrial, alt: "Industrial" }),
+          /* @__PURE__ */ jsxs("div", { className: "content-dv", children: [
+            /* @__PURE__ */ jsx("h2", { children: "Industrial Equipment:" }),
+            /* @__PURE__ */ jsxs("div", { className: "inner-content-dv", children: [
+              /* @__PURE__ */ jsx("p", { children: "Heavy-duty logistics for heavy-duty equipment, ensuring the backbone of industry remains strong and operational." }),
+              /* @__PURE__ */ jsx("a", { className: "btn grey", id: "btn-styl", href: "/sector/industrial-sector", children: /* @__PURE__ */ jsx("span", { className: "btn_name", children: "Read more" }) })
+            ] })
+          ] })
+        ] }) }),
+        /* @__PURE__ */ jsx("div", { className: "swiper-slide", children: /* @__PURE__ */ jsxs("div", { className: "sector-bx", children: [
+          /* @__PURE__ */ jsx("img", { src: Chemicals, alt: "Chemicals" }),
+          /* @__PURE__ */ jsxs("div", { className: "content-dv", children: [
+            /* @__PURE__ */ jsx("h2", { children: "Agriculture, Chemicals, Construction, and Energy: " }),
+            /* @__PURE__ */ jsxs("div", { className: "inner-content-dv", children: [
+              /* @__PURE__ */ jsx("p", { children: "Cultivating success with tailored logistics for the essential sectors that fuel our world and build our futures." }),
+              /* @__PURE__ */ jsx("a", { className: "btn grey", id: "btn-styl", href: "/sector/chemicals-construction-energy-and-agriculture", children: /* @__PURE__ */ jsx("span", { className: "btn_name", children: "Read more" }) })
+            ] })
+          ] })
+        ] }) }),
+        /* @__PURE__ */ jsx("div", { className: "swiper-slide", children: /* @__PURE__ */ jsxs("div", { className: "sector-bx", children: [
+          /* @__PURE__ */ jsx("img", { src: Arts, alt: "Arts" }),
+          /* @__PURE__ */ jsxs("div", { className: "content-dv", children: [
+            /* @__PURE__ */ jsx("h2", { children: "Arts, Exhibitions, and Luxury Goods: " }),
+            /* @__PURE__ */ jsxs("div", { className: "inner-content-dv", children: [
+              /* @__PURE__ */ jsx("p", { children: "Elevating the art of logistics for the world's treasures, ensuring every masterpiece arrives in perfect form." }),
+              /* @__PURE__ */ jsx("a", { className: "btn grey", id: "btn-styl", href: "/sector/arts-exhibitions-and-luxury-Goods", children: /* @__PURE__ */ jsx("span", { className: "btn_name", children: "Read more" }) })
+            ] })
+          ] })
+        ] }) })
+      ] })
+    ] })
+  ] }) }) });
+}
+function EcommercePage() {
+  useEffect(() => {
+    function handleAnimation(entries, observer) {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.style.opacity = 1;
+          animateText(entry.target);
+          observer.unobserve(entry.target);
+        }
+      });
+    }
+    function animateText(target) {
+      let split = new SplitType(target, {
+        split: "lines"
+      });
+      let tl = gsap.timeline();
+      tl.from(split.lines, {
+        opacity: 0,
+        y: 50,
+        duration: 0.6,
+        ease: "cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+        stagger: 0.2
+      });
+    }
+    document.querySelectorAll(".js-split-text").forEach((element) => {
+      let observer = new IntersectionObserver(handleAnimation, {
+        threshold: 0.5
+      });
+      observer.observe(element);
+    });
+    AOS.init();
+  });
+  return /* @__PURE__ */ jsxs(Fragment, { children: [
+    /* @__PURE__ */ jsxs(Helmet, { children: [
+      /* @__PURE__ */ jsx("title", { children: "Optimized E-commerce Logistics & Retail Supply Chain Solutions | MRSSupplyChain" }),
+      /* @__PURE__ */ jsx(
+        "meta",
+        {
+          name: "description",
+          content: "Discover efficient logistics solutions for e-commerce and retail sectors with MRSSupplyChain."
+        }
+      ),
+      /* @__PURE__ */ jsx(
+        "meta",
+        {
+          name: "keywords",
+          content: "E-commerce Logistics, Retail Supply Chain, Online Retail Warehousing, Fast Retail Delivery, Efficient E-commerce Transport"
+        }
+      )
+    ] }),
+    /* @__PURE__ */ jsx(Header2, {}),
+    /* @__PURE__ */ jsx(SectorSpotlight$1, {}),
+    /* @__PURE__ */ jsx(SectorAbout$1, {}),
+    /* @__PURE__ */ jsx(SectorSolutions$1, {}),
+    /* @__PURE__ */ jsx(KeySector$1, {}),
+    /* @__PURE__ */ jsx(innerCTA, {}),
+    /* @__PURE__ */ jsx(formSection, {}),
+    /* @__PURE__ */ jsx(Footer, {})
+  ] });
+}
+const Warehousing_Solution = "/assets/manufacturing_sector-OQ3jQEpA.jpg";
+function SectorSpotlight() {
+  useEffect(() => {
+  });
+  return /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsxs("div", { className: "service-spotlight custom-brokerage-sec section inner-spotlight-sec section-padd-LR overflow manufactr-hdr", children: [
+    /* @__PURE__ */ jsx("div", { className: "main-container width-1250 flex", children: /* @__PURE__ */ jsxs("div", { className: "inner-spot-clm-1", id: "inner-spot-clm-1", children: [
+      /* @__PURE__ */ jsx("h2", { className: "sldr-sub-ttl", "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "0", children: "Sector Solutions" }),
+      /* @__PURE__ */ jsx("h1", { className: "js-split-text white manufctr-ttl", children: "Manufacturing, Automotive, Technology, and Consumer Goods " }),
+      /* @__PURE__ */ jsx("img", { src: Line$4, alt: "Line", "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "300" }),
+      /* @__PURE__ */ jsx("p", { className: "white", "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "300", children: "Powering Progress with Logistics Solutions" }),
+      /* @__PURE__ */ jsxs("div", { className: "btn inner-spt-btn white", "data-aos": "fade-in", "data-aos-duration": "1000", "data-aos-once": "true", "data-aos-delay": "300", children: [
+        /* @__PURE__ */ jsx("a", { className: "white-60", href: "/", children: "Home " }),
+        " > ",
+        /* @__PURE__ */ jsx("a", { className: "white-60", children: "Sectors " }),
+        " > ",
+        /* @__PURE__ */ jsx("a", { className: "white-60", children: "Manufacturing, Automotive, Technology, and Consumer Goods" })
+      ] })
+    ] }) }),
+    /* @__PURE__ */ jsx("div", { className: "inner-img-sec", children: /* @__PURE__ */ jsx("div", { className: "inner-spot-clm-2", children: /* @__PURE__ */ jsx("img", { src: Warehousing_Solution, alt: "supplyChainImage", className: "lToR", "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "300" }) }) })
+  ] }) });
+}
+function SectorAbout() {
+  return /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsx("div", { className: "roadRailAbt-sec section-padd-LR overflow", children: /* @__PURE__ */ jsxs("div", { className: "main-container width-1250 black tech-driven-numbrs1", children: [
+    /* @__PURE__ */ jsx("h2", { className: "ttl-45px trusted-ttl js-split-text", children: "Driving Manufacturing and Consumer Goods Forward" }),
+    /* @__PURE__ */ jsx("p", { className: "mob-mrgin-o", "data-aos": "fade-in", "data-aos-duration": "500", "data-aos-once": "true", "data-aos-delay": "200", children: "The sectors of manufacturing, automotive, technology, and consumer goods are the backbone of the global economy, requiring integrated logistics solutions that support production and distribution. MRS Supply Chain offers a comprehensive suite of services to ensure these industries remain at the forefront of efficiency and innovation." })
+  ] }) }) });
+}
+function SectorSolutions() {
+  return /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsx("div", { className: "custom-bonded-sec2 section-padd-LR overflow sectorSolution-sec", children: /* @__PURE__ */ jsxs("div", { className: "main-container width-1250 built-to-suit-container1", children: [
+    /* @__PURE__ */ jsx("h3", { className: "we-offer-txt bond-txt black js-split-text key-fetr-ttl", children: "Streamlining Production and Distribution with Expert Solutions" }),
+    /* @__PURE__ */ jsx("img", { className: "built-line-img", src: Line$1, alt: "Line", "data-aos": "fade-in", "data-aos-duration": "500", "data-aos-once": "true", "data-aos-delay": "" }),
+    /* @__PURE__ */ jsxs("div", { className: "row built-row T-B-Padding B-padding-o ", children: [
+      /* @__PURE__ */ jsxs("div", { className: "clm-2 solution-clm", children: [
+        /* @__PURE__ */ jsx("h3", { "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "", children: "Regulatory Compliance and Documentation" }),
+        /* @__PURE__ */ jsx("p", { "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "", children: "Navigating the intricate web of customs and international trade regulations is critical for these sectors, and MRS provides the expertise needed to ensure seamless operations." }),
+        /* @__PURE__ */ jsx("h3", { "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "", children: "Tech-Driven Last-Mile Delivery" }),
+        /* @__PURE__ */ jsx("p", { "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "", children: "Advanced delivery services tailored to the needs of fast-paced manufacturing and consumer goods sectors, enhancing supply chain efficiency." }),
+        /* @__PURE__ */ jsx("h3", { "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "", children: "Duty-Free Warehousing" }),
+        /* @__PURE__ */ jsx("p", { "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "", children: "Strategic warehousing solutions that complement the manufacturing process, from raw materials storage to finished goods distribution, ensuring a smooth supply chain flow." })
+      ] }),
+      /* @__PURE__ */ jsx("div", { className: "clm-2 built-img-clm", children: /* @__PURE__ */ jsx("img", { src: MultiuserWarehousing$2, alt: "MultiuserWarehousing", "data-aos": "fade-in", "data-aos-duration": "600", "data-aos-once": "true", "data-aos-delay": "500" }) })
+    ] })
+  ] }) }) });
+}
+function KeySector() {
+  useEffect(() => {
+    new Swiper(".sector-sldr", {
+      navigation: {
+        nextEl: ".sector-swiper-button-next",
+        prevEl: ".sector-swiper-button-prev"
+      },
+      slidesPerView: 3.1,
+      spaceBetween: 40,
+      breakpoints: {
+        320: {
+          slidesPerView: 1.1
+        },
+        768: {
+          slidesPerView: 2.1
+        },
+        1024: {
+          slidesPerView: 3.1
+        }
+      }
+    });
+  });
+  return /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsx("div", { className: "sector-sec section-padd-LR", children: /* @__PURE__ */ jsxs("div", { className: "main-container width-1250", children: [
+    /* @__PURE__ */ jsx("div", { className: "ovrflw-hdn", children: /* @__PURE__ */ jsx("h2", { className: "sectr-ttl black js-split-text", children: "Key Sectors we work with" }) }),
+    /* @__PURE__ */ jsxs("div", { className: "swiper sector-sldr", "data-aos": "fade-in", "data-aos-duration": "800", "data-aos-once": "true", "data-aos-delay": "500", children: [
+      /* @__PURE__ */ jsxs("div", { className: "pegination-arrow2", children: [
+        /* @__PURE__ */ jsx("div", { className: "sector-swiper-button-next cursor", children: /* @__PURE__ */ jsx("svg", { xmlns: "http://www.w3.org/2000/svg", width: "41", height: "41", viewBox: "0 0 41 41", fill: "none", children: /* @__PURE__ */ jsxs("g", { opacity: "0.7", children: [
+          /* @__PURE__ */ jsx("path", { d: "M12 20H28", stroke: "#929292", strokeLinecap: "round" }),
+          /* @__PURE__ */ jsx("path", { d: "M21 12L29 20L21 28", stroke: "#929292", strokeLinecap: "round" }),
+          "    ",
+          /* @__PURE__ */ jsx("circle", { cx: "20.5", cy: "20.5", r: "20", transform: "matrix(-1 0 0 1 41 0)", stroke: "#929292" })
+        ] }) }) }),
+        /* @__PURE__ */ jsx("div", { className: "sector-swiper-button-prev cursor", children: /* @__PURE__ */ jsx("svg", { xmlns: "http://www.w3.org/2000/svg", width: "41", height: "41", viewBox: "0 0 41 41", fill: "none", children: /* @__PURE__ */ jsxs("g", { opacity: "0.7", children: [
+          /* @__PURE__ */ jsx("path", { d: "M29 20H13", stroke: "#929292", strokeLinecap: "round" }),
+          /* @__PURE__ */ jsx("path", { d: "M20 12L12 20L20 28", stroke: "#929292", strokeLinecap: "round" }),
+          "    ",
+          /* @__PURE__ */ jsx("circle", { cx: "20.5", cy: "20.5", r: "20", stroke: "#929292" })
+        ] }) }) })
+      ] }),
+      /* @__PURE__ */ jsxs("div", { className: "swiper-wrapper", children: [
+        /* @__PURE__ */ jsx("div", { className: "swiper-slide", children: /* @__PURE__ */ jsxs("div", { className: "sector-bx", children: [
+          /* @__PURE__ */ jsx("img", { src: Science_and_Health_Care, alt: "Science_and_Health_Care" }),
+          /* @__PURE__ */ jsxs("div", { className: "content-dv", children: [
+            /* @__PURE__ */ jsx("h2", { children: "Renewable Energy and Infrastructure Projects:  " }),
+            /* @__PURE__ */ jsxs("div", { className: "inner-content-dv", children: [
+              /* @__PURE__ */ jsx("p", { children: "Powering the future with specialised logistics for the renewable energy and infrastructure sectors, where precision meets scale." }),
+              /* @__PURE__ */ jsx("a", { className: "btn grey", id: "btn-styl", href: "/sector/renewable-energy-and-infrastructure-projects", children: /* @__PURE__ */ jsx("span", { className: "btn_name", children: "Read more" }) })
+            ] })
+          ] })
+        ] }) }),
+        /* @__PURE__ */ jsx("div", { className: "swiper-slide", children: /* @__PURE__ */ jsxs("div", { className: "sector-bx", children: [
+          /* @__PURE__ */ jsx("img", { src: Industrial, alt: "Industrial" }),
+          /* @__PURE__ */ jsxs("div", { className: "content-dv", children: [
+            /* @__PURE__ */ jsx("h2", { children: "Industrial Equipment:" }),
+            /* @__PURE__ */ jsxs("div", { className: "inner-content-dv", children: [
+              /* @__PURE__ */ jsx("p", { children: "Heavy-duty logistics for heavy-duty equipment, ensuring the backbone of industry remains strong and operational." }),
+              /* @__PURE__ */ jsx("a", { className: "btn grey", id: "btn-styl", href: "/sector/industrial-sector", children: /* @__PURE__ */ jsx("span", { className: "btn_name", children: "Read more" }) })
+            ] })
+          ] })
+        ] }) }),
+        /* @__PURE__ */ jsx("div", { className: "swiper-slide", children: /* @__PURE__ */ jsxs("div", { className: "sector-bx", children: [
+          /* @__PURE__ */ jsx("img", { src: Chemicals, alt: "Chemicals" }),
+          /* @__PURE__ */ jsxs("div", { className: "content-dv", children: [
+            /* @__PURE__ */ jsx("h2", { children: "Agriculture, Chemicals, Construction, and Energy: " }),
+            /* @__PURE__ */ jsxs("div", { className: "inner-content-dv", children: [
+              /* @__PURE__ */ jsx("p", { children: "Cultivating success with tailored logistics for the essential sectors that fuel our world and build our futures." }),
+              /* @__PURE__ */ jsx("a", { className: "btn grey", id: "btn-styl", href: "/sector/chemicals-construction-energy-and-agriculture", children: /* @__PURE__ */ jsx("span", { className: "btn_name", children: "Read more" }) })
+            ] })
+          ] })
+        ] }) }),
+        /* @__PURE__ */ jsx("div", { className: "swiper-slide", children: /* @__PURE__ */ jsxs("div", { className: "sector-bx", children: [
+          /* @__PURE__ */ jsx("img", { src: Ecommerce$1, alt: "Ecommerce" }),
+          /* @__PURE__ */ jsxs("div", { className: "content-dv", children: [
+            /* @__PURE__ */ jsx("h2", { children: "E-commerce and Retail:" }),
+            /* @__PURE__ */ jsxs("div", { className: "inner-content-dv", children: [
+              /* @__PURE__ */ jsx("p", { children: "Revolutionising retail with cutting-edge logistics, delivering the future of commerce today." }),
+              /* @__PURE__ */ jsx("a", { className: "btn grey", id: "btn-styl", href: "/sector/e-commerce-and-retail", children: /* @__PURE__ */ jsx("span", { className: "btn_name", children: "Read more" }) })
+            ] })
+          ] })
+        ] }) }),
+        /* @__PURE__ */ jsx("div", { className: "swiper-slide", children: /* @__PURE__ */ jsxs("div", { className: "sector-bx", children: [
+          /* @__PURE__ */ jsx("img", { src: Arts, alt: "Arts" }),
+          /* @__PURE__ */ jsxs("div", { className: "content-dv", children: [
+            /* @__PURE__ */ jsx("h2", { children: "Arts, Exhibitions, and Luxury Goods: " }),
+            /* @__PURE__ */ jsxs("div", { className: "inner-content-dv", children: [
+              /* @__PURE__ */ jsx("p", { children: "Elevating the art of logistics for the world's treasures, ensuring every masterpiece arrives in perfect form." }),
+              /* @__PURE__ */ jsx("a", { className: "btn grey", id: "btn-styl", href: "/sector/arts-exhibitions-and-luxury-Goods", children: /* @__PURE__ */ jsx("span", { className: "btn_name", children: "Read more" }) })
+            ] })
+          ] })
+        ] }) })
+      ] })
+    ] })
+  ] }) }) });
+}
+function ManufacturingPage() {
+  useEffect(() => {
+    function handleAnimation(entries, observer) {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.style.opacity = 1;
+          animateText(entry.target);
+          observer.unobserve(entry.target);
+        }
+      });
+    }
+    function animateText(target) {
+      let split = new SplitType(target, {
+        split: "lines"
+      });
+      let tl = gsap.timeline();
+      tl.from(split.lines, {
+        opacity: 0,
+        y: 50,
+        duration: 0.6,
+        ease: "cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+        stagger: 0.2
+      });
+    }
+    document.querySelectorAll(".js-split-text").forEach((element) => {
+      let observer = new IntersectionObserver(handleAnimation, {
+        threshold: 0.5
+      });
+      observer.observe(element);
+    });
+    AOS.init();
+  });
+  return /* @__PURE__ */ jsxs(Fragment, { children: [
+    /* @__PURE__ */ jsxs(Helmet, { children: [
+      /* @__PURE__ */ jsx("title", { children: "Supply Chain Solutions for Manufacturing & Consumer Goods | MRSSupplyChain" }),
+      /* @__PURE__ */ jsx(
+        "meta",
+        {
+          name: "description",
+          content: "Discover optimized logistics solutions for manufacturing, automotive, technology, and consumer goods industries with MRSSupplyChain."
+        }
+      ),
+      /* @__PURE__ */ jsx(
+        "meta",
+        {
+          name: "keywords",
+          content: "Manufacturing Logistics, Automotive Supply Chain, Technology Goods Logistics, Consumer Goods Warehousing, Efficient Supply Chain for Manufacturing"
+        }
+      )
+    ] }),
+    /* @__PURE__ */ jsx(Header2, {}),
+    /* @__PURE__ */ jsx(SectorSpotlight, {}),
+    /* @__PURE__ */ jsx(SectorAbout, {}),
+    /* @__PURE__ */ jsx(SectorSolutions, {}),
+    /* @__PURE__ */ jsx(KeySector, {}),
+    /* @__PURE__ */ jsx(innerCTA, {}),
+    /* @__PURE__ */ jsx(formSection, {}),
+    /* @__PURE__ */ jsx(Footer, {})
+  ] });
+}
+const BlogArchive = () => {
+  useEffect(() => {
+    function handleAnimation(entries, observer) {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.style.opacity = 1;
+          animateText(entry.target);
+          observer.unobserve(entry.target);
+        }
+      });
+    }
+    function animateText(target) {
+      let split = new SplitType(target, {
+        split: "lines"
+      });
+      let tl = gsap.timeline();
+      tl.from(split.lines, {
+        opacity: 0,
+        y: 50,
+        duration: 0.6,
+        ease: "cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+        stagger: 0.2
+      });
+    }
+    document.querySelectorAll(".js-split-text").forEach((element) => {
+      let observer = new IntersectionObserver(handleAnimation, {
+        threshold: 0.5
+      });
+      observer.observe(element);
+    });
+    AOS.init();
+  });
+  return /* @__PURE__ */ jsxs(Fragment, { children: [
+    /* @__PURE__ */ jsxs(Helmet, { children: [
+      /* @__PURE__ */ jsx("title", { children: "News & Blog - MRS" }),
+      /* @__PURE__ */ jsx("meta", { name: "description", content: "Latest Happenings" })
+    ] }),
+    /* @__PURE__ */ jsx(Header2, {}),
+    /* @__PURE__ */ jsx("div", { className: "section inner-spotlight-sec section-padd-LR overflow blogarchive-sec", children: /* @__PURE__ */ jsx("div", { className: "main-container width-1250 flex", children: /* @__PURE__ */ jsxs("div", { className: "inner-spot-clm-1", children: [
+      /* @__PURE__ */ jsx("h1", { className: "js-split-text white", children: "News & Blog" }),
+      /* @__PURE__ */ jsx(
+        "h2",
+        {
+          className: "sldr-sub-ttl blg-sub-ttl",
+          "data-aos": "fade-up",
+          "data-aos-duration": "800",
+          "data-aos-once": "true",
+          "data-aos-delay": "400",
+          children: "Latest Happenings"
+        }
+      ),
+      /* @__PURE__ */ jsxs(
+        "div",
+        {
+          className: "btn inner-spt-btn white",
+          "data-aos": "fade-up",
+          "data-aos-duration": "1000",
+          "data-aos-once": "true",
+          "data-aos-delay": "600",
+          children: [
+            /* @__PURE__ */ jsxs("a", { className: "white-60", href: "/", children: [
+              "Home",
+              " "
+            ] }),
+            " > ",
+            /* @__PURE__ */ jsx("a", { className: "white-60", children: "News & Blog" })
+          ]
+        }
+      )
+    ] }) }) }),
+    /* @__PURE__ */ jsx("div", { className: "blog-archive-sec section-padd-LR", children: /* @__PURE__ */ jsx("div", { className: "main-container", children: /* @__PURE__ */ jsx("div", { className: "blog-bx", children: /* @__PURE__ */ jsx("div", { className: "blg-content-dv", children: /* @__PURE__ */ jsx("ul", { className: "blg-list", children: postsData.map((post) => /* @__PURE__ */ jsxs("li", { children: [
+      /* @__PURE__ */ jsx(
+        "img",
+        {
+          src: post.featureImage,
+          className: "featureImg",
+          alt: post.imgAltTag
+        }
+      ),
+      /* @__PURE__ */ jsx("div", { className: "date-box", children: /* @__PURE__ */ jsxs("p", { children: [
+        post.category,
+        " · ",
+        post.publishDate
+      ] }) }),
+      /* @__PURE__ */ jsx("h2", { className: "post-ttl", children: post.title }),
+      /* @__PURE__ */ jsx(
+        "a",
+        {
+          className: "btn grey",
+          id: "btn-styl",
+          href: `/blog/${post.slug}`,
+          children: /* @__PURE__ */ jsx("span", { className: "btn_name", children: "Read more" })
+        }
+      )
+    ] }, post.id)) }) }) }) }) }),
+    /* @__PURE__ */ jsx(Footer, {})
+  ] });
 };
-const App = ({ url }) => {
+const date_icon_white = "data:image/svg+xml,%3csvg%20width='24'%20height='24'%20viewBox='0%200%2024%2024'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20d='M7.83203%202.20801V5.14551'%20stroke='white'%20stroke-width='1.5'%20stroke-miterlimit='10'%20stroke-linecap='round'%20stroke-linejoin='round'/%3e%3cpath%20d='M15.668%202.20801V5.14551'%20stroke='white'%20stroke-width='1.5'%20stroke-miterlimit='10'%20stroke-linecap='round'%20stroke-linejoin='round'/%3e%3cpath%20d='M3.42578%209.15039H20.0716'%20stroke='white'%20stroke-width='1.5'%20stroke-miterlimit='10'%20stroke-linecap='round'%20stroke-linejoin='round'/%3e%3cpath%20d='M20.5625%208.57259V16.8955C20.5625%2019.833%2019.0938%2021.7913%2015.6667%2021.7913H7.83333C4.40625%2021.7913%202.9375%2019.833%202.9375%2016.8955V8.57259C2.9375%205.63509%204.40625%203.67676%207.83333%203.67676H15.6667C19.0938%203.67676%2020.5625%205.63509%2020.5625%208.57259Z'%20stroke='white'%20stroke-width='1.5'%20stroke-miterlimit='10'%20stroke-linecap='round'%20stroke-linejoin='round'/%3e%3cpath%20d='M15.3689%2013.6648H15.3777'%20stroke='white'%20stroke-width='1.5'%20stroke-linecap='round'%20stroke-linejoin='round'/%3e%3cpath%20d='M15.3689%2016.6023H15.3777'%20stroke='white'%20stroke-width='1.5'%20stroke-linecap='round'%20stroke-linejoin='round'/%3e%3cpath%20d='M11.7458%2013.6648H11.7546'%20stroke='white'%20stroke-width='1.5'%20stroke-linecap='round'%20stroke-linejoin='round'/%3e%3cpath%20d='M11.7458%2016.6023H11.7546'%20stroke='white'%20stroke-width='1.5'%20stroke-linecap='round'%20stroke-linejoin='round'/%3e%3cpath%20d='M8.1228%2013.6648H8.13159'%20stroke='white'%20stroke-width='1.5'%20stroke-linecap='round'%20stroke-linejoin='round'/%3e%3cpath%20d='M8.1228%2016.6023H8.13159'%20stroke='white'%20stroke-width='1.5'%20stroke-linecap='round'%20stroke-linejoin='round'/%3e%3c/svg%3e";
+const PostDetails = ({
+  title,
+  content,
+  featureImage,
+  featureImage1,
+  category,
+  publishDate,
+  metaTitle,
+  metaDescription,
+  ogImage,
+  schema
+}) => {
+  const [pgUrl, setPgUrl] = useState("");
+  useEffect(() => {
+    if (typeof window === "undefined" || typeof document === "undefined")
+      return;
+    setPgUrl(window.location.href);
+    function handleAnimation(entries, observer2) {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.style.opacity = 1;
+          animateText(entry.target);
+          observer2.unobserve(entry.target);
+        }
+      });
+    }
+    function animateText(target) {
+      if (typeof SplitType === "undefined" || typeof gsap === "undefined")
+        return;
+      let split = new SplitType(target, { split: "lines" });
+      let tl = gsap.timeline();
+      tl.from(split.lines, {
+        opacity: 0,
+        y: 50,
+        duration: 0.6,
+        ease: "cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+        stagger: 0.2
+      });
+    }
+    const observer = new IntersectionObserver(handleAnimation, {
+      threshold: 0.5
+    });
+    document.querySelectorAll(".js-split-text").forEach((element) => {
+      observer.observe(element);
+    });
+    if (typeof AOS !== "undefined")
+      AOS.init();
+  }, []);
+  const altText = featureImage ? featureImage.split("/").pop().replace(/\.[^/.]+$/, "") : "feature-image";
+  return /* @__PURE__ */ jsxs(Fragment, { children: [
+    /* @__PURE__ */ jsxs(Helmet, { children: [
+      /* @__PURE__ */ jsx("title", { children: metaTitle }),
+      /* @__PURE__ */ jsx("meta", { name: "description", content: metaDescription }),
+      /* @__PURE__ */ jsx("meta", { property: "og:title", content: metaTitle }),
+      /* @__PURE__ */ jsx("meta", { property: "og:description", content: metaDescription }),
+      /* @__PURE__ */ jsx("meta", { property: "og:image", content: ogImage }),
+      /* @__PURE__ */ jsx("script", { type: "application/ld+json", children: JSON.stringify(schema) })
+    ] }),
+    /* @__PURE__ */ jsx(Header2, {}),
+    /* @__PURE__ */ jsx("div", { className: "blogInside-spotlgtSec section-padd-LR overflow", children: /* @__PURE__ */ jsxs("div", { className: "main-container width-1250 ", children: [
+      /* @__PURE__ */ jsx("h5", { className: "white", children: category }),
+      /* @__PURE__ */ jsx("h1", { className: "white", children: title }),
+      /* @__PURE__ */ jsxs("div", { className: "date-bx", children: [
+        /* @__PURE__ */ jsx("img", { src: date_icon_white, alt: "date_icon_white" }),
+        /* @__PURE__ */ jsx("p", { className: "white", children: publishDate })
+      ] })
+    ] }) }),
+    /* @__PURE__ */ jsx("div", { className: "blogInside-contntSec section-padd-LR", children: /* @__PURE__ */ jsxs("div", { className: "main-container width-1100 flex", children: [
+      /* @__PURE__ */ jsx("img", { src: featureImage, alt: altText, className: "featureImg-inside" }),
+      /* @__PURE__ */ jsx("div", { className: "width-10", children: /* @__PURE__ */ jsx("div", { className: "share-icn", children: pgUrl && /* @__PURE__ */ jsxs(Fragment, { children: [
+        /* @__PURE__ */ jsx(FacebookShareButton, { url: pgUrl, quote: "Hello", children: /* @__PURE__ */ jsx(FacebookIcon, { size: 30, round: true }) }),
+        /* @__PURE__ */ jsx(LinkedinShareButton, { url: pgUrl, children: /* @__PURE__ */ jsx(LinkedinIcon, { size: 30, round: true }) }),
+        /* @__PURE__ */ jsx(TwitterShareButton, { url: pgUrl, children: /* @__PURE__ */ jsx(XIcon, { size: 30, round: true }) })
+      ] }) }) }),
+      /* @__PURE__ */ jsxs("div", { className: "width-90 blg-cntnt", children: [
+        /* @__PURE__ */ jsx("div", { dangerouslySetInnerHTML: { __html: content } }),
+        /* @__PURE__ */ jsx("a", { href: "/blog", className: "blg_back_btn", children: "< Back to blog page" })
+      ] })
+    ] }) }),
+    /* @__PURE__ */ jsx(Footer, {})
+  ] });
+};
+const App = () => {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const openPopup = (e) => {
     e.preventDefault();
     setIsPopupOpen(true);
   };
   const closePopup = () => setIsPopupOpen(false);
-  const getCurrentPath = () => {
-    if (typeof window !== "undefined")
-      return window.location.pathname;
-    return url || "/";
-  };
-  const renderPostDetails = () => {
-    const currentPath = getCurrentPath();
-    const postSlug = currentPath.split("/").pop();
-    console.log(postSlug);
-    const selectedPost = postsData.find((post) => post.slug === postSlug);
-    if (selectedPost) {
-      return /* @__PURE__ */ jsx(
-        PostDetails,
-        {
-          title: selectedPost.title,
-          content: selectedPost.content,
-          featureImage: selectedPost.featureImage,
-          category: selectedPost.category,
-          metaTitle: selectedPost.metaTitle,
-          metaDescription: selectedPost.metaDescription,
-          ogImage: selectedPost.ogImage,
-          schema: selectedPost.schema,
-          publishDate: selectedPost.publishDate
-        }
-      );
-    } else {
-      return /* @__PURE__ */ jsx("div", { children: "Post not found" });
-    }
-  };
-  const routes = {
-    "/": /* @__PURE__ */ jsx(Homepage, {}),
-    "/about": /* @__PURE__ */ jsx(Aboutpage, {}),
-    "/careers": /* @__PURE__ */ jsx(Contactpage, {}),
-    "/contact-us": /* @__PURE__ */ jsx(Contactpage$1, {}),
-    "/privacy-policy": /* @__PURE__ */ jsx(Privacypage, {}),
-    "/safety-policy": /* @__PURE__ */ jsx(SafetyPage, {}),
-    // Services
-    "/services/multiuser-warehousing": /* @__PURE__ */ jsx(multiuserWarehousing$1, {}),
-    "/services/road-and-rail-transport": /* @__PURE__ */ jsx(RoadRailTransport, {}),
-    "/services/pioneering-duty-free-warehousing-solutions": /* @__PURE__ */ jsx(PioneeringWarehousing, {}),
-    "/services/in-plant-warehouse-management": /* @__PURE__ */ jsx(multiuserWarehousing, {}),
-    "/services/customs-brokerage-and-regulatory-compliance": /* @__PURE__ */ jsx(CustomsBrokerageCompliance, {}),
-    "/services/import-management": /* @__PURE__ */ jsx(ImportanMagement, {}),
-    "/services/tech-driven-last-mile-delivery-services": /* @__PURE__ */ jsx(TechDrivenService, {}),
-    // Sectors
-    "/sector/arts-exhibitions-and-luxury-Goods": /* @__PURE__ */ jsx(ArtsPage, {}),
-    "/sector/renewable-energy-and-infrastructure-projects": /* @__PURE__ */ jsx(RenewableEnergyPage, {}),
-    "/sector/industrial-sector": /* @__PURE__ */ jsx(IndustrialSectorPage, {}),
-    "/sector/chemicals-construction-energy-and-agriculture": /* @__PURE__ */ jsx(chemicalsPage, {}),
-    "/sector/e-commerce-and-retail": /* @__PURE__ */ jsx(EcommercePage, {}),
-    "/sector/manufacturing-automotive-technology-and-consumer-goods": /* @__PURE__ */ jsx(ManufacturingPage, {}),
-    // Blogs
-    "/blog": /* @__PURE__ */ jsx(BlogArchive, {}),
-    [`/blog/${postsData[0].slug}`]: renderPostDetails(),
-    [`/blog/${postsData[1].slug}`]: renderPostDetails(),
-    [`/blog/${postsData[2].slug}`]: renderPostDetails(),
-    [`/blog/${postsData[3].slug}`]: renderPostDetails(),
-    [`/blog/${postsData[4].slug}`]: renderPostDetails(),
-    [`/blog/${postsData[5].slug}`]: renderPostDetails(),
-    [`/blog/${postsData[6].slug}`]: renderPostDetails(),
-    [`/blog/${postsData[7].slug}`]: renderPostDetails(),
-    [`/blog/${postsData[8].slug}`]: renderPostDetails(),
-    [`/blog/${postsData[9].slug}`]: renderPostDetails(),
-    [`/blog/${postsData[10].slug}`]: renderPostDetails(),
-    [`/blog/${postsData[11].slug}`]: renderPostDetails(),
-    [`/blog/${postsData[12].slug}`]: renderPostDetails(),
-    [`/blog/${postsData[13].slug}`]: renderPostDetails(),
-    [`/blog/${postsData[14].slug}`]: renderPostDetails(),
-    [`/blog/${postsData[15].slug}`]: renderPostDetails(),
-    [`/blog/${postsData[16].slug}`]: renderPostDetails(),
-    [`/blog/${postsData[17].slug}`]: renderPostDetails()
-    // [`/blog/${postsData[9].slug}`]: renderPostDetails(),
-    // Add more entries for additional posts if needed
-  };
   return /* @__PURE__ */ jsxs(Fragment, { children: [
     /* @__PURE__ */ jsx("div", { className: "popupParent", children: /* @__PURE__ */ jsx("button", { className: "quote-button", onClick: openPopup, children: "Let's Connect" }) }),
-    routes[getCurrentPath()],
+    /* @__PURE__ */ jsxs(Routes, { children: [
+      /* @__PURE__ */ jsx(Route, { path: "/", element: /* @__PURE__ */ jsx(Homepage, {}) }),
+      /* @__PURE__ */ jsx(Route, { path: "/about", element: /* @__PURE__ */ jsx(Aboutpage, {}) }),
+      /* @__PURE__ */ jsx(Route, { path: "/careers", element: /* @__PURE__ */ jsx(Contactpage, {}) }),
+      /* @__PURE__ */ jsx(Route, { path: "/contact-us", element: /* @__PURE__ */ jsx(Contactpage$1, {}) }),
+      /* @__PURE__ */ jsx(Route, { path: "/privacy-policy", element: /* @__PURE__ */ jsx(Privacypage, {}) }),
+      /* @__PURE__ */ jsx(Route, { path: "/safety-policy", element: /* @__PURE__ */ jsx(SafetyPage, {}) }),
+      /* @__PURE__ */ jsx(
+        Route,
+        {
+          path: "/services/multiuser-warehousing",
+          element: /* @__PURE__ */ jsx(multiuserWarehousing$1, {})
+        }
+      ),
+      /* @__PURE__ */ jsx(
+        Route,
+        {
+          path: "/services/road-and-rail-transport",
+          element: /* @__PURE__ */ jsx(RoadRailTransport, {})
+        }
+      ),
+      /* @__PURE__ */ jsx(
+        Route,
+        {
+          path: "/services/pioneering-duty-free-warehousing-solutions",
+          element: /* @__PURE__ */ jsx(PioneeringWarehousing, {})
+        }
+      ),
+      /* @__PURE__ */ jsx(
+        Route,
+        {
+          path: "/services/in-plant-warehouse-management",
+          element: /* @__PURE__ */ jsx(multiuserWarehousing, {})
+        }
+      ),
+      /* @__PURE__ */ jsx(
+        Route,
+        {
+          path: "/services/customs-brokerage-and-regulatory-compliance",
+          element: /* @__PURE__ */ jsx(CustomsBrokerageCompliance, {})
+        }
+      ),
+      /* @__PURE__ */ jsx(
+        Route,
+        {
+          path: "/services/import-management",
+          element: /* @__PURE__ */ jsx(ImportanMagement, {})
+        }
+      ),
+      /* @__PURE__ */ jsx(
+        Route,
+        {
+          path: "/services/tech-driven-last-mile-delivery-services",
+          element: /* @__PURE__ */ jsx(TechDrivenService, {})
+        }
+      ),
+      /* @__PURE__ */ jsx(
+        Route,
+        {
+          path: "/sector/arts-exhibitions-and-luxury-Goods",
+          element: /* @__PURE__ */ jsx(ArtsPage, {})
+        }
+      ),
+      /* @__PURE__ */ jsx(
+        Route,
+        {
+          path: "/sector/renewable-energy-and-infrastructure-projects",
+          element: /* @__PURE__ */ jsx(RenewableEnergyPage, {})
+        }
+      ),
+      /* @__PURE__ */ jsx(
+        Route,
+        {
+          path: "/sector/industrial-sector",
+          element: /* @__PURE__ */ jsx(IndustrialSectorPage, {})
+        }
+      ),
+      /* @__PURE__ */ jsx(
+        Route,
+        {
+          path: "/sector/chemicals-construction-energy-and-agriculture",
+          element: /* @__PURE__ */ jsx(chemicalsPage, {})
+        }
+      ),
+      /* @__PURE__ */ jsx(
+        Route,
+        {
+          path: "/sector/e-commerce-and-retail",
+          element: /* @__PURE__ */ jsx(EcommercePage, {})
+        }
+      ),
+      /* @__PURE__ */ jsx(
+        Route,
+        {
+          path: "/sector/manufacturing-automotive-technology-and-consumer-goods",
+          element: /* @__PURE__ */ jsx(ManufacturingPage, {})
+        }
+      ),
+      /* @__PURE__ */ jsx(Route, { path: "/blog", element: /* @__PURE__ */ jsx(BlogArchive, {}) }),
+      /* @__PURE__ */ jsx(
+        Route,
+        {
+          path: "/blog/:slug",
+          element: /* @__PURE__ */ jsx(DynamicPostDetails, { postsData })
+        }
+      )
+    ] }),
     /* @__PURE__ */ jsx(QuoteForm, { isOpen: isPopupOpen, togglePopup: closePopup })
   ] });
 };
-function render(url) {
-  const html = ReactDOMServer.renderToString(
-    /* @__PURE__ */ jsx(React.StrictMode, { children: /* @__PURE__ */ jsx(App, { url }) })
+const DynamicPostDetails = ({ postsData: postsData2 }) => {
+  const { slug } = useParams();
+  const post = postsData2.find((p) => p.slug === slug);
+  if (!post)
+    return /* @__PURE__ */ jsx("div", { children: "Post not found" });
+  return /* @__PURE__ */ jsx(
+    PostDetails,
+    {
+      title: post.title,
+      content: post.content,
+      featureImage: post.featureImage,
+      category: post.category,
+      metaTitle: post.metaTitle,
+      metaDescription: post.metaDescription,
+      ogImage: post.ogImage,
+      schema: post.schema,
+      publishDate: post.publishDate
+    }
   );
-  return { html };
+};
+function render(url, manifest) {
+  const helmetContext = {};
+  const appHtml = renderToString(
+    /* @__PURE__ */ jsx(HelmetProvider, { context: helmetContext, children: /* @__PURE__ */ jsx(StaticRouter, { location: url, children: /* @__PURE__ */ jsx(App, {}) }) })
+  );
+  const { helmet } = helmetContext;
+  return {
+    html: appHtml,
+    helmet: {
+      title: helmet.title.toString(),
+      meta: helmet.meta.toString(),
+      link: helmet.link.toString(),
+      script: helmet.script.toString()
+    }
+  };
 }
 export {
   render

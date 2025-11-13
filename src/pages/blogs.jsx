@@ -5,7 +5,7 @@ import Header from "../components/global/header";
 import Cta from "../components/sections/About/aboutCTA";
 import Footer from "../components/global/footer";
 import Header2 from "../components/global/header2";
-import { Helmet } from "react-helmet";
+import { Helmet } from "react-helmet-async";
 
 export default function Blogspage() {
   useEffect(() => {
