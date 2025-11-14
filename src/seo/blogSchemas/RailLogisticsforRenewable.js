@@ -6,26 +6,27 @@ export const railLogisticsRenewableSchema = `
   "@type": "BlogPosting",
   "mainEntityOfPage": {
     "@type": "WebPage",
-    "@id": "https://www.mrssupplychain.com/blog/connecting-markets-the-benefits-of-rail-transport-services-from-mundra-to-delhi"
+    "@id": "https://www.mrssupplychain.com/blog/rail-logistics-for-renewable-energy-projects-moving-solar-and-wind-cargo-efficiently"
   },
-  "headline": "Connecting Markets: The Benefits of Rail Transport Services from Mundra to Delhi",
-  "description": "Discover MRS Supply Chain, India's best company for supply chain solutions, logistics services, warehousing, customs brokerage, last-mile delivery, and road and rail transport. Optimize your supply chain with us.",
-  "image": "https://www.mrssupplychain.com/Blog_img/Rail%20Transport%20Solution%20.webp", 
+  "headline": "Rail Logistics for Renewable Energy Projects: Moving Solar and Wind Cargo Efficiently",
+  "description": "Explore how rail freight enables safe, cost-effective movement of solar panels, wind turbines, and renewable energy cargo.",
+  "image": "https://www.mrssupplychain.com/Blog_img/rail-logistics-for-renewable-energy-projects-moving-solar-and-wind-cargo-efficiently.webp",  
   "author": {
-    "@type": "Person",
-    "name": "Admin"
+    "@type": "Organization",
+    "name": "MRS Supply Chain",
+    "url": "https://www.mrssupplychain.com/"
   },  
   "publisher": {
     "@type": "Organization",
     "name": "MRS Supply Chain",
     "logo": {
       "@type": "ImageObject",
-      "url": "https://www.mrssupplychain.com/"
+      "url": "https://www.mrssupplychain.com/assets/MRS-Logo-8bef6X_s.svg"
     }
   },
-  "datePublished": "2024-06-29"
+  "datePublished": "2025-11-14",
+  "dateModified": "2025-11-14"
 }
 </script>
-
 
 `;
