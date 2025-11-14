@@ -57,11 +57,12 @@ export default function Aboutpage() {
       <div className="pg-body viewport">
         <Helmet>
           <title>
-            About MRS Supply Chain | Leading Logistics Experts in India
+            Leading Supply Chain, Logistics, 3PL & Warehousing Services in
+            Gujarat
           </title>
           <meta
             name="description"
-            content="Learn more about MRS Supply Chain, a top supply chain company in India. Discover our expertise in logistics, warehousing, and transport solutions. Partner with the best in the industry."
+            content="MRS delivers expert supply chain, logistics, 3PL, warehousing, freight, rail transport, and fulfillment solutions across Gujarat."
           />
           <meta
             name="keywords"

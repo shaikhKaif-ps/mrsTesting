@@ -52,13 +52,10 @@ export default function chemicalsPage() {
   return (
     <>
       <Helmet>
-        <title>
-          Integrated Logistics Solutions for Chemicals, Construction, Energy, &
-          Agriculture | MRSSupplyChain
-        </title>
+        <title>Supply Chain, Logistics & Warehousing Services in Gujarat</title>
         <meta
           name="description"
-          content="Explore comprehensive logistics solutions for chemicals, construction, energy, and agriculture sectors with MRSSupplyChain."
+          content="MRS delivers chemical, construction, energy & agriculture logistics, warehousing, transport, and supply chain solutions across Gujarat with efficiency."
         />
         <meta
           name="keywords"

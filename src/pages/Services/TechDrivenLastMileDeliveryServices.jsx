@@ -59,10 +59,13 @@ export default function TechDrivenService() {
   return (
     <>
       <Helmet>
-        <title>Tech-Driven Last-Mile Delivery Services in India</title>
+        <title>
+          Tech-Driven Last Mile Delivery, Logistics & Supply Chain Solutions
+          Mundra
+        </title>
         <meta
           name="description"
-          content="Experience fast e-commerce delivery services powered by cutting-edge logistics technology."
+          content="MRS provides tech-driven last mile delivery, route optimization, real-time tracking, logistics, and supply chain services across Mundra for efficient fulfillment."
         />
         <meta
           name="keywords"

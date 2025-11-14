@@ -57,11 +57,11 @@ export default function multiuserWarehousing() {
       <div>
         <Helmet>
           <title>
-            Multiuser Warehousing Solutions in India | FMCG, Pharma Storage
+            Multi-User Warehousing & Warehouse Solutions Services in Mundra
           </title>
           <meta
             name="description"
-            content="Explore MRS Supply Chain's compliant, Grade A warehousing for FMCG, pharmaceuticals, and medical devices. Secure storage tailored to your needs."
+            content="MRS offers multi-user warehousing, warehouse solutions, storage, and inventory management services across Mundra for seamless warehouse operations."
           />
           <meta
             name="keywords"

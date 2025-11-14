@@ -59,10 +59,12 @@ export default function RoadRailTransport() {
   return (
     <>
       <Helmet>
-        <title>Road and Rail Transport Services in India</title>
+        <title>
+          Road & Rail Transport, Freight & Logistics Services in Gujarat
+        </title>
         <meta
           name="description"
-          content="Explore MRS Supply Chain's reliable road freight and cargo rail solutions for efficient transportation."
+          content="MRS provides road & rail transport, freight, cargo, logistics, distribution, warehousing, and supply chain services across Gujarat efficiently."
         />
         <meta
           name="keywords"

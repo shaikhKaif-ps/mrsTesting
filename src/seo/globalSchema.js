@@ -3,203 +3,201 @@ export const globalSchema = `<script type="application/ld+json" class="schemantr
   "@context": "https://schema.org",
   "@type": "LocalBusiness",
   "@id": "https://www.mrssupplychain.com/#localbusiness",
-  "url": "https://www.mrssupplychain.com/",
-  "description": "Leading integrated logistics service provider in India offering logistics, warehousing, customs brokerage, last-mile delivery, and transport services.",
   "name": "MRS Supply Chain",
-  "logo": "https://www.mrssupplychain.com/",
+  "alternateName": "MRS Supply Chain & Warehousing Solutions in Mundra",
+  "url": "https://www.mrssupplychain.com/",
+  "logo": "https://www.mrssupplychain.com/assets/MRS-Logo-8bef6X_s.svg",
+  "image": "https://www.mrssupplychain.com/assets/Import%20Management%20Spotlight-HjM1ppVI.png",
+  "description": "MRS Supply Chain delivers reliable 3PL, warehousing, and logistics solutions in Mundra, ensuring seamless end-to-end supply chain management for global operations.",
   "address": "No 7, Ground Floor, 4th Cross, Papaiah Garden Road, Banashankari, 3rd Stage, Bangalore - 560085, Karnataka, India",
-  "location": [
-    "Office No. 102,110,117, Madhav Palace, Plot No 55, Sec 8, Gandhidham, Kutch, Gujarat, India, 370201",
-    "Ground Floor, Shop No. 6, Agrawal Trade Centre, Belapur, Belapur, Navi Mumbai, Thane, Maharashtra, 400614",
-    "Near Namaste Circle, 4Th Floor, C-430, Indian Textile Plaza, Shahibaug, Ahmedabad, Gujarat, 380004",
-    "101 Upper Cross Street #04-36 People’s Park Centre Singapore 058357"
-  ],
-  "telephone": [
-    "+91 2836 235415",
-    "General Enquiries: +91 98258 13698",
-    "RFQ Enquiries:+91 89800 15415"
-  ],
+  "latitude": "12.9280",
+  "longitude": "77.5148",
+  "telephone": "91 2836 235415",
+  "email": "connect@mrssupplychain.com",
+  "hasMap": "https://www.google.com/maps/search/No+7,+Ground+Floor,+4th+Cross,+Papaiah+Garden+Road,+Banashankari,+3rd+Stage,+Bangalore+-+560085,+Karnataka,+India/@12.9273481,77.5341571,6642m/data=!3m2!1e3!4b1?entry=ttu&g_ep=EgoyMDI1MTExMS4wIKXMDSoASAFQAw%3D%3D",
+  "sameAs": "https://www.linkedin.com/company/mrs-shipping-llp/",
+  "ownershipFundingInfo": {
+    "@id": "https://www.mrssupplychain.com/#aboutpage"
+  },
   "hasOfferCatalog": [
     {
-      "@id": "https://www.mrssupplychain.com/services/#offercatalog"
+      "@id": "https://www.mrssupplychain.com/#sector"
     },
     {
-      "@id": "https://www.mrssupplychain.com/#sectors"
+      "@id": "https://www.mrssupplychain.com/careers/#careerspage"
     }
-  ]
+  ],
+  "contactPoint": {
+    "@id": "https://www.mrssupplychain.com/contact-us/#contactpage"
+  }
 }</script><script type="application/ld+json" class="schemantra.com">{
   "@context": "https://schema.org",
-  "@type": "OfferCatalog",
-  "@id": "https://www.mrssupplychain.com/services/#offercatalog",
-  "itemListElement": [
-    {
-      "@id": "https://www.mrssupplychain.com/services/#end-to-end-supply-chain-management"
-    },
-    {
-      "@id": "https://www.mrssupplychain.com/services/regulatory-compliance-and-documentation/#service"
-    },
-    {
-      "@id": "https://www.mrssupplychain.com/services/innovative-logistics-and-industrial-solutions/#service"
-    },
-    {
-      "@id": "https://www.mrssupplychain.com/services/innovative-logistics-and-industrial-solutions/#service"
-    }
-  ]
-}</script><script type="application/ld+json" class="schemantra.com">{
-  "@context": "https://schema.org",
-  "@type": "ListItem",
-  "@id": "https://www.mrssupplychain.com/services/#end-to-end-supply-chain-management",
-  "item": [
+  "@type": "AboutPage",
+  "@id": "https://www.mrssupplychain.com/#aboutpage",
+  "url": "https://www.mrssupplychain.com/about",
+  "name": "About MRS Supply Chain",
+  "description": "MRS delivers expert supply chain, logistics, 3PL, warehousing, freight, rail transport, and fulfillment solutions across Gujarat.",
+  "image": "https://www.mrssupplychain.com/assets/About_MRS_hdr-bYBVLKeo.jpg",
+  "headline": "About MRS Supply Chain - Leading Logistics & Warehousing Company in Gujarat",
+  "mainEntity": [
     {
       "@id": "https://www.mrssupplychain.com/services/multiuser-warehousing/#service"
     },
     {
-      "@id": "https://www.mrssupplychain.com/services/pioneering-duty-free-warehousing-solutions/#service"
+      "@id": "https://www.mrssupplychain.com/#duty-free-warehousing-service"
     },
     {
-      "@id": "https://www.mrssupplychain.com/services/road-and-rail-transport/#service"
+      "@id": "https://www.mrssupplychain.com/#road-and-rail-transport-service"
+    },
+    {
+      "@id": "https://www.mrssupplychain.com/#customs-brokerage-regulatory-compliance-service"
+    },
+    {
+      "@id": "https://www.mrssupplychain.com/#import-management-service"
+    },
+    {
+      "@id": "https://www.mrssupplychain.com/#tech-driven-last-mile-delivery-service"
     }
   ]
 }</script><script type="application/ld+json" class="schemantra.com">{
   "@context": "https://schema.org",
   "@type": "Service",
   "@id": "https://www.mrssupplychain.com/services/multiuser-warehousing/#service",
-  "name": "Multiuser Warehousing",
-  "description": "Discover MRS Supply Chain, India's best company for supply chain solutions, logistics services, warehousing, customs brokerage, last-mile delivery, and road and rail transport. Optimise your supply chain with us.",
-  "url": "https://www.mrssupplychain.com/services/multiuser-warehousing"
+  "url": "https://www.mrssupplychain.com/services/multiuser-warehousing",
+  "name": "Multiuser Warehousing Service",
+  "description": "MRS offers multi-user warehousing, warehouse solutions, storage, and inventory management services across Mundra for seamless warehouse operations.",
+  "providerMobility": "MRS Supply Chain",
+  "areaServed": "India",
+  "image": "https://www.mrssupplychain.com/assets/Warehousing_Solution-HNF75iTw.jpg"
 }</script><script type="application/ld+json" class="schemantra.com">{
   "@context": "https://schema.org",
   "@type": "Service",
-  "@id": "https://www.mrssupplychain.com/services/pioneering-duty-free-warehousing-solutions/#service",
+  "@id": "https://www.mrssupplychain.com/#duty-free-warehousing-service",
+  "url": "https://www.mrssupplychain.com/services/pioneering-duty-free-warehousing-solutions",
   "name": "Pioneering Duty-Free Warehousing Solutions",
-  "description": "Discover MRS Supply Chain, India's best company for supply chain solutions, logistics services, warehousing, customs brokerage, last-mile delivery, and road and rail transport. Optimise your supply chain with us.",
-  "url": "https://www.mrssupplychain.com/services/pioneering-duty-free-warehousing-solutions"
+  "description": "MRS offers duty-free warehousing, FTWZ, warehouse solutions, storage, inventory management, distribution, and warehouse operations across Gujarat.",
+  "serviceType": "Duty-Free Warehousing (FTWZ)",
+  "providerMobility": "MRS Supply Chain",
+  "areaServed": "India",
+  "image": "https://www.mrssupplychain.com/assets/Pioneering_spot-PlRV5eBL.jpg"
 }</script><script type="application/ld+json" class="schemantra.com">{
   "@context": "https://schema.org",
   "@type": "Service",
-  "@id": "https://www.mrssupplychain.com/services/road-and-rail-transport/#service",
-  "name": "Road and Rail Transport",
-  "description": "Discover MRS Supply Chain, India's best company for supply chain solutions, logistics services, warehousing, customs brokerage, last-mile delivery, and road and rail transport. Optimise your supply chain with us.",
-  "url": "https://www.mrssupplychain.com/services/road-and-rail-transport"
-}</script><script type="application/ld+json" class="schemantra.com">{
-  "@context": "https://schema.org",
-  "@type": "ListItem",
-  "@id": "https://www.mrssupplychain.com/services/regulatory-compliance-and-documentation/#service",
-  "item": [
-    {
-      "@id": "https://www.mrssupplychain.com/services/customs-brokerage-and-regulatory-compliance/#service"
-    },
-    {
-      "@id": "https://www.mrssupplychain.com/services/customs-brokerage-and-regulatory-compliance/#service"
-    },
-    {
-      "@id": "https://www.mrssupplychain.com/services/import-management/#service"
-    }
-  ]
+  "@id": "https://www.mrssupplychain.com/#road-and-rail-transport-service",
+  "url": "https://www.mrssupplychain.com/services/road-and-rail-transport",
+  "name": "Road and Rail Transport Services",
+  "description": "MRS Supply Chain offers integrated road and rail transport solutions that combine flexibility of road freight with the cost-efficiency and sustainability of rail freight for long-haul and multimodal logistics.",
+  "serviceType": "Road & Rail Transport",
+  "providerMobility": "MRS Supply Chain",
+  "areaServed": "India",
+  "image": "https://www.mrssupplychain.com/assets/Road_RailTransport-NAKvfX1m.jpg"
 }</script><script type="application/ld+json" class="schemantra.com">{
   "@context": "https://schema.org",
   "@type": "Service",
-  "@id": "https://www.mrssupplychain.com/services/customs-brokerage-and-regulatory-compliance/#service",
-  "name": "Customs Brokerage and Regulatory Compliance",
-  "description": "Discover MRS Supply Chain, India's best company for supply chain solutions, logistics services, warehousing, customs brokerage, last-mile delivery, and road and rail transport. Optimise your supply chain with us.",
-  "url": "https://www.mrssupplychain.com/services/customs-brokerage-and-regulatory-compliance"
+  "@id": "https://www.mrssupplychain.com/#customs-brokerage-regulatory-compliance-service",
+  "url": "https://www.mrssupplychain.com/services/customs-brokerage-and-regulatory-compliance",
+  "name": "Customs Brokerage & Regulatory Compliance Services",
+  "description": "MRS provides road & rail transport, freight, cargo, logistics, distribution, warehousing, and supply chain services across Gujarat efficiently.",
+  "serviceType": "Customs Brokerage & Regulatory Compliance",
+  "providerMobility": "provider",
+  "areaServed": "India",
+  "image": "https://www.mrssupplychain.com/assets/CustomsBrokerage-Qgm4F1Lw.jpg"
 }</script><script type="application/ld+json" class="schemantra.com">{
   "@context": "https://schema.org",
   "@type": "Service",
-  "@id": "https://www.mrssupplychain.com/services/customs-brokerage-and-regulatory-compliance/#service",
-  "name": "Customs Brokerage and Regulatory Compliance",
-  "description": "MRS Supply Chain offers expert customs brokerage services, ensuring compliance with all regulatory requirements for smooth and efficient import and export operations.",
-  "url": "https://www.mrssupplychain.com/services/customs-brokerage-and-regulatory-compliance"
+  "@id": "https://www.mrssupplychain.com/#import-management-service",
+  "url": "https://www.mrssupplychain.com/services/import-management",
+  "name": "Import Management Services",
+  "description": "MRS offers import management, customs clearance, freight, warehousing, and logistics services across Gujarat for efficient supply chain operations.",
+  "serviceType": "Import Management",
+  "providerMobility": "MRS Supply Chain",
+  "areaServed": "India",
+  "image": "https://www.mrssupplychain.com/assets/import-management.jpg"
 }</script><script type="application/ld+json" class="schemantra.com">{
   "@context": "https://schema.org",
   "@type": "Service",
-  "@id": "https://www.mrssupplychain.com/services/import-management/#service",
-  "name": "Import Management",
-  "description": "Discover MRS Supply Chain, India's best company for supply chain solutions, logistics services, warehousing, customs brokerage, last-mile delivery, and road and rail transport. Optimise your supply chain with us.",
-  "url": "https://www.mrssupplychain.com/services/import-management"
-}</script><script type="application/ld+json" class="schemantra.com">{
-  "@context": "https://schema.org",
-  "@type": "ListItem",
-  "@id": "https://www.mrssupplychain.com/services/innovative-logistics-and-industrial-solutions/#service"
-}</script><script type="application/ld+json" class="schemantra.com">{
-  "@context": "https://schema.org",
-  "@type": "ListItem",
-  "@id": "https://www.mrssupplychain.com/services/innovative-logistics-and-industrial-solutions/#service",
-  "item": {
-    "@id": "https://www.mrssupplychain.com/services/tech-driven-last-mile-delivery-services/#service"
-  }
-}</script><script type="application/ld+json" class="schemantra.com">{
-  "@context": "https://schema.org",
-  "@type": "Service",
-  "@id": "https://www.mrssupplychain.com/services/tech-driven-last-mile-delivery-services/#service",
+  "@id": "https://www.mrssupplychain.com/#tech-driven-last-mile-delivery-service",
+  "url": "https://www.mrssupplychain.com/services/tech-driven-last-mile-delivery-services",
   "name": "Tech-Driven Last-Mile Delivery Services",
-  "description": "Discover MRS Supply Chain, India's best company for supply chain solutions, logistics services, warehousing, customs brokerage, last-mile delivery, and road and rail transport. Optimise your supply chain with us.",
-  "url": "https://www.mrssupplychain.com/services/tech-driven-last-mile-delivery-services"
+  "description": "MRS provides tech-driven last mile delivery, route optimization, real-time tracking, logistics, and supply chain services across Mundra for efficient fulfillment.",
+  "serviceType": "Last-Mile Delivery",
+  "providerMobility": "MRS Supply Chain",
+  "areaServed": "India",
+  "image": "https://www.mrssupplychain.com/assets/Tech-DrivenLast-bLbkh36p.jpg"
 }</script><script type="application/ld+json" class="schemantra.com">{
   "@context": "https://schema.org",
   "@type": "OfferCatalog",
-  "@id": "https://www.mrssupplychain.com/#sectors",
+  "@id": "https://www.mrssupplychain.com/#sector",
   "itemListElement": [
     {
-      "@id": "https://www.mrssupplychain.com/sector/manufacturing-automotive-technology-and-consumer-goods/#sector"
+      "@id": "https://www.mrssupplychain.com/#sector-industrial"
     },
     {
-      "@id": "https://www.mrssupplychain.com/sector/industrial-sector/#sector"
+      "@id": "https://www.mrssupplychain.com/#sector-renewable-energy-infra"
     },
     {
-      "@id": "https://www.mrssupplychain.com/sector/renewable-energy-and-infrastructure-projects/#sector"
+      "@id": "https://www.mrssupplychain.com/#sector-arts-exhibitions-luxury-goods"
     },
     {
-      "@id": "https://www.mrssupplychain.com/sector/arts-exhibitions-and-luxury-Goods/#sector"
+      "@id": "https://www.mrssupplychain.com/#sector-chemicals-construction-energy-agriculture"
     },
     {
-      "@id": "https://www.mrssupplychain.com/sector/chemicals-construction-energy-and-agriculture/#sector"
-    },
-    {
-      "@id": "https://www.mrssupplychain.com/sector/e-commerce-and-retail/#sector"
+      "@id": "https://www.mrssupplychain.com/#sector-ecommerce-retail"
     }
   ]
 }</script><script type="application/ld+json" class="schemantra.com">{
   "@context": "https://schema.org",
   "@type": "ListItem",
-  "@id": "https://www.mrssupplychain.com/sector/manufacturing-automotive-technology-and-consumer-goods/#sector",
-  "name": "Manufacturing, Automotive, Technology & Consumer Goods Sector",
-  "description": "Discover MRS Supply Chain, India's best company for supply chain solutions, logistics services, warehousing, customs brokerage, last-mile delivery, and road and rail transport. Optimise your supply chain with us.",
-  "url": "https://www.mrssupplychain.com/sector/manufacturing-automotive-technology-and-consumer-goods"
-}</script><script type="application/ld+json" class="schemantra.com">{
-  "@context": "https://schema.org",
-  "@type": "ListItem",
-  "@id": "https://www.mrssupplychain.com/sector/industrial-sector/#sector",
+  "@id": "https://www.mrssupplychain.com/#sector-industrial",
+  "url": "https://www.mrssupplychain.com/sector/industrial-sector",
   "name": "Industrial Sector",
-  "description": "Discover MRS Supply Chain, India's best company for supply chain solutions, logistics services, warehousing, customs brokerage, last-mile delivery, and road and rail transport. Optimise your supply chain with us.",
-  "url": "https://www.mrssupplychain.com/sector/industrial-sector"
+  "description": "MRS provides industrial logistics, warehousing, supply chain, freight, distribution, inventory management, and transport services across Gujarat",
+  "image": "https://www.mrssupplychain.com/assets/IndustrialSector-n2SPl2My.jpg"
 }</script><script type="application/ld+json" class="schemantra.com">{
   "@context": "https://schema.org",
   "@type": "ListItem",
-  "@id": "https://www.mrssupplychain.com/sector/renewable-energy-and-infrastructure-projects/#sector",
-  "name": "Renewable Energy and Infrastructure Projects",
-  "description": "Discover MRS Supply Chain, India's best company for supply chain solutions, logistics services, warehousing, customs brokerage, last-mile delivery, and road and rail transport. Optimise your supply chain with us.",
-  "url": "https://www.mrssupplychain.com/sector/renewable-energy-and-infrastructure-projects"
+  "@id": "https://www.mrssupplychain.com/#sector-renewable-energy-infra",
+  "url": "https://www.mrssupplychain.com/sector/renewable-energy-and-infrastructure-projects",
+  "name": "Renewable Energy & Infrastructure Projects",
+  "description": "MRS provides renewable energy, infrastructure, and project logistics, including warehousing, transport, and supply chain solutions across Mundra.",
+  "image": "https://www.mrssupplychain.com/assets/RenewablEenergy-3Id6HinR.jpg"
 }</script><script type="application/ld+json" class="schemantra.com">{
   "@context": "https://schema.org",
   "@type": "ListItem",
-  "@id": "https://www.mrssupplychain.com/sector/arts-exhibitions-and-luxury-Goods/#sector",
-  "name": "Arts, Exhibitions and Luxury Goods",
-  "description": "Discover MRS Supply Chain, India's best company for supply chain solutions, logistics services, warehousing, customs brokerage, last-mile delivery, and road and rail transport. Optimise your supply chain with us.",
-  "url": "https://www.mrssupplychain.com/sector/arts-exhibitions-and-luxury-Goods"
+  "@id": "https://www.mrssupplychain.com/#sector-arts-exhibitions-luxury-goods",
+  "url": "https://www.mrssupplychain.com/sector/arts-exhibitions-and-luxury-Goods",
+  "name": "Arts, Exhibitions & Luxury Goods",
+  "description": "MRS provides fine art logistics, exhibition transport, luxury goods warehousing, secure storage, packing, shipping, and distribution services across Gujarat."
 }</script><script type="application/ld+json" class="schemantra.com">{
   "@context": "https://schema.org",
   "@type": "ListItem",
-  "@id": "https://www.mrssupplychain.com/sector/chemicals-construction-energy-and-agriculture/#sector",
+  "@id": "https://www.mrssupplychain.com/#sector-chemicals-construction-energy-agriculture",
+  "url": "https://www.mrssupplychain.com/sector/chemicals-construction-energy-and-agriculture",
   "name": "Chemicals, Construction, Energy & Agriculture",
-  "description": "Discover MRS Supply Chain, India's best company for supply chain solutions, logistics services, warehousing, customs brokerage, last-mile delivery, and road and rail transport. Optimise your supply chain with us.",
-  "url": "https://www.mrssupplychain.com/sector/chemicals-construction-energy-and-agriculture"
+  "description": "MRS delivers chemical, construction, energy & agriculture logistics, warehousing, transport, and supply chain solutions across Gujarat with efficiency.",
+  "image": "https://www.mrssupplychain.com/assets/chemicals-ifHoFVIv.jpg"
 }</script><script type="application/ld+json" class="schemantra.com">{
   "@context": "https://schema.org",
   "@type": "ListItem",
-  "@id": "https://www.mrssupplychain.com/sector/e-commerce-and-retail/#sector",
+  "@id": "https://www.mrssupplychain.com/#sector-ecommerce-retail",
+  "url": "https://www.mrssupplychain.com/sector/e-commerce-and-retail",
   "name": "E-Commerce & Retail",
-  "description": "Discover MRS Supply Chain, India's best company for supply chain solutions, logistics services, warehousing, customs brokerage, last-mile delivery, and road and rail transport. Optimise your supply chain with us.",
-  "url": "https://www.mrssupplychain.com/sector/e-commerce-and-retail"
+  "description": "MRS provides e-commerce fulfillment, retail supply chain, logistics, warehousing, distribution, and last mile delivery services across Mundra",
+  "image": "https://www.mrssupplychain.com/assets/ecommerce-and-retail.jpg"
+}</script><script type="application/ld+json" class="schemantra.com">{
+  "@context": "https://schema.org",
+  "@type": "OfferCatalog",
+  "@id": "https://www.mrssupplychain.com/careers/#careerspage",
+  "url": "https://www.mrssupplychain.com/careers",
+  "name": "Careers at MRS Supply Chain",
+  "description": "Explore careers in logistics, supply chain, warehousing, and transport. Find jobs in Gujarat's leading logistics & supply chain industry today."
+}</script><script type="application/ld+json" class="schemantra.com">{
+  "@context": "https://schema.org",
+  "@type": "ContactPoint",
+  "@id": "https://www.mrssupplychain.com/contact-us/#contactpage",
+  "url": "https://www.mrssupplychain.com/contact-us",
+  "name": "Contact MRS Supply Chain",
+  "description": "Contact MRS for logistics, supply chain, warehousing, transport services across Gujarat. Get in touch with experts for efficient solutions.",
+  "availableLanguage": "en"
 }</script>
 `;

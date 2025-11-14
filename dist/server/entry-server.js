@@ -5082,12 +5082,12 @@ function Homepage() {
   });
   return /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsxs("div", { className: "pg-body viewport", children: [
     /* @__PURE__ */ jsxs(Helmet, { children: [
-      /* @__PURE__ */ jsx("title", { children: "Top Supply Chain Solutions | Logistics, Warehousing, and Transport Services in India" }),
+      /* @__PURE__ */ jsx("title", { children: "MRS Supply Chain & Warehousing Solutions in Mundra" }),
       /* @__PURE__ */ jsx(
         "meta",
         {
           name: "description",
-          content: "Discover MRS Supply Chain, India's best company for supply chain solutions, logistics services, warehousing, customs brokerage, last-mile delivery, and road and rail transport. Optimize your supply chain with us."
+          content: "MRS Supply Chain delivers reliable 3PL, warehousing, and logistics solutions in Mundra, ensuring seamless end-to-end supply chain management for global operations."
         }
       ),
       /* @__PURE__ */ jsx(
@@ -5179,20 +5179,72 @@ function aboutMissin() {
     /* @__PURE__ */ jsxs("div", { className: "main-container width-1150 black flex", children: [
       /* @__PURE__ */ jsx("div", { className: "width-30" }),
       /* @__PURE__ */ jsxs("div", { className: "width-70", children: [
-        /* @__PURE__ */ jsxs("div", { className: "flex VMV-bx vision", "data-aos": "fade-in", "data-aos-duration": "500", "data-aos-delay": "400", "data-aos-once": "true", children: [
-          /* @__PURE__ */ jsx("h2", { className: "VMV-ttl txt-shadw", children: "Vision" }),
-          /* @__PURE__ */ jsx("p", { className: "vision-para current", children: "To be amongst one of the top Supply Chain & Industrial Infrastructure Company worldwide." })
-        ] }),
-        /* @__PURE__ */ jsx("img", { src: Line$4, alt: "Line", className: "line-img", "data-aos": "fade-in", "data-aos-duration": "500", "data-aos-delay": "500", "data-aos-once": "true" }),
-        /* @__PURE__ */ jsxs("div", { className: "flex VMV-bx mission", "data-aos": "fade-in", "data-aos-duration": "500", "data-aos-delay": "600", "data-aos-once": "true", children: [
-          /* @__PURE__ */ jsx("h2", { className: "VMV-ttl", children: "Mission" }),
-          /* @__PURE__ */ jsx("p", { className: "mission-para", children: "To build a robust network of Supply Chain & Industrial Infrastructure by adopting the technology and global standards." })
-        ] }),
-        /* @__PURE__ */ jsx("img", { src: Line$4, alt: "Line", className: "line-img", "data-aos": "fade-in", "data-aos-duration": "500", "data-aos-delay": "700", "data-aos-once": "true" }),
-        /* @__PURE__ */ jsxs("div", { className: "flex VMV-bx value", "data-aos": "fade-in", "data-aos-duration": "500", "data-aos-delay": "800", "data-aos-once": "true", children: [
-          /* @__PURE__ */ jsx("h2", { className: "VMV-ttl", children: "Values" }),
-          /* @__PURE__ */ jsx("p", { className: "value-para", children: "At MRS, we believe in delivering our commitments to our clients and stakeholders by providing world-class logistics and distribution services and incorporating global supply chain standards with a local approach to executing tasks." })
-        ] })
+        /* @__PURE__ */ jsxs(
+          "div",
+          {
+            className: "flex VMV-bx vision",
+            "data-aos": "fade-in",
+            "data-aos-duration": "500",
+            "data-aos-delay": "400",
+            "data-aos-once": "true",
+            children: [
+              /* @__PURE__ */ jsx("h2", { className: "VMV-ttl txt-shadw", children: "Vision" }),
+              /* @__PURE__ */ jsx("p", { className: "vision-para current", children: "To be amongst one of the top Supply Chain & Industrial Infrastructure Company worldwide." })
+            ]
+          }
+        ),
+        /* @__PURE__ */ jsx(
+          "img",
+          {
+            src: Line$4,
+            alt: "Line",
+            className: "line-img",
+            "data-aos": "fade-in",
+            "data-aos-duration": "500",
+            "data-aos-delay": "500",
+            "data-aos-once": "true"
+          }
+        ),
+        /* @__PURE__ */ jsxs(
+          "div",
+          {
+            className: "flex VMV-bx mission",
+            "data-aos": "fade-in",
+            "data-aos-duration": "500",
+            "data-aos-delay": "600",
+            "data-aos-once": "true",
+            children: [
+              /* @__PURE__ */ jsx("h2", { className: "VMV-ttl", children: "Mission" }),
+              /* @__PURE__ */ jsx("p", { className: "mission-para", children: "To build a robust network of Supply Chain & Industrial Infrastructure by adopting the technology and global standards." })
+            ]
+          }
+        ),
+        /* @__PURE__ */ jsx(
+          "img",
+          {
+            src: Line$4,
+            alt: "Line",
+            className: "line-img",
+            "data-aos": "fade-in",
+            "data-aos-duration": "500",
+            "data-aos-delay": "700",
+            "data-aos-once": "true"
+          }
+        ),
+        /* @__PURE__ */ jsxs(
+          "div",
+          {
+            className: "flex VMV-bx value",
+            "data-aos": "fade-in",
+            "data-aos-duration": "500",
+            "data-aos-delay": "800",
+            "data-aos-once": "true",
+            children: [
+              /* @__PURE__ */ jsx("h2", { className: "VMV-ttl", children: "Values" }),
+              /* @__PURE__ */ jsx("p", { className: "value-para", children: "At MRS, we believe in delivering our commitments to our clients and stakeholders by providing world-class logistics and distribution services and incorporating global supply chain standards with a local approach to executing tasks." })
+            ]
+          }
+        )
       ] })
     ] })
   ] }) });
@@ -5326,12 +5378,12 @@ function Aboutpage() {
   });
   return /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsxs("div", { className: "pg-body viewport", children: [
     /* @__PURE__ */ jsxs(Helmet, { children: [
-      /* @__PURE__ */ jsx("title", { children: "About MRS Supply Chain | Leading Logistics Experts in India" }),
+      /* @__PURE__ */ jsx("title", { children: "Leading Supply Chain, Logistics, 3PL & Warehousing Services in Gujarat" }),
       /* @__PURE__ */ jsx(
         "meta",
         {
           name: "description",
-          content: "Learn more about MRS Supply Chain, a top supply chain company in India. Discover our expertise in logistics, warehousing, and transport solutions. Partner with the best in the industry."
+          content: "MRS delivers expert supply chain, logistics, 3PL, warehousing, freight, rail transport, and fulfillment solutions across Gujarat."
         }
       ),
       /* @__PURE__ */ jsx(
@@ -5469,12 +5521,12 @@ function Contactpage$1() {
   });
   return /* @__PURE__ */ jsxs(Fragment, { children: [
     /* @__PURE__ */ jsxs(Helmet, { children: [
-      /* @__PURE__ */ jsx("title", { children: "Contact Us - MRS" }),
+      /* @__PURE__ */ jsx("title", { children: "Contact Logistics & Supply Chain Experts | Warehousing & Transport Gujarat" }),
       /* @__PURE__ */ jsx(
         "meta",
         {
           name: "description",
-          content: "We're Here to Help: Connect with Our Expert Team Today"
+          content: "Contact MRS for logistics, supply chain, warehousing, transport services across Gujarat. Get in touch with experts for efficient solutions."
         }
       )
     ] }),
@@ -5834,12 +5886,12 @@ function multiuserWarehousing$1() {
   });
   return /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsxs("div", { children: [
     /* @__PURE__ */ jsxs(Helmet, { children: [
-      /* @__PURE__ */ jsx("title", { children: "Multiuser Warehousing Solutions in India | FMCG, Pharma Storage" }),
+      /* @__PURE__ */ jsx("title", { children: "Multi-User Warehousing & Warehouse Solutions Services in Mundra" }),
       /* @__PURE__ */ jsx(
         "meta",
         {
           name: "description",
-          content: "Explore MRS Supply Chain's compliant, Grade A warehousing for FMCG, pharmaceuticals, and medical devices. Secure storage tailored to your needs."
+          content: "MRS offers multi-user warehousing, warehouse solutions, storage, and inventory management services across Mundra for seamless warehouse operations."
         }
       ),
       /* @__PURE__ */ jsx(
@@ -6146,12 +6198,12 @@ function RoadRailTransport() {
   });
   return /* @__PURE__ */ jsxs(Fragment, { children: [
     /* @__PURE__ */ jsxs(Helmet, { children: [
-      /* @__PURE__ */ jsx("title", { children: "Road and Rail Transport Services in India" }),
+      /* @__PURE__ */ jsx("title", { children: "Road & Rail Transport, Freight & Logistics Services in Gujarat" }),
       /* @__PURE__ */ jsx(
         "meta",
         {
           name: "description",
-          content: "Explore MRS Supply Chain's reliable road freight and cargo rail solutions for efficient transportation."
+          content: "MRS provides road & rail transport, freight, cargo, logistics, distribution, warehousing, and supply chain services across Gujarat efficiently."
         }
       ),
       /* @__PURE__ */ jsx(
@@ -6407,12 +6459,12 @@ function PioneeringWarehousing() {
   });
   return /* @__PURE__ */ jsxs(Fragment, { children: [
     /* @__PURE__ */ jsxs(Helmet, { children: [
-      /* @__PURE__ */ jsx("title", { children: "Duty-Free Warehousing Solutions in Gujarat | FTWZ & SEZ Storage in India" }),
+      /* @__PURE__ */ jsx("title", { children: "Free Trade Zone in Gujarat | Warehouse Solutions in Mundra" }),
       /* @__PURE__ */ jsx(
         "meta",
         {
           name: "description",
-          content: "Discover MRS Supply Chain's duty-free warehousing in Gujarat. FTWZ and SEZ solutions for customs-free storage."
+          content: "MRS offers duty-free warehousing, FTWZ, warehouse solutions, storage, inventory management, distribution, and warehouse operations across Gujarat."
         }
       ),
       /* @__PURE__ */ jsx(
@@ -7042,12 +7094,12 @@ function CustomsBrokerageCompliance() {
   });
   return /* @__PURE__ */ jsxs(Fragment, { children: [
     /* @__PURE__ */ jsxs(Helmet, { children: [
-      /* @__PURE__ */ jsx("title", { children: "Customs Brokerage Services & Regulatory Compliance in Gujarat" }),
+      /* @__PURE__ */ jsx("title", { children: "Customs Brokerage, Import Export & Compliance Services in Gujarat" }),
       /* @__PURE__ */ jsx(
         "meta",
         {
           name: "description",
-          content: "Partner with the best CHA in Gujarat for seamless customs clearance & import-export compliance."
+          content: "MRS offers customs brokerage, import export, regulatory compliance, and trade facilitation services across Gujarat for efficient cross-border operations."
         }
       ),
       /* @__PURE__ */ jsx(
@@ -7279,12 +7331,12 @@ function TechDrivenService() {
   });
   return /* @__PURE__ */ jsxs(Fragment, { children: [
     /* @__PURE__ */ jsxs(Helmet, { children: [
-      /* @__PURE__ */ jsx("title", { children: "Tech-Driven Last-Mile Delivery Services in India" }),
+      /* @__PURE__ */ jsx("title", { children: "Tech-Driven Last Mile Delivery, Logistics & Supply Chain Solutions Mundra" }),
       /* @__PURE__ */ jsx(
         "meta",
         {
           name: "description",
-          content: "Experience fast e-commerce delivery services powered by cutting-edge logistics technology."
+          content: "MRS provides tech-driven last mile delivery, route optimization, real-time tracking, logistics, and supply chain services across Mundra for efficient fulfillment."
         }
       ),
       /* @__PURE__ */ jsx(
@@ -7490,28 +7542,64 @@ function ImportManageCustomsBonded() {
       return false;
     });
   });
-  return /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsx("div", { className: "custom-bonded-sec section-padd-LR overflow", id: "BenefitsChoosingMRS", children: /* @__PURE__ */ jsx("div", { className: "main-container width-1200 black built-to-suit-container1 custom-bonded-cntr1", children: /* @__PURE__ */ jsxs("div", { className: "row built-row", children: [
-    /* @__PURE__ */ jsx("div", { className: "clm-2 built-img-clm", children: /* @__PURE__ */ jsx("img", { src: CustomsBonded, alt: "CustomsBonded", "data-aos": "fade-in", "data-aos-duration": "500", "data-aos-once": "true", "data-aos-delay": "500" }) }),
-    /* @__PURE__ */ jsxs("div", { className: "clm-2 built-cntnt-clm white", children: [
-      /* @__PURE__ */ jsx("h2", { className: "ttl-45px js-split-text", children: "Benefits of Choosing MRS" }),
-      /* @__PURE__ */ jsx("p", { "data-aos": "fade-in", "data-aos-duration": "500", "data-aos-once": "true", "data-aos-delay": "500", children: "Choosing MRS means partnering with an import management expert who prioritises your business’s efficiency and compliance. Our clients enjoy" }),
-      /* @__PURE__ */ jsxs("div", { className: "bond-moretext", children: [
-        /* @__PURE__ */ jsx("p", { children: "Cost Savings: Reduced operational costs through optimised import processes" }),
-        "    ",
-        /* @__PURE__ */ jsx("br", {}),
-        /* @__PURE__ */ jsx("p", { children: "Time Efficiency: Faster turnaround times thanks to our streamlined operations." }),
-        "  ",
-        /* @__PURE__ */ jsx("br", {}),
-        /* @__PURE__ */ jsx("p", { children: "Regulatory Compliance: Assurance of adherence to all import regulations, avoiding costly penalties." }),
-        " ",
-        /* @__PURE__ */ jsx("br", {}),
-        /* @__PURE__ */ jsx("p", { children: "Single Point of Contact: Simplified communication with a dedicated manager for all your import needs." }),
-        "  ",
-        /* @__PURE__ */ jsx("br", {})
-      ] }),
-      /* @__PURE__ */ jsx("a", { className: "cstm-bondReadMore white", "data-aos": "fade-in", "data-aos-duration": "500", "data-aos-once": "true", "data-aos-delay": "600", children: "Read more" })
-    ] })
-  ] }) }) }) });
+  return /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsx(
+    "div",
+    {
+      className: "custom-bonded-sec section-padd-LR overflow",
+      id: "BenefitsChoosingMRS",
+      children: /* @__PURE__ */ jsx("div", { className: "main-container width-1200 black built-to-suit-container1 custom-bonded-cntr1", children: /* @__PURE__ */ jsxs("div", { className: "row built-row", children: [
+        /* @__PURE__ */ jsx("div", { className: "clm-2 built-img-clm", children: /* @__PURE__ */ jsx(
+          "img",
+          {
+            src: CustomsBonded,
+            alt: "CustomsBonded",
+            "data-aos": "fade-in",
+            "data-aos-duration": "500",
+            "data-aos-once": "true",
+            "data-aos-delay": "500"
+          }
+        ) }),
+        /* @__PURE__ */ jsxs("div", { className: "clm-2 built-cntnt-clm white", children: [
+          /* @__PURE__ */ jsx("h2", { className: "ttl-45px js-split-text", children: "Benefits of Choosing MRS" }),
+          /* @__PURE__ */ jsx(
+            "p",
+            {
+              "data-aos": "fade-in",
+              "data-aos-duration": "500",
+              "data-aos-once": "true",
+              "data-aos-delay": "500",
+              children: "Choosing MRS means partnering with an import management expert who prioritises your business’s efficiency and compliance. Our clients enjoy"
+            }
+          ),
+          /* @__PURE__ */ jsxs("div", { className: "bond-moretext", children: [
+            /* @__PURE__ */ jsx("p", { children: "Cost Savings: Reduced operational costs through optimised import processes" }),
+            " ",
+            /* @__PURE__ */ jsx("br", {}),
+            /* @__PURE__ */ jsx("p", { children: "Time Efficiency: Faster turnaround times thanks to our streamlined operations." }),
+            " ",
+            /* @__PURE__ */ jsx("br", {}),
+            /* @__PURE__ */ jsx("p", { children: "Regulatory Compliance: Assurance of adherence to all import regulations, avoiding costly penalties." }),
+            " ",
+            /* @__PURE__ */ jsx("br", {}),
+            /* @__PURE__ */ jsx("p", { children: "Single Point of Contact: Simplified communication with a dedicated manager for all your import needs." }),
+            " ",
+            /* @__PURE__ */ jsx("br", {})
+          ] }),
+          /* @__PURE__ */ jsx(
+            "a",
+            {
+              className: "cstm-bondReadMore white",
+              "data-aos": "fade-in",
+              "data-aos-duration": "500",
+              "data-aos-once": "true",
+              "data-aos-delay": "600",
+              children: "Read more"
+            }
+          )
+        ] })
+      ] }) })
+    }
+  ) });
 }
 function ImportManageinPlant() {
   return /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsx("div", { className: "inPlant-sec section-padd-LR overflow", id: "CaseStudies", children: /* @__PURE__ */ jsxs("div", { className: "main-container width-1200 black built-to-suit-container1 inPlant-container", children: [
@@ -7606,12 +7694,31 @@ const ImportanMagement = () => {
       });
     }
     document.querySelectorAll(".js-split-text").forEach((element) => {
-      let observer = new IntersectionObserver(handleAnimation, { threshold: 0.5 });
+      let observer = new IntersectionObserver(handleAnimation, {
+        threshold: 0.5
+      });
       observer.observe(element);
     });
     AOS.init();
   });
   return /* @__PURE__ */ jsxs(Fragment, { children: [
+    /* @__PURE__ */ jsxs(Helmet, { children: [
+      /* @__PURE__ */ jsx("title", { children: "Import Management & Customs Clearance Services in Gujarat" }),
+      /* @__PURE__ */ jsx(
+        "meta",
+        {
+          name: "description",
+          content: "MRS offers import management, customs clearance, freight, warehousing, and logistics services across Gujarat for efficient supply chain operations."
+        }
+      ),
+      /* @__PURE__ */ jsx(
+        "meta",
+        {
+          name: "keywords",
+          content: "Customs Brokerage Services, Regulatory Compliance, Best CHA in Gujarat, Customs Clearance Solutions, Import and Export Compliance"
+        }
+      )
+    ] }),
     /* @__PURE__ */ jsx(Header2, {}),
     /* @__PURE__ */ jsx(ImportManageServicesSpotlight, {}),
     /* @__PURE__ */ jsx(ImportManagemultiUserAbout, {}),
@@ -8010,12 +8117,12 @@ function Contactpage() {
   });
   return /* @__PURE__ */ jsxs(Fragment, { children: [
     /* @__PURE__ */ jsxs(Helmet, { children: [
-      /* @__PURE__ */ jsx("title", { children: "Careers - MRS" }),
+      /* @__PURE__ */ jsx("title", { children: "Logistics & Supply Chain Careers | Jobs in Warehousing & Transport Mundra" }),
       /* @__PURE__ */ jsx(
         "meta",
         {
           name: "description",
-          content: "Explore Opportunities: Embark on a Rewarding Career with MRS Group"
+          content: "Explore careers in logistics, supply chain, warehousing, and transport. Find jobs in Gujarat's leading logistics & supply chain industry today."
         }
       )
     ] }),
@@ -8414,12 +8521,12 @@ function ArtsPage() {
   });
   return /* @__PURE__ */ jsxs(Fragment, { children: [
     /* @__PURE__ */ jsxs(Helmet, { children: [
-      /* @__PURE__ */ jsx("title", { children: "Secure Logistics for Luxury Goods & Art Exhibitions | MRSSupplyChain" }),
+      /* @__PURE__ */ jsx("title", { children: "Fine Art & Luxury Goods Logistics and Warehousing in Gujarat" }),
       /* @__PURE__ */ jsx(
         "meta",
         {
           name: "description",
-          content: "Explore secure logistics solutions for luxury goods and art exhibitions with MRSSupplyChain."
+          content: "MRS provides fine art logistics, exhibition transport, luxury goods warehousing, secure storage, packing, shipping, and distribution services across Gujarat."
         }
       ),
       /* @__PURE__ */ jsx(
@@ -8615,12 +8722,12 @@ function RenewableEnergyPage() {
   });
   return /* @__PURE__ */ jsxs(Fragment, { children: [
     /* @__PURE__ */ jsxs(Helmet, { children: [
-      /* @__PURE__ */ jsx("title", { children: "Comprehensive Logistics for Renewable Energy & Infrastructure Projects | MRSSupplyChain" }),
+      /* @__PURE__ */ jsx("title", { children: "Mundra Renewable Energy & Project Logistics Solutions" }),
       /* @__PURE__ */ jsx(
         "meta",
         {
           name: "description",
-          content: "Trust MRSSupplyChain for efficient logistics solutions tailored for renewable energy and infrastructure projects."
+          content: "MRS provides renewable energy, infrastructure, and project logistics, including warehousing, transport, and supply chain solutions across Mundra."
         }
       ),
       /* @__PURE__ */ jsx(
@@ -8811,12 +8918,12 @@ function IndustrialSectorPage() {
   });
   return /* @__PURE__ */ jsxs(Fragment, { children: [
     /* @__PURE__ */ jsxs(Helmet, { children: [
-      /* @__PURE__ */ jsx("title", { children: "Streamlined Industrial Logistics & Supply Chain Solutions | MRSSupplyChain" }),
+      /* @__PURE__ */ jsx("title", { children: "Gujarat Industrial Logistics & Warehousing Solutions" }),
       /* @__PURE__ */ jsx(
         "meta",
         {
           name: "description",
-          content: "Partner with MRSSupplyChain for comprehensive logistics solutions tailored for the industrial sector."
+          content: "MRS provides industrial logistics, warehousing, supply chain, freight, distribution, inventory management, and transport services across Gujarat"
         }
       ),
       /* @__PURE__ */ jsx(
@@ -9008,12 +9115,12 @@ function chemicalsPage() {
   });
   return /* @__PURE__ */ jsxs(Fragment, { children: [
     /* @__PURE__ */ jsxs(Helmet, { children: [
-      /* @__PURE__ */ jsx("title", { children: "Integrated Logistics Solutions for Chemicals, Construction, Energy, & Agriculture | MRSSupplyChain" }),
+      /* @__PURE__ */ jsx("title", { children: "Supply Chain, Logistics & Warehousing Services in Gujarat" }),
       /* @__PURE__ */ jsx(
         "meta",
         {
           name: "description",
-          content: "Explore comprehensive logistics solutions for chemicals, construction, energy, and agriculture sectors with MRSSupplyChain."
+          content: "MRS delivers chemical, construction, energy & agriculture logistics, warehousing, transport, and supply chain solutions across Gujarat with efficiency."
         }
       ),
       /* @__PURE__ */ jsx(
@@ -9204,12 +9311,12 @@ function EcommercePage() {
   });
   return /* @__PURE__ */ jsxs(Fragment, { children: [
     /* @__PURE__ */ jsxs(Helmet, { children: [
-      /* @__PURE__ */ jsx("title", { children: "Optimized E-commerce Logistics & Retail Supply Chain Solutions | MRSSupplyChain" }),
+      /* @__PURE__ */ jsx("title", { children: "E-commerce Fulfillment & Retail Supply Chain Solutions in Mundra" }),
       /* @__PURE__ */ jsx(
         "meta",
         {
           name: "description",
-          content: "Discover efficient logistics solutions for e-commerce and retail sectors with MRSSupplyChain."
+          content: "MRS provides e-commerce fulfillment, retail supply chain, logistics, warehousing, distribution, and last mile delivery services across Mundra"
         }
       ),
       /* @__PURE__ */ jsx(
@@ -9402,12 +9509,12 @@ function ManufacturingPage() {
   });
   return /* @__PURE__ */ jsxs(Fragment, { children: [
     /* @__PURE__ */ jsxs(Helmet, { children: [
-      /* @__PURE__ */ jsx("title", { children: "Supply Chain Solutions for Manufacturing & Consumer Goods | MRSSupplyChain" }),
+      /* @__PURE__ */ jsx("title", { children: "Gujarat Manufacturing, Automotive & Consumer Goods Supply Chain & Logistics Sector" }),
       /* @__PURE__ */ jsx(
         "meta",
         {
           name: "description",
-          content: "Discover optimized logistics solutions for manufacturing, automotive, technology, and consumer goods industries with MRSSupplyChain."
+          content: "MRS provides supply chain, logistics, warehousing, freight, and distribution for manufacturing, automotive, technology & consumer goods in Gujarat."
         }
       ),
       /* @__PURE__ */ jsx(

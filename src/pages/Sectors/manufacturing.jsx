@@ -54,12 +54,12 @@ export default function ManufacturingPage() {
     <>
       <Helmet>
         <title>
-          Supply Chain Solutions for Manufacturing & Consumer Goods |
-          MRSSupplyChain
+          Gujarat Manufacturing, Automotive & Consumer Goods Supply Chain &
+          Logistics Sector
         </title>
         <meta
           name="description"
-          content="Discover optimized logistics solutions for manufacturing, automotive, technology, and consumer goods industries with MRSSupplyChain."
+          content="MRS provides supply chain, logistics, warehousing, freight, and distribution for manufacturing, automotive, technology & consumer goods in Gujarat."
         />
         <meta
           name="keywords"

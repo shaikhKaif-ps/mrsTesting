@@ -57,11 +57,11 @@ export default function CustomsBrokerageCompliance() {
     <>
       <Helmet>
         <title>
-          Customs Brokerage Services & Regulatory Compliance in Gujarat
+          Customs Brokerage, Import Export & Compliance Services in Gujarat
         </title>
         <meta
           name="description"
-          content="Partner with the best CHA in Gujarat for seamless customs clearance & import-export compliance."
+          content="MRS offers customs brokerage, import export, regulatory compliance, and trade facilitation services across Gujarat for efficient cross-border operations."
         />
         <meta
           name="keywords"

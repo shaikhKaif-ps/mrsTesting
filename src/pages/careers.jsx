@@ -50,10 +50,13 @@ export default function Contactpage() {
   return (
     <>
       <Helmet>
-        <title>Careers - MRS</title>
+        <title>
+          Logistics & Supply Chain Careers | Jobs in Warehousing & Transport
+          Mundra
+        </title>
         <meta
           name="description"
-          content="Explore Opportunities: Embark on a Rewarding Career with MRS Group"
+          content="Explore careers in logistics, supply chain, warehousing, and transport. Find jobs in Gujarat's leading logistics & supply chain industry today."
         />
       </Helmet>
 

@@ -52,13 +52,10 @@ export default function IndustrialSectorPage() {
   return (
     <>
       <Helmet>
-        <title>
-          Streamlined Industrial Logistics & Supply Chain Solutions |
-          MRSSupplyChain
-        </title>
+        <title>Gujarat Industrial Logistics & Warehousing Solutions</title>
         <meta
           name="description"
-          content="Partner with MRSSupplyChain for comprehensive logistics solutions tailored for the industrial sector."
+          content="MRS provides industrial logistics, warehousing, supply chain, freight, distribution, inventory management, and transport services across Gujarat"
         />
         <meta
           name="keywords"

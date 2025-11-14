@@ -52,13 +52,10 @@ export default function RenewableEnergyPage() {
   return (
     <>
       <Helmet>
-        <title>
-          Comprehensive Logistics for Renewable Energy & Infrastructure Projects
-          | MRSSupplyChain
-        </title>
+        <title>Mundra Renewable Energy & Project Logistics Solutions</title>
         <meta
           name="description"
-          content="Trust MRSSupplyChain for efficient logistics solutions tailored for renewable energy and infrastructure projects."
+          content="MRS provides renewable energy, infrastructure, and project logistics, including warehousing, transport, and supply chain solutions across Mundra."
         />
         <meta
           name="keywords"

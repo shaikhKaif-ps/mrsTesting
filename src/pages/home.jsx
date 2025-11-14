@@ -62,13 +62,10 @@ export default function Homepage() {
     <>
       <div className="pg-body viewport">
         <Helmet>
-          <title>
-            Top Supply Chain Solutions | Logistics, Warehousing, and Transport
-            Services in India
-          </title>
+          <title>MRS Supply Chain & Warehousing Solutions in Mundra</title>
           <meta
             name="description"
-            content="Discover MRS Supply Chain, India's best company for supply chain solutions, logistics services, warehousing, customs brokerage, last-mile delivery, and road and rail transport. Optimize your supply chain with us."
+            content="MRS Supply Chain delivers reliable 3PL, warehousing, and logistics solutions in Mundra, ensuring seamless end-to-end supply chain management for global operations."
           />
           <meta
             name="keywords"

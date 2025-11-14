@@ -53,12 +53,11 @@ export default function EcommercePage() {
     <>
       <Helmet>
         <title>
-          Optimized E-commerce Logistics & Retail Supply Chain Solutions |
-          MRSSupplyChain
+          E-commerce Fulfillment & Retail Supply Chain Solutions in Mundra
         </title>
         <meta
           name="description"
-          content="Discover efficient logistics solutions for e-commerce and retail sectors with MRSSupplyChain."
+          content="MRS provides e-commerce fulfillment, retail supply chain, logistics, warehousing, distribution, and last mile delivery services across Mundra"
         />
         <meta
           name="keywords"

@@ -54,12 +54,11 @@ export default function PioneeringWarehousing() {
     <>
       <Helmet>
         <title>
-          Duty-Free Warehousing Solutions in Gujarat | FTWZ & SEZ Storage in
-          India
+          Free Trade Zone in Gujarat | Warehouse Solutions in Mundra
         </title>
         <meta
           name="description"
-          content="Discover MRS Supply Chain's duty-free warehousing in Gujarat. FTWZ and SEZ solutions for customs-free storage."
+          content="MRS offers duty-free warehousing, FTWZ, warehouse solutions, storage, inventory management, distribution, and warehouse operations across Gujarat."
         />
         <meta
           name="keywords"

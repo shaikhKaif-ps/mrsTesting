@@ -53,11 +53,11 @@ export default function ArtsPage() {
     <>
       <Helmet>
         <title>
-          Secure Logistics for Luxury Goods & Art Exhibitions | MRSSupplyChain
+          Fine Art & Luxury Goods Logistics and Warehousing in Gujarat
         </title>
         <meta
           name="description"
-          content="Explore secure logistics solutions for luxury goods and art exhibitions with MRSSupplyChain."
+          content="MRS provides fine art logistics, exhibition transport, luxury goods warehousing, secure storage, packing, shipping, and distribution services across Gujarat."
         />
         <meta
           name="keywords"

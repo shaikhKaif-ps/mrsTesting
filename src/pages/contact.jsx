@@ -49,10 +49,13 @@ export default function Contactpage() {
   return (
     <>
       <Helmet>
-        <title>Contact Us - MRS</title>
+        <title>
+          Contact Logistics & Supply Chain Experts | Warehousing & Transport
+          Gujarat
+        </title>
         <meta
           name="description"
-          content="We're Here to Help: Connect with Our Expert Team Today"
+          content="Contact MRS for logistics, supply chain, warehousing, transport services across Gujarat. Get in touch with experts for efficient solutions."
         />
       </Helmet>
 
