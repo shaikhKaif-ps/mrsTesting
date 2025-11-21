@@ -98,7 +98,7 @@ import { blogSchemas } from "./src/seo/blogSchemas/index.js";
 
 // Constants
 const isProduction = process.env.NODE_ENV === "production";
-const port = process.env.PORT || 3001;
+const port = process.env.PORT || 3002;
 const base = process.env.BASE || "/";
 
 // Cached production assets
