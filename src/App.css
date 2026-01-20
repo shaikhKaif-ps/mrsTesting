@@ -15,6 +15,11 @@ body {
   margin-bottom: 25px;
 }
 
+.blg-cntnt .blogPara_m0 {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
 .blg-cntnt .blodHead {
   color: #000;
   font-weight: 600;
