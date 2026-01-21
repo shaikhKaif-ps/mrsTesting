@@ -139,6 +139,9 @@ ul.blg-list {
 }
 
 @media screen and (max-width:767px) {
+    .main-container h1{
+        font-size: 30px;
+    }
     ul.blg-list {
         grid-template-columns: repeat(1, 1fr);
     }
