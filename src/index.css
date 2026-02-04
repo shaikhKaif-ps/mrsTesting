@@ -171,3 +171,34 @@ button:focus-visible {
     width: 25px;
     height: 25px;
   }
+
+    .compliance-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-family: Arial, sans-serif;
+  }
+
+  .compliance-table th {
+    background-color: #f4f6f8;
+    color: #333;
+    text-align: left;
+    padding: 12px;
+    border: 1px solid #ddd;
+    font-weight: 600;
+  }
+
+  .compliance-table td {
+    padding: 12px;
+    border: 1px solid #ddd;
+    color: #555;
+    vertical-align: top;
+  }
+
+  .compliance-table tr:nth-child(even) {
+    background-color: #fafafa;
+  }
+
+  .compliance-table tr:hover {
+    background-color: #f1f5f9;
+  }
