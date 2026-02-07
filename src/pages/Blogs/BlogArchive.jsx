@@ -105,7 +105,7 @@ const BlogArchive = () => {
                         {post.category} · {post.publishDate}
                       </p>
                     </div>
-                    <h2 className="post-ttl">{post.title}</h2>
+                    <h2 className="post-ttl clamp-1">{post.title}</h2>
                     {/* <p>{post.short_description}</p>    */}
                     <a
                       className="btn grey"
