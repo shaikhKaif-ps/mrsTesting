@@ -1,7 +1,7 @@
 const postsData = [
   {
     id: 24,
-    slug: "importing-medical-devices-into-india-ftwz-logistics-guide",
+    slug: "importing-medical-devices-into-india-logistics-guide",
     title: "Importing Medical Devices into India | FTWZ & Logistics Guide",
     short_description:
       "Learn how FTWZ simplifies importing medical devices into India with duty benefits, compliance support, and Grade A warehousing by MRS Supply Chain.",
