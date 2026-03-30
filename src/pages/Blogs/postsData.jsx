@@ -2,7 +2,7 @@ const postsData = [
   {
     id: 24,
     slug: "importing-medical-devices-into-india-logistics-guide",
-    title: "Importing Medical Devices into India | FTWZ & Logistics Guide",
+    title: "Importing Medical Devices into India | FTWZ and Logistics Guide",
     short_description:
       "Learn how FTWZ simplifies importing medical devices into India with duty benefits, compliance support, and Grade A warehousing by MRS Supply Chain.",
     content: `
@@ -217,15 +217,18 @@ const postsData = [
     category: "Blog",
     featureImage:
       "Blog_img/importing-medical-devices-into-india-ftwz-logistics-guide.webp",
-    metaTitle: "Importing Medical Devices into India | FTWZ & Logistics Guide",
+    metaTitle:
+      "Importing Medical Devices into India | FTWZ and Logistics Guide",
     metaDescription:
       "Learn how FTWZ simplifies importing medical devices into India with duty benefits, compliance support, and Grade A warehousing by MRS Supply Chain.",
-    imgAltTag: "Importing Medical Devices into India | FTWZ & Logistics Guide",
+    imgAltTag:
+      "Importing Medical Devices into India | FTWZ and Logistics Guide",
     ogImage: "path/to/og-image.jpg",
     schema: {
       "@context": "https://schema.org",
       "@type": "Article",
-      headline: "Importing Medical Devices into India | FTWZ & Logistics Guide",
+      headline:
+        "Importing Medical Devices into India | FTWZ and Logistics Guide",
       description:
         "Learn how FTWZ simplifies importing medical devices into India with duty benefits, compliance support, and Grade A warehousing by MRS Supply Chain.",
       image: "path/to/schema-image.jpg",
