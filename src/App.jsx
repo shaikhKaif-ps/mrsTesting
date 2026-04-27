@@ -464,6 +464,7 @@ import ManufacturingPage from "./pages/Sectors/manufacturing";
 import BlogArchive from "./pages/Blogs/BlogArchive";
 import PostDetails from "./pages/Blogs/postDetails";
 import postsData from "./pages/Blogs/postsData";
+import { generateBlogSchema } from "./seo/blogSchemas/index";
 
 import { useParams } from "react-router-dom";
 
@@ -582,7 +583,7 @@ const DynamicPostDetails = ({ postsData }) => {
       metaTitle={post.metaTitle}
       metaDescription={post.metaDescription}
       ogImage={post.ogImage}
-      schema={post.schema}
+      schema={generateBlogSchema(post)}
       publishDate={post.publishDate}
     />
   );
