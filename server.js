@@ -112,6 +112,12 @@ const ssrManifest = isProduction
 // Create http server
 const app = express();
 
+// Serve sitemap.xml before any middleware intercepts it
+app.get("/sitemap.xml", async (req, res) => {
+  const sitemap = await fs.readFile("./public/sitemap.xml", "utf-8");
+  res.status(200).set({ "Content-Type": "application/xml" }).end(sitemap);
+});
+
 // Add Vite or respective production middlewares
 let vite;
 if (!isProduction) {
