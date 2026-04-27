@@ -94,7 +94,6 @@ import fs from "node:fs/promises";
 import express from "express";
 
 import { globalSchema } from "./src/seo/globalSchema.js";
-import { blogSchemas } from "./src/seo/blogSchemas/index.js";
 
 // Constants
 const isProduction = process.env.NODE_ENV === "production";
@@ -159,14 +158,6 @@ app.use("*", async (req, res) => {
 
     // Base global schema
     let schemaMarkup = globalSchema;
-
-    // Add blog schema if on blog route
-    if (url.startsWith("/blog/")) {
-      const slug = url.split("/blog/")[1]?.replace(/\/$/, "");
-      if (slug && blogSchemas[slug]) {
-        schemaMarkup += blogSchemas[slug];
-      }
-    }
 
     // Inject Helmet + Schemas + HTML
     const finalHtml = template

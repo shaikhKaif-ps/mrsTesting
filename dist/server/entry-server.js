@@ -11564,6 +11564,34 @@ const PostDetails = ({
     /* @__PURE__ */ jsx(Footer, {})
   ] });
 };
+const BASE_URL = "https://www.mrssupplychain.com";
+const LOGO_URL = `${BASE_URL}/assets/MRS-Logo-8bef6X_s.svg`;
+const generateBlogSchema = (post) => ({
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  mainEntityOfPage: {
+    "@type": "WebPage",
+    "@id": `${BASE_URL}/blog/${post.slug}`
+  },
+  headline: post.title,
+  description: post.metaDescription,
+  image: `${BASE_URL}/${post.featureImage}`,
+  author: {
+    "@type": "Organization",
+    name: "MRS Supply Chain",
+    url: `${BASE_URL}/`
+  },
+  publisher: {
+    "@type": "Organization",
+    name: "MRS Supply Chain",
+    logo: {
+      "@type": "ImageObject",
+      url: LOGO_URL
+    }
+  },
+  datePublished: post.publishDate,
+  dateModified: post.publishDate
+});
 const App = () => {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const openPopup = (e) => {
@@ -11698,7 +11726,7 @@ const DynamicPostDetails = ({ postsData: postsData2 }) => {
       metaTitle: post.metaTitle,
       metaDescription: post.metaDescription,
       ogImage: post.ogImage,
-      schema: post.schema,
+      schema: generateBlogSchema(post),
       publishDate: post.publishDate
     }
   );
