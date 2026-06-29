@@ -2211,7 +2211,7 @@ const postsData = [
         name: "MRS Supply Chain"
       }
     },
-    publishDate: "2026-05-12"
+    publishDate: "2026-06-29"
   },
   {
     id: 26,
