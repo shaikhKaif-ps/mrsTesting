@@ -167,6 +167,7 @@ app.use("*", async (req, res) => {
         ${helmet?.title || ""}
         ${helmet?.meta || ""}
         ${helmet?.link || ""}
+        ${helmet?.script || ""}
         ${schemaMarkup}
       `
       )

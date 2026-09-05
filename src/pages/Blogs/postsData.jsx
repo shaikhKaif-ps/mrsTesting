@@ -1,5 +1,200 @@
 const postsData = [
   {
+    id: 30,
+    slug: "project-cargo-logistics-india",
+    title: "Project & ODC Cargo Logistics in India The Complete Guide",
+    short_description:
+      "How heavy-lift and ODC shipments move through India — port, compliance, and last-mile visibility, with Mundra Port and MRS Supply Chain as the example.",
+
+    content: `
+    <p class='blogPara_m0'>Project and Over-Dimensional Cargo (ODC) logistics in India is a specialist discipline where a single miscalculated axle load or missing permit can freeze a multi-crore project for weeks. This guide covers how oversized, heavy-lift, time-critical shipments actually move — from berth to installation site — using <a href="https://www.mrssupplychain.com/blog/why-mundra-port-is-a-strategic-gateway-for-importers-and-transport-companies"><span class="blodHead">Mudra Port</span> </a> and MRS Supply Chain as the working example.</p>
+<h4 '>What makes project and ODC cargo different?</h4>
+
+<p class='blogPara_m0'><span class="blodHead">Project cargo is the coordinated movement of multiple heavy, interdependent units tied to one industrial project; ODC is any shipment exceeding standard limits for length, width, height or weight.</span> Both need specialised handling, permits and route planning that ordinary freight networks can't provide.</p>
+
+<p class='blogPara_m0'>Two things make this cargo unforgiving. It defies standard formats — a network built for uniform boxes can't flex around a 40-metre unit that outweighs a locomotive. And it's time-critical: late project cargo doesn't just sit in a warehouse, it idles installation crews and pushes back commissioning. The cost shows up fast — berth bottlenecks, safety incidents, and cascading delays when inland roads or bridges can't take the axle weight.</p>
+
+<h4>Why is Mundra Port suited to heavy-lift shipments?</h4>
+
+<p class='blogPara_m0'><span class="blodHead">Mundra is engineered for project cargo — deep-water access, no vessel-length limit, 100-tonne cranes and staging land let oversized loads be received and moved without improvised workarounds.</span> Its inland rail and road capacity is deliberately built to exceed marine intake, so heavy cargo doesn't pile up on the quay.</p>
+
+<table class="compliance-table">
+<thead>
+  <tr>
+    <th>Capability</th>
+    <th>Specification</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <td>Draft</td>
+    <td>Up to 19 m — berths the largest carriers directly</td>
+  </tr>
+  <tr>
+    <td>Berths</td>
+    <td>26 multi-purpose; no Length Overall restriction</td>
+  </tr>
+  <tr>
+    <td>Mobile harbour cranes</td>
+    <td>100 MT safe working load (Gottwald / Liebherr)</td>
+  </tr>
+  <tr>
+    <td>Steel yard</td>
+    <td>1,20,000 m², 8 Goliath cranes, vacuum-lift</td>
+  </tr>
+  <tr>
+    <td>Rail-Over-Bridge</td>
+    <td>100 MT dynamic wheel load (India's first private 4-lane)</td>
+  </tr>
+  <tr>
+    <td>Private rail</td>
+    <td>117 km double-track, up to 130 trains/day</td>
+  </tr>
+</tbody>
+</table>
+
+<h4>How is hazardous and ODC cargo kept compliant?</h4>
+
+<p class='blogPara_m0'><span class="blodHead"><a href="https://www.mrssupplychain.com/blog/designing-warehouses-for-bulk-and-project-cargo-challenges-and-solutions"> <span class="blodHead"> Project cargo</span></a> often moves alongside hazardous materials, so the operation must meet both heavy-lift engineering and India's hazardous-goods rules</span> — anchored in the Manufacture, Storage and Import of Hazardous Chemical (MSIHC) Rules, 1989.</p>
+
+<p class='blogPara_m0'>In practice that means:</p>
+
+<ul>
+<li><span class="blodHead">Isolation.</span> Hazardous cargo stored at least 200 m from administrative buildings.</li>
+<li><span class="blodHead">Reinforced structures.</span> Fire-resistant RCC construction with secondary containment (sumps or bund walls).</li>
+<li><span class="blodHead">Explosion-proof systems.</span> Rated lighting and certified spark-free handling equipment.</li>
+    </ul>
+
+<p class='blogPara_m0'>For ODC road movement, it also means the right <span class="blodHead"> over-dimensional permits</span> permits from state transport authorities, <span class="blodHead">  a route survey </span> to confirm bridge and clearance limits, and movement on <span class="blodHead"> multi-axle hydraulic trailers or SPMTs </span> that keep weight within legal axle limits.</p>
+
+<h4>How is high-value cargo tracked in the last mile?</h4>
+
+<p class='blogPara_m0'><span class="blodHead">The last mile is where project cargo most often goes dark — so tamper-evident,<a href="https://www.mrssupplychain.com/blog/harnessing-technology-integrated-logistics-mrs-supply-chain">  <span class="blodHead"> real-time tracking</span> </a>is now a core capability, not an add-on.</span> Modern operations run a Transport Management System giving the importer, transporter and site team one live picture.</p>
+
+<p class='blogPara_m0'>In Kutch,<a href=" https://www.mrssupplychain.com/">   <span class="blodHead"> MRS Supply chain </span> </a>  has integrated <span class="blodHead">RFID and blockchain into cargo tracking</span> to eliminate transit blind spots and "ghost inventory," so every party sees the same verified movement history.</p>
+
+<h4>How MRS Supply Chain supports project cargo</h4>
+
+<p class='blogPara_m0'>Established in 2016 with regulatory expertise built into the workflow, MRS holds certified credentials for Haz, Non-Haz, ODC and heavy-lift cargo.</p>
+
+<p class='blogPara_m0'>Two things set the operation apart:</p>
+
+<ul>
+<li><span class="blodHead">Grade A storage in Kutch</span> — a first-of-its-kind 1 lakh sq ft Grade A compliant warehouse with 12-metre clear heights, high-load FM2 floors and NFPA fire safety. (See our guides to designing warehouses for bulk and project cargo and <a href="https://www.mrssupplychain.com/blog/grade-a-warehousing-industrial-infrastructure-mrs-supply-chain"> <span class="blodHead">  Grade A warehousing in India. </span>) </a>
+</li>
+<li><span class="blodHead">Financial optimisation</span> — Customs, MOOWR and <a href="https://www.mrssupplychain.com/services/pioneering-duty-free-warehousing-solutions"> <span class="blodHead"> FTWZ solutions </span> </a> that defer duty and free working capital at the moment a large capital import needs it.</li>
+</ul>
+
+<p class='blogPara_m0'><span class="blodHead">Project cargo is a strategic discipline, not a commodity service.</span> The importers who choose the right gateway and partner early de-risk their timelines instead of firefighting them.</p>
+
+<h4>Frequently asked questions</h4>
+
+<h4>What is ODC (Over-Dimensional Cargo)?</h4>
+<p class='blogPara_m0'>Any shipment that exceeds standard limits for length, width, height or weight and can't move on a normal trailer or in a standard container — requiring specialised handling, permits and route planning.</p>
+
+<h4>Why is Mundra Port suited to project cargo?</h4>
+
+<p class='blogPara_m0'>It offers up to 19 m draft, 26 berths with no Length Overall restriction, 100 MT mobile harbour cranes, a dedicated steel yard, and inland rail/road capacity built to exceed marine intake.</p>
+
+<h4>What regulation governs hazardous cargo storage in India?</h4>
+
+<p class='blogPara_m0'>The Manufacture, Storage and Import of Hazardous Chemical Rules, 1989 — covering isolation distance, containment, fire-resistant construction and explosion-proof equipment.</p>
+  `,
+
+  category: "Blog",
+
+    featureImage: "Blog_img/project-cargo-logistics-india.webp",
+
+    metaTitle:
+      "Project & ODC Cargo Logistics in India: The Complete Guide | MRS",
+
+    metaDescription:
+      "How heavy-lift and ODC shipments move through India — port, compliance, and last-mile visibility, with Mundra Port and MRS Supply Chain as the example.",
+
+    imgAltTag:
+      "Project & ODC Cargo Logistics in India: The Complete Guide | MRS Supply Chain",
+
+    ogImage:
+      "https://www.mrssupplychain.com/Blog_img/Solar%20Panels%20with%20MRS.jpg",
+
+    schema: {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      headline: "Project & ODC Cargo Logistics in India: The Complete Guide",
+      description:
+        "How heavy-lift and ODC shipments move through India — port, compliance, and last-mile visibility, with Mundra Port and MRS Supply Chain as the example.",
+      image:
+        "https://www.mrssupplychain.com/Blog_img/Solar%20Panels%20with%20MRS.jpg",
+      datePublished: "2026-09-04",
+      author: {
+        "@type": "Organization",
+        name: "MRS Supply Chain",
+      },
+    },
+
+    additionalSchema: [
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          {
+            "@type": "ListItem",
+            position: 1,
+            name: "Home",
+            item: "https://www.mrssupplychain.com/",
+          },
+          {
+            "@type": "ListItem",
+            position: 2,
+            name: "Blog",
+            item: "https://www.mrssupplychain.com/blog",
+          },
+          {
+            "@type": "ListItem",
+            position: 3,
+            name: "Project & ODC Cargo Logistics in India: The Complete Guide",
+            item: "https://www.mrssupplychain.com/blog/project-cargo-logistics-india",
+          },
+        ],
+      },
+
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        mainEntity: [
+          {
+            "@type": "Question",
+            name: "What is ODC (Over-Dimensional Cargo)?",
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: "Any shipment that exceeds standard limits for length, width, height or weight and can't move on a normal trailer or in a standard container — requiring specialised handling, permits and route planning.",
+            },
+          },
+
+          {
+            "@type": "Question",
+            name: "Why is Mundra Port suited to project cargo?",
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: "It offers up to 19 m draft, 26 berths with no Length Overall restriction, 100 MT mobile harbour cranes, a dedicated steel yard, and inland rail/road capacity built to exceed marine intake.",
+            },
+          },
+
+          {
+            "@type": "Question",
+            name: "What regulation governs hazardous cargo storage in India?",
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: "The Manufacture, Storage and Import of Hazardous Chemical Rules, 1989 — covering isolation distance, containment, fire-resistant construction and explosion-proof equipment.",
+            },
+          },
+        ],
+      },
+    ],
+
+    publishDate: "2026-09-05",
+  },
+  {
     id: 29,
     slug: "solar-energy-logistics-in-india",
     title: "Solar Energy Logistics in India: The Complete Guide",
@@ -4476,7 +4671,7 @@ s company ensures coordination across different geographies. The company reinfor
 
                 `,
     category: "Blog",
-    featureImage: "Blog_img/Solar Panels with MRS.jpg",
+    featureImage: "project-cargo-logistics-india.webp",
     metaTitle:
       "Import Management for Solar & Renewable Energy | MRS Supply Chain.",
     metaDescription:
