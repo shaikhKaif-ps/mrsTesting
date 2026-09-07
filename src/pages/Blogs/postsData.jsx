@@ -2,7 +2,7 @@ const postsData = [
   {
     id: 30,
     slug: "project-cargo-logistics-india",
-    title: "Project & ODC Cargo Logistics in India The Complete Guide",
+    title: "Project and ODC Cargo Logistics in India The Complete Guide",
     short_description:
       "How heavy-lift and ODC shipments move through India — port, compliance, and last-mile visibility, with Mundra Port and MRS Supply Chain as the example.",
 
@@ -106,13 +106,13 @@ const postsData = [
     featureImage: "Blog_img/project-cargo-logistics-india.webp",
 
     metaTitle:
-      "Project & ODC Cargo Logistics in India: The Complete Guide | MRS",
+      "Project and ODC Cargo Logistics in India: The Complete Guide | MRS",
 
     metaDescription:
       "How heavy-lift and ODC shipments move through India — port, compliance, and last-mile visibility, with Mundra Port and MRS Supply Chain as the example.",
 
     imgAltTag:
-      "Project & ODC Cargo Logistics in India: The Complete Guide | MRS Supply Chain",
+      "Project and ODC Cargo Logistics in India: The Complete Guide | MRS Supply Chain",
 
     ogImage:
       "https://www.mrssupplychain.com/Blog_img/Solar%20Panels%20with%20MRS.jpg",
@@ -120,7 +120,7 @@ const postsData = [
     schema: {
       "@context": "https://schema.org",
       "@type": "Article",
-      headline: "Project & ODC Cargo Logistics in India: The Complete Guide",
+      headline: "Project and ODC Cargo Logistics in India: The Complete Guide",
       description:
         "How heavy-lift and ODC shipments move through India — port, compliance, and last-mile visibility, with Mundra Port and MRS Supply Chain as the example.",
       image:
@@ -152,7 +152,7 @@ const postsData = [
           {
             "@type": "ListItem",
             position: 3,
-            name: "Project & ODC Cargo Logistics in India: The Complete Guide",
+            name: "Project and ODC Cargo Logistics in India: The Complete Guide",
             item: "https://www.mrssupplychain.com/blog/project-cargo-logistics-india",
           },
         ],

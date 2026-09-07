@@ -1765,7 +1765,7 @@ const postsData = [
   {
     id: 30,
     slug: "project-cargo-logistics-india",
-    title: "Project & ODC Cargo Logistics in India The Complete Guide",
+    title: "Project and ODC Cargo Logistics in India The Complete Guide",
     short_description: "How heavy-lift and ODC shipments move through India — port, compliance, and last-mile visibility, with Mundra Port and MRS Supply Chain as the example.",
     content: `
     <p class='blogPara_m0'>Project and Over-Dimensional Cargo (ODC) logistics in India is a specialist discipline where a single miscalculated axle load or missing permit can freeze a multi-crore project for weeks. This guide covers how oversized, heavy-lift, time-critical shipments actually move — from berth to installation site — using <a href="https://www.mrssupplychain.com/blog/why-mundra-port-is-a-strategic-gateway-for-importers-and-transport-companies"><span class="blodHead">Mudra Port</span> </a> and MRS Supply Chain as the working example.</p>
@@ -1863,14 +1863,14 @@ const postsData = [
   `,
     category: "Blog",
     featureImage: "Blog_img/project-cargo-logistics-india.webp",
-    metaTitle: "Project & ODC Cargo Logistics in India: The Complete Guide | MRS",
+    metaTitle: "Project and ODC Cargo Logistics in India: The Complete Guide | MRS",
     metaDescription: "How heavy-lift and ODC shipments move through India — port, compliance, and last-mile visibility, with Mundra Port and MRS Supply Chain as the example.",
-    imgAltTag: "Project & ODC Cargo Logistics in India: The Complete Guide | MRS Supply Chain",
+    imgAltTag: "Project and ODC Cargo Logistics in India: The Complete Guide | MRS Supply Chain",
     ogImage: "https://www.mrssupplychain.com/Blog_img/Solar%20Panels%20with%20MRS.jpg",
     schema: {
       "@context": "https://schema.org",
       "@type": "Article",
-      headline: "Project & ODC Cargo Logistics in India: The Complete Guide",
+      headline: "Project and ODC Cargo Logistics in India: The Complete Guide",
       description: "How heavy-lift and ODC shipments move through India — port, compliance, and last-mile visibility, with Mundra Port and MRS Supply Chain as the example.",
       image: "https://www.mrssupplychain.com/Blog_img/Solar%20Panels%20with%20MRS.jpg",
       datePublished: "2026-09-04",
@@ -1899,7 +1899,7 @@ const postsData = [
           {
             "@type": "ListItem",
             position: 3,
-            name: "Project & ODC Cargo Logistics in India: The Complete Guide",
+            name: "Project and ODC Cargo Logistics in India: The Complete Guide",
             item: "https://www.mrssupplychain.com/blog/project-cargo-logistics-india"
           }
         ]
