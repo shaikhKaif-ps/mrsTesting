@@ -1,5 +1,241 @@
 const postsData = [
   {
+    id: 31,
+    slug: "strategic-warehousing-for-pharma-at-gujarat-key-ports",
+    title: "Strategic Pharma Warehousing at Gujarat's Ports: Mundra and Kandla",
+    short_description:
+      "Pharma warehousing in Gujarat: how to assess cold chain storage near Mundra, Kandla port logistics, Grade A vs qualified sites and FTWZ options.",
+
+    content: `
+    <p class='blogPara_m0'>Gujarat is a centre of India's pharmaceutical industry, with formulation plants around Ahmedabad and Vadodara, API units across the south Gujarat chemical belt and a growing medical device base. For these businesses, <a href="https://www.mrssupplychain.com/blog/strategic-warehousing-for-pharma-at-gujarat-key-ports"><span class="blodHead">pharma warehousing in Gujarat</span></a> is not simply about finding space. What matters is where inventory waits between factory and vessel, and what happens to it while it waits.</p>
+
+    <p class='blogPara_m0'>Storage near Mundra and Kandla can protect temperature integrity, support export readiness and simplify customs planning, provided the facility, processes and approvals are right.</p>
+
+    <h4>Why Mundra and Kandla Matter for Pharma Logistics</h4>
+
+    <p class='blogPara_m0'>For many Gujarat-based and North Indian shippers, Mundra and Kandla are natural gateways. Mundra is a privately operated, multi-terminal container port with broad shipping services. Kandla, run by the Deendayal Port Authority, sits next to the Kandla Special Economic Zone. Both have <a href="https://www.mrssupplychain.com/services/road-and-rail-transport"><span class="blodHead">rail links towards North India</span></a>.</p>
+
+    <p class='blogPara_m0'><span class="blodHead">Fewer movements, fewer risks.</span> Inland flows often pass through a container freight station (CFS) and one or more warehouses. Each leg adds handling, paperwork and exposure to delay or temperature risk. Export-ready stock held near the port can be called forward against confirmed vessel schedules, reducing missed cut-offs. Imported reefers can be evacuated quickly to controlled storage instead of waiting on terminal power.</p>
+
+    <p class='blogPara_m0'><span class="blodHead">Direct Port Delivery.</span> Eligible importers can use DPD to bypass the CFS, with coordinated <a href="https://www.mrssupplychain.com/services/customs-brokerage-and-regulatory-compliance"><span class="blodHead">customs brokerage</span></a> keeping the short final leg predictable.</p>
+
+    <p class='blogPara_m0'><span class="blodHead">Choose by lane, not distance.</span> For Kandla port pharma logistics and Mundra alike, carrier services, reefer availability and destination markets decide which gateway fits.</p>
+
+    <h4>Cold-Chain Storage and Temperature Integrity</h4>
+
+    <p class='blogPara_m0'>Storage conditions are product-specific, set by stability data and the label. Warehouses commonly design around four operating bands:</p>
+
+    <table class="compliance-table">
+      <thead>
+        <tr>
+          <th>Band</th>
+          <th>Illustrative range</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Controlled ambient</td>
+          <td>16°C–24°C, or as labelled</td>
+        </tr>
+        <tr>
+          <td>Chilled</td>
+          <td>2°C–8°C</td>
+        </tr>
+        <tr>
+          <td>Frozen</td>
+          <td>Around −18°C</td>
+        </tr>
+        <tr>
+          <td>Ultra-low</td>
+          <td>−65°C or below, where required</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p class='blogPara_m0'>These are illustrative bands, not universal requirements. Each product must be stored according to its labelled conditions, stability data, applicable regulations and validated procedures.</p>
+
+    <p class='blogPara_m0'><span class="blodHead">Mapping and monitoring.</span> Storage zones should be temperature mapped empty, loaded and across seasons, including Kutch summers, to find hot and cold spots. Calibrated sensors, continuous logging and tiered alarms with 24/7 escalation catch problems early.</p>
+
+    <p class='blogPara_m0'><span class="blodHead">Excursions and handling.</span> When an excursion occurs, affected stock is quarantined and documented, and the product owner decides its disposition using stability data. Because most excursions happen during movement, check logger data at receipt, keep dock dwell short, pick inside controlled zones and dispatch in pre-conditioned vehicles.</p>
+
+    <p class='blogPara_m0'><span class="blodHead">Resilience.</span> Backup power, refrigeration redundancy, reefer plugs and a contingency plan are equally essential.</p>
+
+    <p class='blogPara_m0'>When evaluating <a href="https://www.mrssupplychain.com/blog/the-future-of-cold-chain-logistics-at-ports-trends-and-challenges"><span class="blodHead">cold chain storage in Mundra</span></a>, ask for mapping reports, calibration certificates and recent excursion records.</p>
+
+    <h4>Grade A Is Not the Same as Pharma-Qualified</h4>
+
+    <p class='blogPara_m0'>"Grade A" is a commercial classification for modern build quality. Specifications such as 12-metre clear heights, FM2-rated floors, high floor loading and covered docks improve capacity and handling but do not establish pharmaceutical compliance.</p>
+
+    <p class='blogPara_m0'>A <a href="https://www.mrssupplychain.com/blog/grade-a-warehousing-in-india"><span class="blodHead">Grade A pharma warehouse</span></a> also needs qualification for its intended use:</p>
+
+    <ul>
+      <li>Environmental control</li>
+      <li>Segregation of quarantined, rejected, returned and recalled stock</li>
+      <li>Secure areas for sensitive products</li>
+      <li>Fire protection suited to rack storage</li>
+      <li>A documented quality system covering SOPs, calibration, deviations and change control</li>
+    </ul>
+
+    <p class='blogPara_m0'>Drug or medical device licences may also apply, depending on the operating model. <span class="blodHead">Grade A shows a building can support pharmaceutical operations. Qualification shows that it does.</span></p>
+
+    <h4>FTWZ Storage and Duty-Deferred Inventory</h4>
+
+    <p class='blogPara_m0'>A Free Trade Warehousing Zone (FTWZ) is a category of Special Economic Zone under the SEZ Act, 2005. Eligible imported goods can enter without paying customs duty. Duty and IGST generally become payable only when goods are cleared into the Domestic Tariff Area, and re-exported goods generally avoid Indian import duty.</p>
+
+    <p class='blogPara_m0'><span class="blodHead">Example:</span> a manufacturer importing a large API consignment at a better price can hold it in an FTWZ and clear it in tranches as production needs it, paying duty on what is consumed, when it is consumed. That frees working capital. Customs bonded warehouses and MOOWR offer alternative duty-deferral routes under different rules.</p>
+
+    <p class='blogPara_m0'>Treatment varies by product and approval, and relabelling or repacking drugs may need regulatory clearance beyond customs permission. Confirm both before relying on FTWZ pharmaceutical storage. MRS's <a href="https://www.mrssupplychain.com/services/pioneering-duty-free-warehousing-solutions"><span class="blodHead">duty-free warehousing</span></a> team can help assess the fit.</p>
+
+    <h4>Traceability and Inventory Visibility</h4>
+
+    <p class='blogPara_m0'>A warehouse management system should track lot, batch, expiry and, where applicable, serial numbers. It should block quarantined stock from picking automatically and apply FEFO rotation. For exports, scanning at dispatch keeps shipments consistent with India's track-and-trace data requirements.</p>
+
+    <p class='blogPara_m0'>Integrating temperature logs, transport, customs documents and the client's ERP removes re-keying errors and lets a recall locate every unit of a lot within hours.</p>
+
+    <h4>Why MRS Supply Chain</h4>
+
+    <ul>
+      <li><span class="blodHead">Grade A capacity:</span> a single-location Grade A warehouse of approximately 1 lakh sq. ft. in Kutch.</li>
+      <li><span class="blodHead">Port presence:</span> operational presence across Mundra, Kandla and other major Indian ports.</li>
+      <li><span class="blodHead">Healthcare experience:</span> dedicated 3PL solutions delivered for a major global medical device company in the region.</li>
+      <li><span class="blodHead">One provider:</span> warehousing, <a href="https://www.mrssupplychain.com/services/multiuser-warehousing"><span class="blodHead">customs brokerage</span></a>, material handling and transportation coordinated together.</li>
+    </ul>
+
+    <p class='blogPara_m0'>For pharma logistics in Gujarat, that means fewer handoffs, cargo readiness planned against port schedules, inventory under one set of controls and a single point of contact. Pharmaceutical requirements vary, so temperature-controlled capacity, zone qualification, licences and quality agreements are assessed for each project.</p>
+
+    <p class='blogPara_m0'><span class="blodHead">Before choosing any partner, check five things</span></p>
+
+    <ul>
+      <li>Mapping data for your product's storage zone</li>
+      <li>The quality records they will share during an audit</li>
+      <li>Their applicable licences</li>
+      <li>Alarm response and backup arrangements</li>
+      <li>WMS control of lot and expiry</li>
+    </ul>
+
+    <h4>Building a More Reliable Pharma Supply Chain</h4>
+
+    <p class='blogPara_m0'>Effective pharma warehousing in Gujarat combines port proximity, product-appropriate storage, a qualified facility, customs planning and traceability. None of these removes every risk, but together they give pharma businesses more control over timing, condition and cost.</p>
+
+    <p class='blogPara_m0'><span class="blodHead">Moving pharmaceuticals or medical devices through Mundra, Kandla or other Indian ports?</span> <a href="https://www.mrssupplychain.com/contact-us"><span class="blodHead">Talk to MRS Supply Chain's warehousing team</span></a> about your storage and port logistics requirements.</p>
+
+    <h4>Frequently Asked Questions</h4>
+
+    <h4>What should companies look for in a pharma warehouse in Gujarat?</h4>
+
+    <p class='blogPara_m0'>Look beyond location and building grade. Check for temperature mapping of your product's zone, continuous monitoring with 24/7 alarm escalation, a documented quality system, applicable licences and a WMS that controls lot, expiry and stock status. Integrated customs and transport support matters if you import or export regularly.</p>
+
+    <h4>What is the difference between a Grade A warehouse and a pharma-qualified facility?</h4>
+
+    <p class='blogPara_m0'>Grade A describes modern construction: clear height, floor quality, docks and fire safety. A pharma-qualified facility has also been mapped, qualified and run under a quality system suited to its products, with segregation, documented procedures and appropriate licences.</p>
+
+    <h4>How does FTWZ storage help pharmaceutical importers?</h4>
+
+    <p class='blogPara_m0'>Eligible goods in an FTWZ generally attract no customs duty until they are cleared into the domestic market. Importers can therefore bring in larger consignments and clear them in tranches, which improves working capital. Treatment varies by product and approval, so confirm it with your customs advisor.</p>
+
+    <h4>What temperature is required for pharmaceutical warehousing?</h4>
+
+    <p class='blogPara_m0'>There is no single range. Conditions come from each product's label and stability data. Common bands include controlled ambient, 2°C–8°C chilled, frozen and ultra-low, but each product must be stored to its own labelled requirements and validated procedures.</p>
+  `,
+
+    category: "Blog",
+
+    featureImage: "Blog_img/strategic-warehousing-for-pharma-at-gujarat-key-ports.webp",
+
+    metaTitle: "Pharma Warehousing in Gujarat: Mundra & Kandla Guide",
+
+    metaDescription:
+      "Pharma warehousing in Gujarat: how to assess cold chain storage near Mundra, Kandla port logistics, Grade A vs qualified sites and FTWZ options.",
+
+    imgAltTag:
+      "Reefer containers at a Gujarat port terminal supporting pharmaceutical export logistics",
+
+    ogImage:
+      "https://www.mrssupplychain.com/Blog_img/strategic-warehousing-for-pharma-at-gujarat-key-ports.webp",
+
+    schema: {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      headline:
+        "Strategic Pharma Warehousing at Gujarat's Ports: Mundra and Kandla",
+      description:
+        "Pharma warehousing in Gujarat: how to assess cold chain storage near Mundra, Kandla port logistics, Grade A vs qualified sites and FTWZ options.",
+      image:
+        "https://www.mrssupplychain.com/Blog_img/strategic-warehousing-for-pharma-at-gujarat-key-ports.webp",
+      author: {
+        "@type": "Organization",
+        name: "MRS Supply Chain",
+      },
+    },
+
+    additionalSchema: [
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          {
+            "@type": "ListItem",
+            position: 1,
+            name: "Home",
+            item: "https://www.mrssupplychain.com/",
+          },
+          {
+            "@type": "ListItem",
+            position: 2,
+            name: "Blog",
+            item: "https://www.mrssupplychain.com/blog",
+          },
+          {
+            "@type": "ListItem",
+            position: 3,
+            name: "Strategic Pharma Warehousing at Gujarat's Ports: Mundra and Kandla",
+            item: "https://www.mrssupplychain.com/blog/strategic-warehousing-for-pharma-at-gujarat-key-ports",
+          },
+        ],
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        mainEntity: [
+          {
+            "@type": "Question",
+            name: "What should companies look for in a pharma warehouse in Gujarat?",
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: "Look beyond location and building grade. Check for temperature mapping of your product's zone, continuous monitoring with 24/7 alarm escalation, a documented quality system, applicable licences and a WMS that controls lot, expiry and stock status. Integrated customs and transport support matters if you import or export regularly.",
+            },
+          },
+          {
+            "@type": "Question",
+            name: "What is the difference between a Grade A warehouse and a pharma-qualified facility?",
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: "Grade A describes modern construction: clear height, floor quality, docks and fire safety. A pharma-qualified facility has also been mapped, qualified and run under a quality system suited to its products, with segregation, documented procedures and appropriate licences.",
+            },
+          },
+          {
+            "@type": "Question",
+            name: "How does FTWZ storage help pharmaceutical importers?",
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: "Eligible goods in an FTWZ generally attract no customs duty until they are cleared into the domestic market. Importers can therefore bring in larger consignments and clear them in tranches, which improves working capital. Treatment varies by product and approval, so confirm it with your customs advisor.",
+            },
+          },
+          {
+            "@type": "Question",
+            name: "What temperature is required for pharmaceutical warehousing?",
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: "There is no single range. Conditions come from each product's label and stability data. Common bands include controlled ambient, 2°C–8°C chilled, frozen and ultra-low, but each product must be stored to its own labelled requirements and validated procedures.",
+            },
+          },
+        ],
+      },
+    ],
+
+    publishDate: "2026-10-20",
+  },
+  {
     id: 30,
     slug: "project-cargo-logistics-india",
     title: "Project and ODC Cargo Logistics in India The Complete Guide",
@@ -5123,70 +5359,6 @@ s company ensures coordination across different geographies. The company reinfor
       image: "path/to/schema-image.jpg",
     },
     publishDate: "2024-08-02",
-  },
-  {
-    id: 2,
-    slug: "strategic-warehousing-for-pharma-at-gujarat-key-ports",
-    title: "Strategic Warehousing for Pharma at Gujarat’s Key Ports",
-    short_description:
-      "Gujarat, a cornerstone in the global pharmaceutical sector, boasts strategic port locations such as Kandla, Mundra, and Hajira.",
-    content: `
-                
-                <p>Gujarat, a cornerstone in the global pharmaceutical sector, boasts strategic port locations such as Kandla, Mundra, and Hajira. These ports are pivotal for efficient international trade and are integral to specialised <a href="https://www.mrssupplychain.com/services/multiuser-warehousing" target='_blank'>warehousing for pharma</a> industry's stringent standards. Within this dynamic, MRS Supply Chain elevates the logistical framework with its advanced facility in Gujarat, meticulously designed to meet the critical needs of pharmaceutical storage, security, and regulatory compliance. This ensures that MRS is not just a participant but a leader in enhancing global pharmaceutical supply chain efficiency. As we explore further, we will see how warehousing for the pharmaceutical industry at these key ports significantly enhances Gujarat's sector.
-                </p>
-
-                <h3>The Crucial Role of Gujarat's Strategic Location and Infrastructure</h3>
-                <h4>Strategic Location and Accessibility</h4>
-                <p>Gujarat's ports—Kandla, Mundra, and Hajira—serve as key nodes in the global pharmaceutical supply chain, offering unmatched access to major international markets. These ports enable the efficient movement of pharmaceutical goods, reducing transit times and ensuring that products reach global markets swiftly and securely.</p>
-
-                <h4>Robust Infrastructure Tailored for Pharma</h4>
-                <p>The state's infrastructure is purpose-built to support the pharmaceutical industry. It features advanced warehousing facilities that meet international standards for product safety and quality control.</p>
-
-                <h4>Government Policies and Support</h4>
-                <p>Gujarat's government actively promotes the pharmaceutical sector through various incentives, such as tax breaks and subsidised land rates for setting up manufacturing and warehousing units. These policies are designed to bolster investment in the pharma sector, further enhancing the state's appeal as a leading logistics hub.</p>
-
-                <p>This strategic amalgamation of location, infrastructure, and supportive policies creates an ideal ecosystem for the pharmaceutical industry to thrive in Gujarat, setting a benchmark for global logistics excellence. As we transition into the specialised warehousing solutions provided by MRS Supply Chain, it's clear that integrating these elements is pivotal for sustaining the growth and efficiency of the pharma sector in the region.</p>
-
-                <h3>Customised Warehousing Solutions for the Pharma Industry in Gujarat - MRS Supply Chain Advantage</h3>
-                <h4>Tailored Services for the Pharma Industry</h4>
-                <p>MRS Supply Chain has optimised its warehousing services to meet the pharmaceutical industry's unique needs, offering various solutions that cater to different aspects of logistical and supply chain needs. These services include Built-to-Suit Warehousing, which provides customised spaces designed to match specific business requirements and future-ready infrastructure. Multiuser Warehousing offers flexible space and resource sharing, optimised for both B2B and B2C operations. Customs Bonded Warehousing ensures secure, compliant storage near key ports like Hazira, Kandla, and Mundra. In-Plant Warehouse Management enhances manufacturing operations with solutions tailored to the unique needs of manufacturing processes. These tailored services ensure that pharmaceutical products are managed with the utmost care and precision throughout their lifecycle.</p>
-    
-                <p>Here are the key features of<a href="https://www.mrssupplychain.com/" target='_blank'> MRS Supply Chain's warehousing services </a>tailored for the pharmaceutical industry:</p>
-
-                <ul>
-                  <li><span>Robust Security Systems:</span> Safeguards valuable pharmaceuticals against potential threats.</li>
-                  <li><span>Advanced Inventory Management Systems:</span> Provides real-time tracking and reporting to ensure efficient management and compliance.</li>
-                  <li><span>Compliance Management:</span> Systems designed to ensure that warehousing practices adhere to regulatory standards required by healthcare authorities, both locally and internationally.</li>
-                  <li><span>Scalable Storage Options:</span> Flexible warehousing solutions that can expand or contract based on the market demand or specific project requirements, providing cost-effective scalability.</li>
-                </ul>
-
-                <p>These features are designed to meet the stringent health and safety regulations critical for pharmaceutical logistics.</p>
-
-                <h4>Strategic Integration at Gujarat Ports</h4>
-                <p>Utilising its prime locations at<a href="https://www.mrssupplychain.com/" target='_blank'> Kandla, Mundra, and Hajira ports</a>, MRS Supply Chain offers swift access to international shipping routes, enhancing the logistical efficiency of pharma operations. This strategic positioning reduces lead times and cuts down on transportation costs, making it easier to manage the supply chain for pharmaceutical products effectively.</p>
-
-                <h4>Proven Impact in the Pharma Sector</h4>
-                <p>Through its dedicated warehousing solutions, MRS Supply Chain has successfully supported numerous pharmaceutical companies, demonstrating significant improvements in supply chain efficiency and compliance. This track record highlights their capability to handle complex pharmaceutical logistics challenges, reinforcing their role as a vital partner in the industry.</p>
-                <p>These specialised warehousing solutions underscore MRS Supply Chain's commitment to supporting the pharmaceutical industry's evolving needs, ensuring that products are managed with the utmost care and precision throughout their lifecycle.</p>
-                <p>As a trusted partner in the pharmaceutical logistics sector, MRS Supply Chain stands out through its commitment to delivering tailored, high-quality warehousing solutions at Gujarat's key ports. By choosing MRS, <a hre="https://www.mrssupplychain.com/services/multiuser-warehousing" target='_blank'>pharmaceutical warehousing</a> companies gain a strategic advantage, leveraging MRS's expertise and innovative logistics services to enhance their operations and market reach. For those looking to optimise their supply chain efficiency and ensure product integrity, MRS Supply Chain is your ideal partner. Contact MRS Supply Chain today to fortify your logistics and elevate your market potential.</p>
-
-
-                `,
-    category: "Blog",
-    featureImage: "Blog_img/Warehousing Solutions for Pharmaceutical.webp",
-    metaTitle: "Warehousing Solutions for Pharma in Gujarat Ports",
-    metaDescription:
-      "MRS Supply Chain offers customized pharma warehousing in Gujarat ports (Kandla, Mundra, Hazira) for efficient global logistics. Contact us for tailored solutions!",
-    ogImage: "path/to/og-image.jpg",
-    schema: {
-      "@context": "https://schema.org",
-      "@type": "Article",
-      headline: "Strategic Warehousing for Pharma at Gujarat’s Key Ports",
-      description:
-        "Gujarat, a cornerstone in the global pharmaceutical sector, boasts strategic port locations such as Kandla, Mundra, and Hajira.",
-      image: "path/to/schema-image.jpg",
-    },
-    publishDate: "2024-06-29",
   },
   {
     id: 1,
