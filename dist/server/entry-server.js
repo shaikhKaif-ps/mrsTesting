@@ -1765,7 +1765,7 @@ const postsData = [
   {
     id: 31,
     slug: "strategic-warehousing-for-pharma-at-gujarat-key-ports",
-    title: "Strategic Pharma Warehousing at Gujarat's Ports: Mundra and Kandla",
+    title: "Strategic Pharma Warehousing at Gujarat’s Ports: Mundra and Kandla",
     short_description: "Pharma warehousing in Gujarat: how to assess cold chain storage near Mundra, Kandla port logistics, Grade A vs qualified sites and FTWZ options.",
     content: `
     <p class='blogPara_m0'>Gujarat is a centre of India's pharmaceutical industry, with formulation plants around Ahmedabad and Vadodara, API units across the south Gujarat chemical belt and a growing medical device base. For these businesses, <a href="https://www.mrssupplychain.com/blog/strategic-warehousing-for-pharma-at-gujarat-key-ports"><span class="blodHead">pharma warehousing in Gujarat</span></a> is not simply about finding space. What matters is where inventory waits between factory and vessel, and what happens to it while it waits.</p>
@@ -1907,7 +1907,7 @@ const postsData = [
     schema: {
       "@context": "https://schema.org",
       "@type": "Article",
-      headline: "Strategic Pharma Warehousing at Gujarat's Ports: Mundra and Kandla",
+      headline: "Strategic Pharma Warehousing at Gujarat’s Ports: Mundra and Kandla",
       description: "Pharma warehousing in Gujarat: how to assess cold chain storage near Mundra, Kandla port logistics, Grade A vs qualified sites and FTWZ options.",
       image: "https://www.mrssupplychain.com/Blog_img/strategic-warehousing-for-pharma-at-gujarat-key-ports.webp",
       author: {
@@ -1935,7 +1935,7 @@ const postsData = [
           {
             "@type": "ListItem",
             position: 3,
-            name: "Strategic Pharma Warehousing at Gujarat's Ports: Mundra and Kandla",
+            name: "Strategic Pharma Warehousing at Gujarat’s Ports: Mundra and Kandla",
             item: "https://www.mrssupplychain.com/blog/strategic-warehousing-for-pharma-at-gujarat-key-ports"
           }
         ]

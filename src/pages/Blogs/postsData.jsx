@@ -2,7 +2,7 @@ const postsData = [
   {
     id: 31,
     slug: "strategic-warehousing-for-pharma-at-gujarat-key-ports",
-    title: "Strategic Pharma Warehousing at Gujarat's Ports: Mundra and Kandla",
+    title: "Strategic Pharma Warehousing at Gujarat’s Ports: Mundra and Kandla",
     short_description:
       "Pharma warehousing in Gujarat: how to assess cold chain storage near Mundra, Kandla port logistics, Grade A vs qualified sites and FTWZ options.",
 
@@ -157,7 +157,7 @@ const postsData = [
       "@context": "https://schema.org",
       "@type": "Article",
       headline:
-        "Strategic Pharma Warehousing at Gujarat's Ports: Mundra and Kandla",
+        "Strategic Pharma Warehousing at Gujarat’s Ports: Mundra and Kandla",
       description:
         "Pharma warehousing in Gujarat: how to assess cold chain storage near Mundra, Kandla port logistics, Grade A vs qualified sites and FTWZ options.",
       image:
@@ -188,7 +188,7 @@ const postsData = [
           {
             "@type": "ListItem",
             position: 3,
-            name: "Strategic Pharma Warehousing at Gujarat's Ports: Mundra and Kandla",
+            name: "Strategic Pharma Warehousing at Gujarat’s Ports: Mundra and Kandla",
             item: "https://www.mrssupplychain.com/blog/strategic-warehousing-for-pharma-at-gujarat-key-ports",
           },
         ],
